@@ -13,7 +13,7 @@ Thankful is a planned project of the ActivityWatch team, it is our hope that peo
 
  - Supports data from ActivityWatch.
  - Reward content primarily to creators, not platforms.
- - Payments should be cryptocurrency-based, allowing for both anonymous and provable donations.
+ - Payments are done using cryptocurrency (such as Bitcoin), allowing for both anonymous and provable donations.
 
 ## How do creators join?
 
@@ -29,6 +29,10 @@ Some options are:
 
  - Anyone can become a creator.
  - By being able to prove your charity you can prove your goodwill.
+
+## What does it cost?
+
+Zero, zip, nothing, nil. We will try to make Thankful as good as possible and hope that people will be thankful for that and reward us accordingly. In essence, we want to prove that it works by funding ourselves with it.
 
 ## Thank you
 

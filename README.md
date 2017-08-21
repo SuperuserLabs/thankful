@@ -14,6 +14,15 @@ Thankful is a planned project of the ActivityWatch team, it is our hope that peo
  - Supports data from ActivityWatch.
  - Reward content primarily to creators, not platforms.
  - Payments are done using cryptocurrency (such as Bitcoin), allowing for both anonymous and provable donations.
+ - As a way to incentivize creators to be transparent about the donations they have received, a list of top creators could be generated.
+
+## What content could be funded by Thankful?
+
+ - Videos (from web/YouTube/Vimeo history)
+ - Music (from Spotify/Soundcloud history)
+ - Writing (from web history)
+ - Software (from application usage)
+   - How the development of free software should be funded has been a problem for a long time (See [this article](https://fosspost.org/opinions/people-be-thankful-for-free-software-developers))
 
 ## How do creators join?
 
@@ -37,5 +46,6 @@ Zero, zip, nothing, nil. We will try to make Thankful as good as possible and ho
 ## Thank you
 
  - Flattr and Flattr Plus, for bringing some good ideas to the table.
+ - Patreon, for the immense success you've had with recurring payments, turning donations into sustainable income for creators.
  - Bitcoin, for bringing cryptocurrency to the world, enabling Thankful to work well.
 

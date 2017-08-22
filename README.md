@@ -23,6 +23,7 @@ Thankful is a planned project of the ActivityWatch team, it is our hope that peo
  - Writing (from web history)
  - Software (from application usage)
    - How the development of free software should be funded has been a problem for a long time (See [this article](https://fosspost.org/opinions/people-be-thankful-for-free-software-developers))
+   - We could even fund development of the software dependencies by doing dependency analysis. Preferably the software creator would indicate which dependencies are important enough to receive a part of the funds.
 
 ## How do creators join?
 

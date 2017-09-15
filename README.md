@@ -3,7 +3,7 @@ Thankful
 
 *Reward the creators of all content and software according to your preferences. Be thankful.*
 
-**Edit:** This is nothing but a dream, yet.
+**Note:** This is nothing but a dream, yet. *Please reach out and give your thoughts if you are interested!*
 
 Thankful is a program that takes data about which websites you visit, which music you listen to, which videos you watch, which applications you use (such as Thankful itself), and then presents it to you and allows you to distribute a charitable sum of your choice to those creators you think are deserving.
 

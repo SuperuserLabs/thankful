@@ -63,6 +63,7 @@ Zero, zip, nothing, nil. We will try to make Thankful as good as possible and ho
 
  - Patreon, for the immense success you've had with recurring payments, turning donations into sustainable income for creators.
  - [Open Collective](https://opencollective.com/), for creating a new standard of transparency for open communities.
+ - Bountysource, for creating an interesting way to fund open source development.
  - Flattr and Flattr Plus, for bringing some good ideas to the table (but unfortunately failing to care about privacy).
  - Steem, a pretty cool project. I've learned a lot by observing it, but I expect it to never have significant growth.
  - Yours (see video here by Ryan Charles: ["Improving Content Quality with P2P Micropayments"](https://www.youtube.com/watch?v=EtYJ748LA1M))

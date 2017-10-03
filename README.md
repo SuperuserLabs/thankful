@@ -59,13 +59,29 @@ A content recommendation algorithm that prioritizes scores would effectively be 
 We want to prove that it works by funding ourselves with it, so we give it to you for free (both *free* as in "free lunch" and *free* as in *freedom*), and hope you will be thankful.
 Zero, zip, nothing, nil. We will try to make Thankful as good as possible and hope that people will be thankful for that and reward us accordingly. In essence, 
 
+## Existing alternatives
+
+ - Patreon
+ - Kickstarter
+ - Open Collective
+ - Bountysource
+ - Flattr
+ - Gratipay
+ - Liberapay
+
+All these deserve our deepest thanks, they have all done something very special and we've learned a lot by observing their journeys over the years.
+
+Here's a related article by the FOSSPost: ["Fund Open Source Software With These 5 Platforms"](https://fosspost.org/articles/fund-open-source-software-with-these-5-platforms)
+
+<!-- These all have different niches filled in different ways, it'd be nice to write about what they do well for their niche, and how that could be generalized -->
+
 ## Thank you
 
- - Patreon, for the immense success you've had with recurring payments, turning donations into sustainable income for creators.
- - [Open Collective](https://opencollective.com/), for creating a new standard of transparency for open communities.
- - Bountysource, for creating an interesting way to fund open source development.
- - Flattr and Flattr Plus, for bringing some good ideas to the table (but unfortunately failing to care about privacy).
- - Steem, a pretty cool project. I've learned a lot by observing it, but I expect it to never have significant growth.
- - Yours (see video here by Ryan Charles: ["Improving Content Quality with P2P Micropayments"](https://www.youtube.com/watch?v=EtYJ748LA1M))
- - Bitcoin, for bringing cryptocurrency to the world, enabling Thankful to work well.
+ - Satoshi Nakamoto & the Bitcoin community: for bringing cryptocurrency to the world, without which decentralized payments would remain a dream.
+ - Patreon: for the immense success you've had with recurring payments, turning donations into sustainable income for creators.
+ - [Open Collective](https://opencollective.com/): for creating a new standard of transparency for open communities.
+ - Bountysource: for creating an interesting way to fund open source development.
+ - Flattr: for bringing some good ideas to the table (but unfortunately failing to care about privacy with Flattr Plus).
+ - Steem: a pretty cool project. I've learned a lot by observing it, but I expect it to never have significant growth.
+ - Yours: for trying something crazy. (see video: ["Improving Content Quality with P2P Micropayments"](https://www.youtube.com/watch?v=EtYJ748LA1M))
 

@@ -75,6 +75,10 @@ Here's a related article by the FOSSPost: ["Fund Open Source Software With These
 
 <!-- These all have different niches filled in different ways, it'd be nice to write about what they do well for their niche, and how that could be generalized -->
 
+## Updates
+
+ - 2017-10-25: Flattr [finally launches its new platform](https://blog.flattr.net/2017/10/the-flattr-relaunch-what-to-expect/) which essentially does what Thankful does but with a large fee (["Creators will be levied a processing fee of 7.5 percent for all payments, along with an initial payment processing fee of 9 percent"](https://www.engadget.com/2017/10/24/adblock-plus-relaunches-flattr/) and seemingly non-control over how funds are donated.
+
 ## Thank you
 
  - Satoshi Nakamoto & the Bitcoin community: for bringing cryptocurrency to the world, without which decentralized payments would remain a dream.

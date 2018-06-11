@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   module: {
@@ -13,14 +14,27 @@ module.exports = {
           },
         },
       },
-    ],
+      {
+        test: /\.pug$/,
+        use: {
+          loader: 'pug-loader',
+        }
+      },
+    ]
   },
   entry: {
-    background_scripts: './background.js',
-    popup: './popup.js',
+    background_scripts: './src/background.js',
+    popup: './src/popup.js',
   },
   output: {
     path: path.resolve(__dirname, 'addon'),
     filename: '[name]/index.js',
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: 'popup/index.html',
+      template: 'src/popup.pug',
+      inject: true,
+    }),
+  ]
 };

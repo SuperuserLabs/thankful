@@ -1,4 +1,4 @@
 {
-  "singleQuote": true
-  "comma-dangle": [2, "always-multiline"],
+  "singleQuote": true,
+  "trailingComma": "es5",
 }

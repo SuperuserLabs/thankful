@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/ActivityWatch/thankful/issues"
   },
-  "homepage": "https://github.com/ActivityWatch/thankful#readme"
+  "homepage": "https://github.com/ActivityWatch/thankful#readme",
+  "devDependencies": {
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "prettier": "1.13.5"
+  }
 }

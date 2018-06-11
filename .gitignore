@@ -3,3 +3,4 @@ addon/**/*.js
 addon/**/*.html
 .DS_Store
 coverage
+**/*.swp

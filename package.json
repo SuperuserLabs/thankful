@@ -1,11 +1,11 @@
 {
   "name": "thankful",
   "version": "0.1.0",
-  "description": "Thankful ========",
+  "description": "Thankful",
   "main": "index.js",
   "scripts": {
     "test": "true",
-    "pretest": "eslint --ignore-path .gitignore .",
+    "pretest": "eslint --ignore-path=.gitignore .",
     "build": "webpack",
     "precommit": "lint-staged"
   },

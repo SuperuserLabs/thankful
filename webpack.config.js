@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+  mode: 'production',
   module: {
     rules: [
       {
@@ -18,12 +19,12 @@ module.exports = {
         test: /\.pug$/,
         use: {
           loader: 'pug-loader',
-        }
+        },
       },
-    ]
+    ],
   },
   entry: {
-    background_scripts: './src/background.js',
+    background: './src/background.js',
     popup: './src/popup.js',
   },
   output: {
@@ -36,5 +37,5 @@ module.exports = {
       template: 'src/popup.pug',
       inject: true,
     }),
-  ]
+  ],
 };

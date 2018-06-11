@@ -1,0 +1,19 @@
+{
+  "name": "thankful",
+  "version": "0.1.0",
+  "description": "Thankful ========",
+  "main": "index.js",
+  "scripts": {
+    "test": "pass"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ActivityWatch/thankful.git"
+  },
+  "author": "",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/ActivityWatch/thankful/issues"
+  },
+  "homepage": "https://github.com/ActivityWatch/thankful#readme"
+}

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "true",
-    "pretest": "eslint --ignore-path .gitignore ."
+    "pretest": "eslint --ignore-path .gitignore .",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",

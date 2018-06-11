@@ -15,5 +15,11 @@
   "background": {
     "scripts": ["background/index.js"]
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content_youtube/index.js"]
+    }
+  ],
   "permissions": ["tabs", "activeTab", "storage", "alarms", "idle"]
 }

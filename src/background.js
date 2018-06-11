@@ -19,14 +19,20 @@ function heartbeat(tabInfo) {
   isTabActive(tabInfo).then(active => {
     if (active) {
       // TODO: When the URL is not the same as the last URL duration should be zero.
+      // TODO: When inactive -> active duration should be set to zero
+      // TODO: When active before and now, add unaccounted time for last page before adding time for current page
       let duration = sinceLastCall();
+      let url = tabInfo.url;
 
       // Get time spent on all tabs
       chrome.storage.local.get(['timespent'], result => {
-        let url = tabInfo.url;
+        if (result.timespent === undefined) {
+          result.timespent = {};
+        }
+        let prevDuration = result.timespent[url] || 0;
 
         // Update time spent on tab
-        result.timespent[url] = (result.timespent[url] || 0) + duration;
+        result.timespent[url] = prevDuration + duration;
         console.log(result.timespent);
 
         // Store time spent on tab
@@ -44,7 +50,7 @@ function heartbeat(tabInfo) {
 function rescheduleAlarm() {
   // Cancels any preexisting heartbeat alarm and then schedules a new one.
   chrome.alarms.clear('heartbeat', () => {
-    chrome.alarms.create('heartbeat', { periodInMinutes: 0.1 });
+    chrome.alarms.create('heartbeat', { periodInMinutes: 1 });
   });
 }
 

@@ -26,6 +26,7 @@ module.exports = {
   entry: {
     background: './src/background.js',
     popup: './src/popup.js',
+    content_youtube: './src/content_youtube.js',
   },
   output: {
     path: path.resolve(__dirname, 'addon'),

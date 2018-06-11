@@ -1,0 +1,18 @@
+{
+    "manifest_version": 2,
+    "name": "Thankful",
+    "version": "1.0.0",
+    "description": "",
+    "icons": {
+        "64": "icons/handshake.png"
+    },
+    "browser_action": {
+        "default_icon": "icons/handshake.png",
+        "default_title": "Thankful",
+        "default_popup": "popup/index.html",
+        "browser_style": true
+    },
+    "background": {
+        "scripts": ["background_scripts/index.js"]
+    }
+}

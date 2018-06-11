@@ -37,5 +37,10 @@ module.exports = {
       template: 'src/popup.pug',
       inject: true,
     }),
+    new HtmlWebpackPlugin({
+      filename: 'dashboard/index.html',
+      template: 'src/dashboard.pug',
+      inject: true,
+    }),
   ],
 };

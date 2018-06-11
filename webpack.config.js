@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   mode: 'production',
@@ -21,12 +22,19 @@ module.exports = {
           loader: 'pug-loader',
         },
       },
+      {
+        test: /\.vue$/,
+        use: {
+          loader: 'vue-loader',
+        },
+      },
     ],
   },
   entry: {
     background: './src/background.js',
     popup: './src/popup.js',
     content_youtube: './src/content_youtube.js',
+    dashboard: './src/dashboard.js',
   },
   output: {
     path: path.resolve(__dirname, 'addon'),
@@ -41,7 +49,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'dashboard/index.html',
       template: 'src/dashboard.pug',
-      inject: true,
+      inject: false,
     }),
+    new VueLoaderPlugin(),
   ],
 };

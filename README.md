@@ -1,6 +1,8 @@
 Thankful
 ========
 
+[![Build Status](https://travis-ci.org/SuperuserLabs/thankful.svg?branch=master)](https://travis-ci.org/SuperuserLabs/thankful)
+
 *Reward the creators of all content and software according to your preferences. Be thankful.*
 
 **Note:** This is nothing but a dream, yet. *Please reach out and give your thoughts if you are interested!*

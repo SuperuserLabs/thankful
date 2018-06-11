@@ -4,7 +4,7 @@
   "description": "Thankful",
   "main": "index.js",
   "scripts": {
-    "test": "true",
+    "test": "jest --coverage",
     "pretest": "eslint --ignore-path=.gitignore .",
     "build": "webpack",
     "precommit": "lint-staged"

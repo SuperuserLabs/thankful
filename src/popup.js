@@ -1,1 +1,1 @@
-console.log("Hello from popup!");
+console.log('Hello from popup!');

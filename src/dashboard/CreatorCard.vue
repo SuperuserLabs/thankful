@@ -1,25 +1,28 @@
 <template lang="pug">
 div.card
-  div.card-body
-    h5.card-title(v-on:click="name = 'lol'") {{ name }}
-    b-button(v-on:click="showDetails = !showDetails") Details
+  b-button.card-body.text-left(v-on:click="showDetails = !showDetails")
     div(v-if="showDetails")
-      p(v-for="d in details") {{ d.name }}
+      h5.card-title.text-monospace [-] {{ name }}
+      div.row(v-for="d in details")
+        div.col-sm-10 {{ d[0] }}
+        div.col-sm-2 {{ d[1].toFixed(2) }} s
+    div(v-else)
+      h5.card-title.text-monospace [+] {{ name }}
 
 </template>
 
 <script>
-module.exports = {
-  data: function () {
+export default {
+  data() {
     return {
-      showDetails: false
-    }
+      showDetails: false,
+    };
   },
   props: {
     name: String,
-    details: Array
-  }
-}
+    details: Array,
+  },
+};
 </script>
 
 <style>

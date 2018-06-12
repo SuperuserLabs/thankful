@@ -23,24 +23,34 @@ function isTabActive(tabInfo) {
   });
 }
 
-function addTimeToCreator(name, url, duration) {
+function getTimeSpent() {
   // Get time spent on all tabs
-  browser.storage.local.get(['timespent']).then(result => {
+  return browser.storage.local.get(['timespent']).then(result => {
     if (!result.hasOwnProperty('timespent')) {
-      result.timespent = {};
+      return {};
     }
-    // Update time spent on tab
-    if (!result.timespent.hasOwnProperty(name)) {
-      result.timespent[name] = {};
-    }
-
-    let prevDuration = result.timespent[name][url] || 0;
-    result.timespent[name][url] = prevDuration + duration;
-    console.log(result.timespent);
-
-    // Store time spent on tab
-    browser.storage.local.set({ timespent: result.timespent });
+    return result.timespent;
   });
+}
+
+function setTimeSpent(value) {
+  browser.storage.local.set({ timespent: value });
+}
+
+function addTimeToCreator(name, url, duration) {
+  // Update time spent on tab
+  getTimeSpent()
+    .then(result => {
+      if (!result.hasOwnProperty(name)) {
+        result[name] = {};
+      }
+
+      let prevDuration = result[name][url] || 0;
+      result[name][url] = prevDuration + duration;
+      console.log(result);
+      return result;
+    })
+    .then(setTimeSpent);
 }
 
 function heartbeat(tabInfo, contentInfo) {
@@ -77,6 +87,20 @@ function getCurrentTab() {
     .then(tabs => tabs[0]);
 }
 
+function remapCreator(url, creator) {
+  getTimeSpent()
+    .then(result => {
+      if (!result.hasOwnProperty(creator)) {
+        result[creator] = {};
+      }
+      let prevDuration = result[creator][url] || 0;
+      result[creator][url] = prevDuration + result[url][url];
+      delete result[url];
+      return result;
+    })
+    .then(setTimeSpent);
+}
+
 (function() {
   rescheduleAlarm();
 
@@ -87,6 +111,7 @@ function getCurrentTab() {
 
   function setContentInfo(message, sender, sendResponse) {
     contentInfo = message;
+    remapCreator(message.url, message.creator);
   }
 
   function stethoscope() {

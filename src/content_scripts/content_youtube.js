@@ -9,9 +9,10 @@ function crawlPage() {
   let ownerContainer = document.getElementById('owner-container');
   if (ownerContainer) {
     let url = document.location.href;
-    let channelUrl = ownerContainer
+    let creator = ownerContainer
       .getElementsByTagName('a')[0]
       .getAttribute('href');
+    console.log(creator);
     sendCreator(url, creator);
   } else {
     console.log("Couldn't crawl page for channel URL, trying again in 1s");

@@ -1,7 +1,9 @@
 'use strict';
 
 import browser from 'webextension-polyfill';
-import { sinceLastCall } from '../lib/calltime.js';
+import { valueConstantTicker } from '../lib/calltime.js';
+
+let sinceLastCall = valueConstantTicker();
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
@@ -24,11 +26,9 @@ function isTabActive(tabInfo) {
 function heartbeat(tabInfo) {
   isTabActive(tabInfo).then(active => {
     if (active) {
-      // TODO: When the URL is not the same as the last URL duration should be zero.
-      // TODO: When inactive -> active duration should be set to zero
       // TODO: When active before and now, add unaccounted time for last page before adding time for current page
-      let duration = sinceLastCall();
       let url = tabInfo.url;
+      let duration = sinceLastCall(url);
 
       // Get time spent on all tabs
       browser.storage.local.get(['timespent']).then(result => {
@@ -48,9 +48,9 @@ function heartbeat(tabInfo) {
       });
     } else {
       console.log('Not active, not logging');
-      sinceLastCall();
     }
   });
+  sinceLastCall();
 }
 
 function rescheduleAlarm() {
@@ -70,14 +70,18 @@ function getCurrentTab() {
 (function() {
   rescheduleAlarm();
 
-  browser.tabs.onActivated.addListener(() => {
+  function stethoscope() {
     getCurrentTab().then(heartbeat);
-  });
+  }
+
+  browser.idle.onStateChanged.addListener(stethoscope);
+
+  browser.tabs.onActivated.addListener(stethoscope);
 
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
       console.log('Heartbeat alarm triggered');
-      getCurrentTab().then(heartbeat);
+      stethoscope();
     }
   });
 })();

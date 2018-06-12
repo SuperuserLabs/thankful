@@ -93,6 +93,8 @@ function getCurrentTab() {
     getCurrentTab().then(tabInfo => heartbeat(tabInfo, contentInfo));
   }
 
+  browser.runtime.onMessage.addListener(setContentInfo);
+
   browser.idle.onStateChanged.addListener(stethoscope);
 
   browser.tabs.onActivated.addListener(stethoscope);

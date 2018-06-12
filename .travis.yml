@@ -3,8 +3,8 @@ node_js:
   - "8"
 
 install:
- - npm install
+ - make install
 
 script:
- - npm test
- - npm run build
+ - make test
+ - make build

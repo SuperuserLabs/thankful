@@ -1,20 +1,29 @@
 'use strict';
 
+import browser from 'webextension-polyfill';
+
 // TODO: Should content_youtube.js be renamed to content_script.js and have checks for each site?
 
 function crawlPage() {
   // Tries to extract channel URL from page, retries after 1 second if not successful.
   let ownerContainer = document.getElementById('owner-container');
   if (ownerContainer) {
+    let url = document.location.href;
     let channelUrl = ownerContainer
       .getElementsByTagName('a')[0]
       .getAttribute('href');
-    console.log(channelUrl);
-    return channelUrl;
+    sendCreator(url, creator);
   } else {
     console.log("Couldn't crawl page for channel URL, trying again in 1s");
     window.setTimeout(crawlPage, 1000);
   }
+}
+
+/**
+ * Send message to background.js mapping url to creator
+ */
+function sendCreator(url, creator) {
+  browser.runtime.sendMessage({ url: url, creator: creator });
 }
 
 crawlPage();

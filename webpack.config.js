@@ -45,7 +45,7 @@ module.exports = {
     dashboard: './src/dashboard/dashboard.js',
   },
   output: {
-    path: path.resolve(__dirname, 'addon'),
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name]/index.js',
   },
   plugins: [

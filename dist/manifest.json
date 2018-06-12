@@ -21,5 +21,12 @@
       "js": ["content_youtube/index.js"]
     }
   ],
-  "permissions": ["tabs", "activeTab", "storage", "alarms", "idle"]
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage",
+    "alarms",
+    "idle",
+    "notifications"
+  ]
 }

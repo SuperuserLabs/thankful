@@ -8,6 +8,8 @@ div
 </template>
 
 <script>
+import browser from 'webextension-polyfill'
+
 module.exports = {
   data: function () {
     return {

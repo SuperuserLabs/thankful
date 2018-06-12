@@ -1,21 +1,44 @@
 <template lang="pug">
-div
-  h1 Thankful Dashboard
-
-  b-alert(show) Default alert
-  ul
-    li(v-for="site in sites")
-      | {{ site.url }} ({{ site.duration }} seconds)
+div.container
+  div#header
+    h1 Thankful Dashboard
+  b-card-group.mb-3(deck)
+    creator-card(v-for="c in creators", v-bind:name="c.name", v-bind:details="c.consumed_content")
 </template>
 
 <script>
+import CreatorCard from './CreatorCard.vue'
+
 module.exports = {
+  components: {
+    'creator-card': CreatorCard
+  },
   data: function () {
     return {
-      greeting: "Hello",
       sites: [
-          {url: "yutube.com", duration: 100},
-          {url: "github.com", duration: 100},
+          {url: "youtube.com", duration: 100, include: true},
+          {url: "github.com", duration: 100, include: true},
+      ],
+      creators: [
+        {
+          name: "Kalle",
+          consumed_content: [
+            {name: "Blog", duration: 10},
+            {name: "Video", duration: 27}
+          ]
+        },
+        {
+          name: "Pelle",
+          consumed_content: [
+            {name: "Music", duration: 27}
+          ]
+        },
+        {
+          name: "Olle",
+          consumed_content: [
+            {name: "Spotify", duration: 17}
+          ]
+        }
       ]
     }
   }
@@ -23,4 +46,12 @@ module.exports = {
 </script>
 
 <style>
+body {
+  background-color: #eee
+}
+#header {
+  padding-bottom: 9px;
+  margin: 40px 0 20px;
+  border-bottom: 1px solid #eee;
+}
 </style>

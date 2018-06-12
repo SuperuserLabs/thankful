@@ -22,13 +22,13 @@ module.exports = {
           // this applies to `<template lang="pug">` in Vue components
           {
             resourceQuery: /^\?vue/,
-            use: ['pug-plain-loader']
+            use: ['pug-plain-loader'],
           },
           // this applies to pug imports inside JavaScript
           {
-            use: ['raw-loader', 'pug-plain-loader']
-          }
-        ]
+            use: ['raw-loader', 'pug-plain-loader'],
+          },
+        ],
       },
       {
         test: /\.vue$/,
@@ -39,10 +39,10 @@ module.exports = {
     ],
   },
   entry: {
-    background: './src/background.js',
-    popup: './src/popup.js',
-    content_youtube: './src/content_youtube.js',
-    dashboard: './src/dashboard.js',
+    background: './src/background/background.js',
+    popup: './src/popup/popup.js',
+    content_youtube: './src/content_scripts/content_youtube.js',
+    dashboard: './src/dashboard/dashboard.js',
   },
   output: {
     path: path.resolve(__dirname, 'addon'),
@@ -51,12 +51,12 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: 'popup/index.html',
-      template: 'src/popup.pug',
+      template: 'src/popup/popup.pug',
       inject: true,
     }),
     new HtmlWebpackPlugin({
       filename: 'dashboard/index.html',
-      template: 'src/dashboard.pug',
+      template: 'src/dashboard/dashboard.pug',
       inject: false,
     }),
     new VueLoaderPlugin(),

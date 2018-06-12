@@ -1,6 +1,8 @@
 node_modules/
 addon/**/*.js
 addon/**/*.html
+dist/**/*.js
+dist/**/*.html
 .DS_Store
 coverage
 **/*.swp

@@ -1,6 +1,6 @@
 'use strict';
 
-import { sinceLastCall } from './calltime.js';
+import { sinceLastCall } from '../lib/calltime.js';
 
 function isTabActive(tabInfo) {
   return new Promise((resolve, reject) => {

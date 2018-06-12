@@ -3,6 +3,11 @@
 import browser from 'webextension-polyfill';
 import { sinceLastCall } from '../lib/calltime.js';
 
+/**
+ * Returns true if tab is audible or if user was active last 60 seconds.
+ *
+ * This is an asychronous function that returns a Promise.
+ */
 function isTabActive(tabInfo) {
   return new Promise((resolve, reject) => {
     let detectionIntervalInSeconds = 60;
@@ -55,32 +60,24 @@ function rescheduleAlarm() {
     .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
 }
 
-function getCurrentTabs(callback) {
+function getCurrentTab() {
   // Note: an identical version exists in aw-watcher-web
-  return browser.tabs.query({ active: true, currentWindow: true });
+  return browser.tabs
+    .query({ active: true, currentWindow: true })
+    .then(tabs => tabs[0]);
 }
 
 (function() {
   rescheduleAlarm();
 
-  browser.tabs.onActivated.addListener(activeInfo => {
-    browser.tabs.get(activeInfo.tabId).then(tabInfo => {
-      getCurrentTabs().then(tabs => {
-        if (tabs.length >= 1) {
-          heartbeat(tabs[0]);
-        }
-      });
-    });
+  browser.tabs.onActivated.addListener(() => {
+    getCurrentTab().then(heartbeat);
   });
 
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
       console.log('Heartbeat alarm triggered');
-      getCurrentTabs(function(tabs) {
-        if (tabs.length >= 1) {
-          heartbeat(tabs[0]);
-        }
-      });
+      getCurrentTab().then(heartbeat);
     }
   });
 })();

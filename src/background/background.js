@@ -1,5 +1,6 @@
 'use strict';
 
+import browser from 'webextension-polyfill';
 import { sinceLastCall } from '../lib/calltime.js';
 
 function isTabActive(tabInfo) {
@@ -8,9 +9,9 @@ function isTabActive(tabInfo) {
     if (tabInfo.audible) {
       resolve(true);
     } else {
-      chrome.idle.queryState(detectionIntervalInSeconds, newState => {
-        resolve(newState == 'active');
-      });
+      browser.idle
+        .queryState(detectionIntervalInSeconds)
+        .then(newState => resolve(newState == 'active'));
     }
   });
 }
@@ -25,7 +26,7 @@ function heartbeat(tabInfo) {
       let url = tabInfo.url;
 
       // Get time spent on all tabs
-      chrome.storage.local.get(['timespent'], result => {
+      browser.storage.local.get(['timespent']).then(result => {
         if (result.timespent === undefined) {
           result.timespent = {};
         }
@@ -36,7 +37,7 @@ function heartbeat(tabInfo) {
         console.log(result.timespent);
 
         // Store time spent on tab
-        chrome.storage.local.set({ timespent: result.timespent });
+        browser.storage.local.set({ timespent: result.timespent });
 
         rescheduleAlarm();
       });
@@ -49,24 +50,22 @@ function heartbeat(tabInfo) {
 
 function rescheduleAlarm() {
   // Cancels any preexisting heartbeat alarm and then schedules a new one.
-  chrome.alarms.clear('heartbeat', () => {
-    chrome.alarms.create('heartbeat', { periodInMinutes: 1 });
-  });
+  browser.alarms
+    .clear('heartbeat')
+    .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
 }
 
 function getCurrentTabs(callback) {
   // Note: an identical version exists in aw-watcher-web
-  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-    callback(tabs);
-  });
+  return browser.tabs.query({ active: true, currentWindow: true });
 }
 
 (function() {
   rescheduleAlarm();
 
-  chrome.tabs.onActivated.addListener(activeInfo => {
-    chrome.tabs.get(activeInfo.tabId, tabInfo => {
-      getCurrentTabs(function(tabs) {
+  browser.tabs.onActivated.addListener(activeInfo => {
+    browser.tabs.get(activeInfo.tabId).then(tabInfo => {
+      getCurrentTabs().then(tabs => {
         if (tabs.length >= 1) {
           heartbeat(tabs[0]);
         }
@@ -74,7 +73,7 @@ function getCurrentTabs(callback) {
     });
   });
 
-  chrome.alarms.onAlarm.addListener(alarm => {
+  browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
       console.log('Heartbeat alarm triggered');
       getCurrentTabs(function(tabs) {

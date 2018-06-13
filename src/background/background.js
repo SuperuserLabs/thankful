@@ -27,6 +27,7 @@ function getTimeSpent() {
   // Get time spent on all tabs
   return browser.storage.local.get(['timespent']).then(result => {
     if (!result.hasOwnProperty('timespent')) {
+      console.log(`result does not have timespent`);
       return {};
     }
     return result.timespent;
@@ -42,35 +43,54 @@ function addTimeToCreator(name, url, duration) {
   getTimeSpent()
     .then(result => {
       if (!result.hasOwnProperty(name)) {
+        console.log(`result does not have ${name}`);
         result[name] = {};
       }
 
       let prevDuration = result[name][url] || 0;
       result[name][url] = prevDuration + duration;
-      console.log(result);
+      console.log(
+        `name: ${name}
+        prevDuration: ${prevDuration}
+        url: ${url}
+        result[name][url]: ${result[name][url]}`
+      );
       return result;
     })
     .then(setTimeSpent);
 }
 
-function heartbeat(tabInfo, contentInfo) {
-  isTabActive(tabInfo).then(active => {
-    if (active) {
-      // TODO: When active before and now, add unaccounted time for last page before adding time for current page
-      let url = tabInfo.url;
-      let duration = sinceLastCall(url);
+function addTime(contentInfo, url, duration) {
+  if (contentInfo.hasOwnProperty(url)) {
+    console.log(`creator url: ${contentInfo[url]}, duration: ${duration}`);
+    addTimeToCreator(contentInfo[url], url, duration);
+  } else {
+    addTimeToCreator(url, url, duration);
+  }
+}
 
-      if (contentInfo.url === url) {
-        addTimeToCreator(contentInfo.creator, url, duration);
+function heartbeat(tabInfo, contentInfo, oldUrl) {
+  isTabActive(tabInfo)
+    .then(active => {
+      if (active) {
+        let url = tabInfo.url;
+        let duration = sinceLastCall(oldUrl);
+
+        console.log(contentInfo);
+        console.log(`Duration: ${duration}, URL: ${oldUrl}`);
+        addTime(contentInfo, oldUrl, duration);
+
+        sinceLastCall(url);
+
+        rescheduleAlarm();
       } else {
-        addTimeToCreator(url, url, duration);
+        throw new Error('Not active, not logging');
       }
-      rescheduleAlarm();
-    } else {
-      console.log('Not active, not logging');
-    }
-  });
-  sinceLastCall();
+    })
+    .catch(error => {
+      console.log(error);
+      sinceLastCall();
+    });
 }
 
 function rescheduleAlarm() {
@@ -91,11 +111,11 @@ function remapCreator(url, creator) {
   getTimeSpent()
     .then(result => {
       if (!result.hasOwnProperty(creator)) {
+        console.log(`result does not have ${creator}`);
         result[creator] = {};
       }
       let prevDuration = result[creator][url] || 0;
       result[creator][url] = prevDuration + result[url][url];
-      delete result[url];
       return result;
     })
     .then(setTimeSpent);
@@ -104,18 +124,24 @@ function remapCreator(url, creator) {
 (function() {
   rescheduleAlarm();
 
-  let contentInfo = {
-    url: null,
-    creator: null,
-  };
+  let contentInfo = {};
+  let oldUrl = null;
 
   function setContentInfo(message, sender, sendResponse) {
-    contentInfo = message;
+    console.log(message);
+    contentInfo[message.url] = message.creator;
     remapCreator(message.url, message.creator);
   }
 
   function stethoscope() {
-    getCurrentTab().then(tabInfo => heartbeat(tabInfo, contentInfo));
+    getCurrentTab()
+      .then(tabInfo => {
+        heartbeat(tabInfo, contentInfo, oldUrl);
+        oldUrl = tabInfo.url;
+      })
+      .catch(error => {
+        console.log(`Stethoscope: ${error}`);
+      });
   }
 
   browser.runtime.onMessage.addListener(setContentInfo);
@@ -130,4 +156,5 @@ function remapCreator(url, creator) {
       stethoscope();
     }
   });
+  stethoscope();
 })();

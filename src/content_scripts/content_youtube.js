@@ -29,6 +29,7 @@ function sendCreator(url, creator) {
 
 crawlPage();
 
+browser.tabs.onUpdated.addListener(crawlPage);
 // FROM: https://stackoverflow.com/a/19758800/965332
 // Something like this needed to report the (content_url -> creator_url) mapping back to the background process.
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {

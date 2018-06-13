@@ -25,8 +25,9 @@ export default {
         console.log(timedict);
         this.creators = Object.keys(timedict).map(key => ({
           name: key,
-          consumed_content: [[key, timedict[key]]],
+          consumed_content: Object.entries(timedict[key]),
         }));
+        console.log(creators);
       });
     },
   },

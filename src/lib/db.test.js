@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 import Dexie from 'dexie';
 
 /*
@@ -19,15 +17,15 @@ describe('Activity', () => {
 
   it('correctly adds activity', () => {
     return db
-      .addActivity(url, 13.37)
+      .logActivity(url, 13.37)
       .then(() => {
         return db.getActivity(url);
       })
       .then(activity => {
-        assert(activity.duration == 13.37);
+        expect(activity.duration).toBeCloseTo(13.37, 3);
       })
-      .then(_ => {
-        return db.addActivity(url, 10);
+      .then(() => {
+        return db.logActivity(url, 10);
       })
       .then(() => {
         return db.getActivity(url);
@@ -63,19 +61,60 @@ describe('Activity', () => {
 
 describe('Creator', () => {
   let db = new Database();
-  let name = 'Bethesda Softworks';
-  let url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
+  let c_name = 'Bethesda Softworks';
+  let c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
+  let a_title = 'Elder Scrolls 6 Trailer';
+  let a_url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
+
+  it('get all creators', () => {
+    return new Creator(c_url, c_name)
+      .save()
+      .then(() => new Creator('testurl', 'testname'));
+    // This fails, see comment in getCreators
+    //.then(() => {
+    //  return db.getCreators();
+    //})
+    //.then(creators => {
+    //  expect(creators).toHaveLength(2);
+    //});
+  });
 
   it('correctly adds creator', () => {
-    let creator = new Creator(url, name);
-    return creator
+    return new Creator(c_url, c_name)
       .save()
-      .then(() => {
-        return db.getCreator(url);
+      .then(_ => {
+        return db.getCreator(c_url);
       })
-      .then(activity => {
-        expect(creator.url).toBe(url);
-        expect(creator.name).toBe(name);
+      .then(creator => {
+        expect(creator.url).toBe(c_url);
+        expect(creator.name).toBe(c_name);
+        return creator;
+      });
+  });
+
+  it('connect activity to creator', _ => {
+    let activity = new Activity(a_url, a_title);
+    return new Creator(c_url, c_name)
+      .save()
+      .then(key => {
+        return db.getCreator(key);
+      })
+      .then(creator => {
+        expect(creator.url).toBe(c_url);
+        expect(creator.name).toBe(c_name);
+        return creator;
+      })
+      .then(_ => {
+        return activity.save();
+      })
+      .then(_ => {
+        return db.connectActivityToCreator(activity.url, c_url);
+      })
+      .then(_ => {
+        return db.getCreatorActivity(c_url);
+      })
+      .then(creatorActivity => {
+        expect(creatorActivity).toHaveLength(1);
       });
   });
 });

@@ -69,14 +69,13 @@ describe('Creator', () => {
   it('get all creators', () => {
     return new Creator(c_url, c_name)
       .save()
-      .then(() => new Creator('testurl', 'testname'));
-    // This fails, see comment in getCreators
-    //.then(() => {
-    //  return db.getCreators();
-    //})
-    //.then(creators => {
-    //  expect(creators).toHaveLength(2);
-    //});
+      .then(() => new Creator('testurl', 'testname').save())
+      .then(() => {
+        return db.getCreators();
+      })
+      .then(creators => {
+        expect(creators).toHaveLength(2);
+      });
   });
 
   it('correctly adds creator', () => {
@@ -92,7 +91,7 @@ describe('Creator', () => {
       });
   });
 
-  it('connect activity to creator', _ => {
+  it('connect activity to creator', () => {
     let activity = new Activity(a_url, a_title);
     return new Creator(c_url, c_name)
       .save()

@@ -47,8 +47,7 @@ export class Database {
   }
 
   getCreators(limit) {
-    // FIXME: For whatever fails when limit is set high (1 works, 2 fails in my testing)
-    return this.db.creator.limit(limit || 1).toArray();
+    return this.db.creator.limit(limit || 100).toArray();
   }
 
   getCreatorActivity(c_url) {

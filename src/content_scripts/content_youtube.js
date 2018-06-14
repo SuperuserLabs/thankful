@@ -9,9 +9,11 @@ function crawlPage() {
   let ownerContainer = document.getElementById('owner-container');
   if (ownerContainer) {
     let url = document.location.href;
-    let creator = ownerContainer
-      .getElementsByTagName('a')[0]
-      .getAttribute('href');
+    let channelLink = ownerContainer.getElementsByTagName('a')[0];
+    let creator = {
+      id: channelLink.getAttribute('href'),
+      name: channelLink.textContent,
+    };
     console.log(creator);
     sendCreator(url, creator);
   } else {

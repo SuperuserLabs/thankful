@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   module: {
     rules: [
       {
@@ -65,4 +65,5 @@ module.exports = {
     }),
     new VueLoaderPlugin(),
   ],
+  devtool: 'cheap-module-source-remap',
 };

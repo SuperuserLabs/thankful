@@ -23,47 +23,63 @@ function isTabActive(tabInfo) {
   });
 }
 
-function getTimeSpent() {
-  // Get time spent on all tabs
-  return browser.storage.local.get(['timespent']).then(result => {
-    if (!result.hasOwnProperty('timespent')) {
-      console.log(`result does not have timespent`);
-      return {};
+function getStoredDict(key) {
+  return browser.storage.local.get(key).then(result => {
+    if (!result.hasOwnProperty(key)) {
+      return new Map();
     }
-    return result.timespent;
+    let serialized = result[key];
+    return new Map(serialized);
   });
 }
 
+function addCreator(creator) {
+  getStoredDict('creators')
+    .then(creators => {
+      creators.set(creator.id, creator);
+      return creators;
+    })
+    .then(result => setStoredDict('creators', result));
+}
+
+function setStoredDict(key, value) {
+  let obj = {};
+  obj[key] = Array.from(value);
+  browser.storage.local.set(obj);
+}
+
+function getTimeSpent() {
+  // Get time spent on all tabs
+  return getStoredDict('timespent');
+}
+
 function setTimeSpent(value) {
-  browser.storage.local.set({ timespent: value });
+  setStoredDict('timespent', value);
 }
 
 function addTimeToCreator(name, url, duration) {
   // Update time spent on tab
-  getTimeSpent()
-    .then(result => {
-      if (!result.hasOwnProperty(name)) {
-        console.log(`result does not have ${name}`);
-        result[name] = {};
-      }
+  if (name) {
+    getTimeSpent()
+      .then(result => {
+        let creator = {};
+        if (result.has(name)) {
+          creator = result.get(name);
+        }
 
-      let prevDuration = result[name][url] || 0;
-      result[name][url] = prevDuration + duration;
-      console.log(
-        `name: ${name}
-        prevDuration: ${prevDuration}
-        url: ${url}
-        result[name][url]: ${result[name][url]}`
-      );
-      return result;
-    })
-    .then(setTimeSpent);
+        let prevDuration = creator[url] || 0;
+        creator[url] = prevDuration + duration;
+        result.set(name, creator);
+        return result;
+      })
+      .then(setTimeSpent);
+  }
 }
 
 function addTime(contentInfo, url, duration) {
-  if (contentInfo.hasOwnProperty(url)) {
-    console.log(`creator url: ${contentInfo[url]}, duration: ${duration}`);
-    addTimeToCreator(contentInfo[url], url, duration);
+  if (contentInfo.has(url)) {
+    console.log(`creator url: ${contentInfo.get(url)}, duration: ${duration}`);
+    addTimeToCreator(contentInfo.get(url), url, duration);
   } else {
     addTimeToCreator(url, url, duration);
   }
@@ -76,8 +92,6 @@ function heartbeat(tabInfo, contentInfo, oldUrl) {
         let url = tabInfo.url;
         let duration = sinceLastCall(oldUrl);
 
-        console.log(contentInfo);
-        console.log(`Duration: ${duration}, URL: ${oldUrl}`);
         addTime(contentInfo, oldUrl, duration);
 
         sinceLastCall(url);
@@ -107,15 +121,19 @@ function getCurrentTab() {
     .then(tabs => tabs[0]);
 }
 
-function remapCreator(url, creator) {
+function remapCreator(url, creatorId) {
   getTimeSpent()
     .then(result => {
-      if (!result.hasOwnProperty(creator)) {
-        console.log(`result does not have ${creator}`);
-        result[creator] = {};
+      if (result.has(url)) {
+        let urlEntry = result.get(url);
+        let creatorEntry = {};
+        if (result.has(creatorId)) {
+          creatorEntry = result.get(creatorId);
+        }
+        let urlDuration = creatorEntry[url] || 0;
+        creatorEntry[url] = urlDuration + urlEntry[url];
+        result.delete(url);
       }
-      let prevDuration = result[creator][url] || 0;
-      result[creator][url] = prevDuration + result[url][url];
       return result;
     })
     .then(setTimeSpent);
@@ -124,13 +142,14 @@ function remapCreator(url, creator) {
 (function() {
   rescheduleAlarm();
 
-  let contentInfo = {};
+  let contentInfo = new Map();
   let oldUrl = null;
 
   function setContentInfo(message, sender, sendResponse) {
     console.log(message);
-    contentInfo[message.url] = message.creator;
-    remapCreator(message.url, message.creator);
+    contentInfo.set(message.url, message.creator.id);
+    addCreator(message.creator);
+    remapCreator(message.url, message.creator.id);
   }
 
   function stethoscope() {

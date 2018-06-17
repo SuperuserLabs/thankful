@@ -2,6 +2,7 @@
 
 import browser from 'webextension-polyfill';
 import { valueConstantTicker } from '../lib/calltime.js';
+import { Database, Activity, Creator } from '../lib/db.js';
 
 let sinceLastCall = valueConstantTicker();
 
@@ -23,80 +24,20 @@ function isTabActive(tabInfo) {
   });
 }
 
-function getStoredDict(key) {
-  return browser.storage.local.get(key).then(result => {
-    if (!result.hasOwnProperty(key)) {
-      return new Map();
-    }
-    let serialized = result[key];
-    return new Map(serialized);
-  });
-}
-
-function addCreator(creator) {
-  getStoredDict('creators')
-    .then(creators => {
-      creators.set(creator.id, creator);
-      return creators;
-    })
-    .then(result => setStoredDict('creators', result));
-}
-
-function setStoredDict(key, value) {
-  let obj = {};
-  obj[key] = Array.from(value);
-  browser.storage.local.set(obj);
-}
-
-function getTimeSpent() {
-  // Get time spent on all tabs
-  return getStoredDict('timespent');
-}
-
-function setTimeSpent(value) {
-  setStoredDict('timespent', value);
-}
-
-function addTimeToCreator(name, url, duration) {
-  // Update time spent on tab
-  if (name) {
-    getTimeSpent()
-      .then(result => {
-        let creator = {};
-        if (result.has(name)) {
-          creator = result.get(name);
-        }
-
-        let prevDuration = creator[url] || 0;
-        creator[url] = prevDuration + duration;
-        result.set(name, creator);
-        return result;
-      })
-      .then(setTimeSpent);
-  }
-}
-
-function addTime(contentInfo, url, duration) {
-  if (contentInfo.has(url)) {
-    console.log(`creator url: ${contentInfo.get(url)}, duration: ${duration}`);
-    addTimeToCreator(contentInfo.get(url), url, duration);
-  } else {
-    addTimeToCreator(url, url, duration);
-  }
-}
-
-function heartbeat(tabInfo, contentInfo, oldUrl) {
+function heartbeat(tabInfo, db, oldUrl) {
   isTabActive(tabInfo)
     .then(active => {
       if (active) {
-        let url = tabInfo.url;
-        let duration = sinceLastCall(oldUrl);
+        if (oldUrl) {
+          let url = tabInfo.url;
+          let duration = sinceLastCall(oldUrl);
 
-        addTime(contentInfo, oldUrl, duration);
+          db.logActivity(oldUrl, duration);
 
-        sinceLastCall(url);
+          sinceLastCall(url);
 
-        rescheduleAlarm();
+          rescheduleAlarm();
+        }
       } else {
         throw new Error('Not active, not logging');
       }
@@ -121,41 +62,26 @@ function getCurrentTab() {
     .then(tabs => tabs[0]);
 }
 
-function remapCreator(url, creatorId) {
-  getTimeSpent()
-    .then(result => {
-      if (result.has(url)) {
-        let urlEntry = result.get(url);
-        let creatorEntry = {};
-        if (result.has(creatorId)) {
-          creatorEntry = result.get(creatorId);
-        }
-        let urlDuration = creatorEntry[url] || 0;
-        creatorEntry[url] = urlDuration + urlEntry[url];
-        result.delete(url);
-      }
-      return result;
-    })
-    .then(setTimeSpent);
-}
-
 (function() {
   rescheduleAlarm();
 
-  let contentInfo = new Map();
   let oldUrl = null;
+  let db = new Database();
 
-  function setContentInfo(message, sender, sendResponse) {
+  function receiveCreator(message, sender, sendResponse) {
     console.log(message);
-    contentInfo.set(message.url, message.creator.id);
-    addCreator(message.creator);
-    remapCreator(message.url, message.creator.id);
+    url = message.url;
+    c_url = message.creator.url;
+    c_name = message.creator.id;
+    new Creator(c_url, c_name).save().then(key => {
+      db.connectActivityToCreator(url, c_url);
+    });
   }
 
   function stethoscope() {
     getCurrentTab()
       .then(tabInfo => {
-        heartbeat(tabInfo, contentInfo, oldUrl);
+        heartbeat(tabInfo, db, oldUrl);
         oldUrl = tabInfo.url;
       })
       .catch(error => {
@@ -163,7 +89,7 @@ function remapCreator(url, creatorId) {
       });
   }
 
-  browser.runtime.onMessage.addListener(setContentInfo);
+  browser.runtime.onMessage.addListener(receiveCreator);
 
   browser.idle.onStateChanged.addListener(stethoscope);
 

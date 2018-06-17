@@ -8,6 +8,8 @@ export function waitForElement(elementId, retryTime) {
     if (element) {
       resolve(element);
       return;
+    } else {
+      window.setTimeout(crawlPage, retryTime);
     }
   });
 }

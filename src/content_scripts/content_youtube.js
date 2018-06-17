@@ -1,6 +1,7 @@
 'use strict';
 
 import browser from 'webextension-polyfill';
+import { sendCreator, addPageChangeListener } from './contentlib.js';
 
 // TODO: Should content_youtube.js be renamed to content_script.js and have checks for each site?
 
@@ -22,16 +23,9 @@ function crawlPage() {
   }
 }
 
-/**
- * Send message to background.js mapping url to creator
- */
-function sendCreator(url, creator) {
-  browser.runtime.sendMessage({ url: url, creator: creator });
-}
-
 crawlPage();
 
-browser.tabs.onUpdated.addListener(crawlPage);
+addPageChangeListener(crawlPage);
 // FROM: https://stackoverflow.com/a/19758800/965332
 // Something like this needed to report the (content_url -> creator_url) mapping back to the background process.
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {

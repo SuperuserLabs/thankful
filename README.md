@@ -78,7 +78,7 @@ Here's a related article by the FOSSPost: ["Fund Open Source Software With These
 
 ## Updates
 
--   2017-10-25: Flattr [finally launches its new platform](https://blog.flattr.net/2017/10/the-flattr-relaunch-what-to-expect/) which essentially does what Thankful does but with a large fee (["Creators will be levied a processing fee of 7.5 percent for all payments, along with an initial payment processing fee of 9 percent"](https://www.engadget.com/2017/10/24/adblock-plus-relaunches-flattr/)) and with massive privacy issues.
+-   2017-10-25: Flattr [finally launches its new platform](https://blog.flattr.net/2017/10/the-flattr-relaunch-what-to-expect/) which essentially does what Thankful does but with a large fee (["Creators will be levied a processing fee of 7.5 percent for all payments, along with an initial payment processing fee of 9 percent"](https://www.engadget.com/2017/10/24/adblock-plus-relaunches-flattr/)) and privacy issues.
 
 ## Thank you
 

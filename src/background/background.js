@@ -4,7 +4,7 @@ import browser from 'webextension-polyfill';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Activity, Creator } from '../lib/db.js';
 
-let sinceLastCall = valueConstantTicker();
+const sinceLastCall = valueConstantTicker();
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
@@ -24,7 +24,7 @@ function isTabActive(tabInfo) {
   });
 }
 
-function heartbeat(tabInfo, db, oldUrl) {
+function heartbeat(tabInfo, db, oldUrl, oldTitle) {
   isTabActive(tabInfo)
     .then(active => {
       if (active) {
@@ -32,7 +32,7 @@ function heartbeat(tabInfo, db, oldUrl) {
           let url = tabInfo.url;
           let duration = sinceLastCall(oldUrl);
 
-          db.logActivity(oldUrl, duration);
+          db.logActivity(oldUrl, duration, { title: oldTitle });
 
           sinceLastCall(url);
 
@@ -66,7 +66,8 @@ function getCurrentTab() {
   rescheduleAlarm();
 
   let oldUrl = null;
-  let db = new Database();
+  let oldTitle = null;
+  const db = new Database();
 
   function receiveCreator(message, sender, sendResponse) {
     console.log(message);
@@ -81,8 +82,9 @@ function getCurrentTab() {
   function stethoscope() {
     getCurrentTab()
       .then(tabInfo => {
-        heartbeat(tabInfo, db, oldUrl);
+        heartbeat(tabInfo, db, oldUrl, oldTitle);
         oldUrl = tabInfo.url;
+        oldTitle = tabInfo.title;
       })
       .catch(error => {
         console.log(`Stethoscope: ${error}`);

@@ -58,12 +58,13 @@ export class Database {
       .toArray();
   }
 
-  logActivity(url, duration) {
+  logActivity(url, duration, options = {}) {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     return this.db.activity.get({ url: url }).then(activity => {
       if (activity === undefined) {
         activity = {
+          ...options,
           url: url,
           duration: 0,
         };

@@ -12,8 +12,8 @@ Dexie.dependencies.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 import { Database, Activity, Creator } from './db.js';
 
 describe('Activity', () => {
-  let db = new Database();
-  let url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
+  const db = new Database();
+  const url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
 
   it('correctly adds activity', async () => {
     await db.logActivity(url, 13.37);
@@ -39,11 +39,11 @@ describe('Activity', () => {
 });
 
 describe('Creator', () => {
-  let db = new Database();
-  let c_name = 'Bethesda Softworks';
-  let c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
-  let a_title = 'Elder Scrolls 6 Trailer';
-  let a_url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
+  const db = new Database();
+  const c_name = 'Bethesda Softworks';
+  const c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
+  const a_title = 'Elder Scrolls 6 Trailer';
+  const a_url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
 
   it('get all creators', async () => {
     await new Creator(c_url, c_name).save();

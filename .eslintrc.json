@@ -2,10 +2,16 @@
   "plugins": ["prettier"],
   "extends": ["prettier"],
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "no-shadow": [
+      "error",
+      {
+        "builtinGlobals": true
+      }
+    ]
   },
   "parserOptions": {
-    "ecmaVersion": 6,
+    "ecmaVersion": 8,
     "sourceType": "module"
   }
 }

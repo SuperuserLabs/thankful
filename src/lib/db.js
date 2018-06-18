@@ -42,6 +42,10 @@ export class Database {
     return this.db.activity.get({ url: url });
   }
 
+  getActivities(limit) {
+    return this.db.activity.limit(limit || 100).toArray();
+  }
+
   getCreator(url) {
     return this.db.creator.get({ url: url });
   }

@@ -1,13 +1,30 @@
 <template lang="pug">
 div.container
-  div#header
-    h1 Thankful Dashboard
-  creator-card(v-for="c in creators", v-bind:name="getCreatorName(c)", v-bind:details="c.consumed_content")
+  div.row
+    div.col.mt-4
+      h1 Thankful
+      hr
+
+  div.row
+    div(v-if="creators.length === 0")
+      | No creators to show
+    div.col-md-6
+      h3 Creators
+      creator-card(v-for="creator in creators",
+                   v-bind:creator="creator",
+                   v-bind:key="creator.url")
+    div.col-md-6
+      h3 Empty section
+      p Nothing here, yet.
 </template>
 
 <script>
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
+import { Database, Activity, Creator } from '../lib/db.js';
+
+// TODO: Move to appropriate location
+const db = new Database();
 
 export default {
   components: {
@@ -15,29 +32,29 @@ export default {
   },
   data: function() {
     return {
-      creators: [],
-      creatorData: new Map(),
+      creators: []
     };
   },
   methods: {
     refresh() {
-      browser.storage.local.get('timespent').then(result => {
-        let timekv = result.timespent;
-        this.creators = timekv.map(kv => ({
-          id: kv[0],
-          consumed_content: Object.entries(kv[1]),
-        }));
+      db.getCreators().then((creators) => {
+        console.log(creators);
+
+        // Testing
+        if(creators.length === 0) {
+          creators = [
+            {
+              "url": "https://youtube.com/channel/lol",
+              "name": "sadmemeboi",
+            },
+            {
+              "url": "https://youtube.com/channel/pewdiepie",
+              "name": "pewdiepie",
+            },
+          ];
+        }
+        this.creators = creators;
       });
-      browser.storage.local.get('creators').then(result => {
-        this.creatorData = new Map(result.creators);
-      });
-    },
-    getCreatorName(c) {
-      console.log(this.creatorData.has(c.id));
-      if (this.creatorData && this.creatorData.has(c.id)) {
-        return this.creatorData.get(c.id).name;
-      }
-      return c.id;
     },
   },
   created() {

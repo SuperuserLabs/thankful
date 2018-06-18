@@ -63,11 +63,13 @@ export class Database {
     // otherwise creates new Activity with the given duration.
     return this.db.activity.get({ url: url }).then(activity => {
       if (activity === undefined) {
-        activity = {
-          ...options,
-          url: url,
-          duration: 0,
-        };
+        activity = Object.assign(
+          {
+            url: url,
+            duration: 0,
+          },
+          options
+        );
       }
       activity.duration += duration;
       return this.db.activity.put(activity);

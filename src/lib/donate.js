@@ -4,13 +4,14 @@ addr.erik = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
 addr.patrik = '0xbcEf85708670FA0127C484Ac649724B8028Ea08b';
 addr.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
 
-export class Donate {
+export default class Donate {
   constructor() {
+    console.log('in donate constructor');
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof web3 !== 'undefined') {
       // Use Mist/MetaMask's provider
       console.log('Using metamask');
-      web3js = new Web3(web3.currentProvider);
+      web3 = new Web3(web3.currentProvider);
     } else {
       throw 'Found no injected web3. Have you logged into Metamask?';
       // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
@@ -43,7 +44,8 @@ export class Donate {
     console.log('Connected to web3');
   }
 
-  donateMulti() {
+  donateAll() {
+    // TODO: use the web3 initialized above
     // Async is required here
     // https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#dizzy-all-async---think-of-metamask-as-a-light-client
     web3.eth.sendTransaction(

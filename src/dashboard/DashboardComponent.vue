@@ -2,12 +2,14 @@
 div.container
   div#header
     h1 Thankful Dashboard
+    button(v-on:click="donateAll()") Donate
   creator-card(v-for="c in creators", v-bind:name="getCreatorName(c)", v-bind:details="c.consumed_content")
 </template>
 
 <script>
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
+import Donate from '../lib/donate.js';
 
 export default {
   components: {
@@ -17,6 +19,7 @@ export default {
     return {
       creators: [],
       creatorData: new Map(),
+      donate: new Donate(),
     };
   },
   methods: {
@@ -38,6 +41,10 @@ export default {
         return this.creatorData.get(c.id).name;
       }
       return c.id;
+    },
+    donateAll() {
+      console.log('vuestuff:', this);
+      this.donate.donateAll();
     },
   },
   created() {

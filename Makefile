@@ -5,6 +5,8 @@ build:
 install:
 	npm install
 
+lint:
+	npm run lint
+
 test:
-	npm run pretest
 	npm run test

@@ -24,10 +24,9 @@ export default class Donate {
     // We might want to use this for unit testing
     // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-    console.log('web3:', web3);
-
     web3.eth.net.getId((err, netId) => {
       if (err) {
+        web3 = undefined;
         throw 'Could not get network ID';
       }
       // Networks:
@@ -47,23 +46,7 @@ export default class Donate {
     console.log('Connected to web3');
   }
 
-  _accountsPromise() {
-    return Promise((resolve, reject) => {
-      web3.eth.getAccounts((err, accounts) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(accounts);
-        return;
-      });
-    });
-  }
-
   donateAll() {
-    // TODO: use the web3 initialized above
-    // Async is required here
-    // https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#dizzy-all-async---think-of-metamask-as-a-light-client
     this._myAcc(acc => {
       web3.eth.sendTransaction(
         {

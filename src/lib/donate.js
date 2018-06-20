@@ -1,6 +1,7 @@
 import Web3 from 'web3';
 import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider.js';
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
+import browser from 'webextension-polyfill';
 
 const addr = {};
 // All on Ropsten
@@ -14,36 +15,35 @@ export default class Donate {
   constructor() {
     console.log('in donate constructor');
 
-    const METAMASK_EXTENSION_ID = 'nkbihfbeogaeaoehlefnkodbefgpgknn';
-    // TODO: Change to browser.
-    const metamaskPort = chrome.runtime.connect(METAMASK_EXTENSION_ID);
-    const pluginStream = new PortStream(metamaskPort);
-    const web3Provider = new MetamaskInpageProvider(pluginStream);
-    web3 = new Web3(web3Provider);
+    this._metamaskExtensionId()
+      .then(METAMASK_EXTENSION_ID => {
+        const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
+        const pluginStream = new PortStream(metamaskPort);
+        const web3Provider = new MetamaskInpageProvider(pluginStream);
+        web3 = new Web3(web3Provider);
 
-    // We might want to use this for unit testing
-    // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+        // We might want to use this for unit testing
+        // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-    web3.eth.net.getId((err, netId) => {
-      if (err) {
-        web3 = undefined;
-        throw 'Could not get network ID';
-      }
-      // Networks:
-      // 1:  Mainnet
-      // 2:  Deprecated Morden testnet
-      // 3:  Ropsten testnet
-      // 4:  Rinkeby testnet
-      // 42: Kovan testnet
-      if (netId !== 3) {
-        // Abort if not connected to Ropsten (testnet)
-        web3 = undefined;
-        throw 'Not connected to Ropsten, connected to: ' + netId;
-      }
-      console.log('Connected to Ropsten');
-    });
-
-    console.log('Connected to web3');
+        return web3.eth.net.getId();
+      })
+      .then(netId => {
+        // Networks:
+        // 1:  Mainnet
+        // 2:  Deprecated Morden testnet
+        // 3:  Ropsten testnet
+        // 4:  Rinkeby testnet
+        // 42: Kovan testnet
+        if (netId !== 3) {
+          // Abort if not connected to Ropsten (testnet)
+          web3 = undefined;
+          throw 'Not connected to Ropsten, connected to: ' + netId;
+        }
+        console.log('Connected to Ropsten');
+      })
+      .catch(err => {
+        throw err;
+      });
   }
 
   donateAll() {
@@ -69,5 +69,24 @@ export default class Donate {
     return web3.eth.getAccounts().then(accounts => {
       return accounts[0];
     });
+  }
+
+  _metamaskExtensionId() {
+    if (browser.runtime.getBrowserInfo) {
+      return browser.runtime
+        .getBrowserInfo()
+        .then(res => {
+          if (res.name === 'Firefox') {
+            return 'webextension@metamask.io';
+          } else {
+            // Assume Chrome if it's some other string
+            return 'nkbihfbeogaeaoehlefnkodbefgpgknn';
+          }
+        })
+        .catch(console.error);
+    } else {
+      // Assume Chrome if getBrowserInfo isn't defined
+      return Promise.resolve('nkbihfbeogaeaoehlefnkodbefgpgknn');
+    }
   }
 }

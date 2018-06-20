@@ -18,7 +18,7 @@ div.container
                    )
 
       b-button(variant="success", size="lg", v-on:click="donate()")
-        | Donate
+        | Donate {{ totalAllocated }}$
 
     div.col-md-6
       h3 Empty section
@@ -39,6 +39,16 @@ import _ from 'lodash';
 // TODO: Move to appropriate location
 const db = new Database();
 
+
+function getAddressAmountMapping(creators) {
+  return _.fromPairs(_.map(creators,
+    (k) => {
+      return [k.address, Number(k.allocatedFunds)];
+    }).filter((d) => {
+      return _.every(d);
+    }));
+}
+
 export default {
   components: {
     'creator-card': CreatorCard,
@@ -46,18 +56,14 @@ export default {
   data: function() {
     return {
       creators: [],
-      monthlyDonation: 10
+      monthlyDonation: 10,
+      totalAllocated: 0
     };
   },
   methods: {
     donate() {
-      console.log(this.creators);
-      let addressAmounts = _.fromPairs(_.map(this.creators,
-        (k) => {
-          return [k.address, k.allocatedFunds];
-        }).filter((d) => {
-          return _.every(d);
-        }));
+      let addressAmounts = getAddressAmountMapping(this.creators);
+      this.totalAllocated = _.sum(_.values(addressAmounts));
       console.log(addressAmounts);
     },
     refresh() {

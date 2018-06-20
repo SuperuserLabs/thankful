@@ -47,13 +47,16 @@ export default class Donate {
   }
 
   donateAll() {
-    this._myAcc(acc => {
+    this._myAcc().then(acc => {
       web3.eth.sendTransaction(
         {
           from: acc,
           to: addr.erik,
           value: 1e16,
           gas: 1e6,
+          // Function seems buggy
+          //data: web3.utils.utf8ToHex('💛'),
+          data: '0xf09f929b',
         },
         (err, res) => {
           if (err) {
@@ -65,9 +68,9 @@ export default class Donate {
     });
   }
 
-  _myAcc(callback) {
-    web3.eth.getAccounts((err, accounts) => {
-      callback(accounts[0]);
+  _myAcc() {
+    return web3.eth.getAccounts().then(accounts => {
+      return accounts[0];
     });
   }
 }

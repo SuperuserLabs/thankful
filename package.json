@@ -43,6 +43,7 @@
     "husky": "^0.14.3",
     "jest": "^23.1.0",
     "lint-staged": "^7.2.0",
+    "lodash": "^4.17.10",
     "prettier": "1.13.5",
     "pug": "^2.0.3",
     "pug-plain-loader": "^1.0.0",

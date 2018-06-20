@@ -12,9 +12,21 @@ div.container
       h3 Creators
       creator-card(v-for="creator in creators",
                    v-bind:creator="creator",
-                   v-bind:key="creator.url")
+                   v-bind:key="creator.url",
+                   @allocatedFunds="creator.allocatedFunds = $event"
+                   @address="creator.address = $event"
+                   )
+
+      b-button(variant="success", size="lg", v-on:click="donate()")
+        | Donate
+
     div.col-md-6
       h3 Empty section
+      p How much to donate each month:
+        // TODO: Form group
+        b-input-group(append="$")
+          b-form-input(v-model="monthlyDonation")
+
       p Nothing here, yet.
 </template>
 
@@ -22,6 +34,7 @@ div.container
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import { Database, Activity, Creator } from '../lib/db.js';
+import _ from 'lodash';
 
 // TODO: Move to appropriate location
 const db = new Database();
@@ -32,10 +45,21 @@ export default {
   },
   data: function() {
     return {
-      creators: []
+      creators: [],
+      monthlyDonation: 10
     };
   },
   methods: {
+    donate() {
+      console.log(this.creators);
+      let addressAmounts = _.fromPairs(_.map(this.creators,
+        (k) => {
+          return [k.address, k.allocatedFunds];
+        }).filter((d) => {
+          return _.every(d);
+        }));
+      console.log(addressAmounts);
+    },
     refresh() {
       db.getCreators().then((creators) => {
         console.log(creators);

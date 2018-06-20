@@ -1,4 +1,6 @@
 import Dexie from 'dexie';
+import Promise from 'bluebird';
+import _ from 'lodash';
 
 let _db = undefined;
 
@@ -62,7 +64,30 @@ export class Database {
       .toArray();
   }
 
+  getTimeForCreators() {
+    let creatorCollection = this.db.creator;
+    return creatorCollection.toArray(creators => {
+      // Query related properties:
+      var activityPromises = creators.map(creator =>
+        this.getCreatorActivity(creator.url)
+      );
+
+      // Await genres and albums queries:
+      return Promise.all(activityPromises).then(activities => {
+        // Now we have all foreign keys resolved and
+        // we can put the results onto the bands array
+        // before returning it:
+        creators.forEach((creator, i) => {
+          console.log(activities[i]);
+          creator.duration = _.sum(_.map(activities[i], a => a.duration || 0));
+        });
+        return creators;
+      });
+    });
+  }
+
   logActivity(url, duration, options = {}) {
+    // TODO: Use update instead of put if url exists
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     return this.db.activity.get({ url: url }).then(activity => {

@@ -30,6 +30,7 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",
+    "bluebird": "^3.5.1",
     "bootstrap-vue": "^2.0.0-rc.11",
     "css-loader": "^0.28.11",
     "dexie": "^2.0.4",

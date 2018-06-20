@@ -69,11 +69,22 @@ describe('Creator', () => {
     expect(creator.url).toBe(c_url);
     expect(creator.name).toBe(c_name);
 
-    let activity = new Activity(a_url, a_title);
+    let activity = new Activity(a_url, a_title, 10);
     await activity.save();
     await db.connectActivityToCreator(activity.url, c_url);
 
     let creatorActivity = await db.getCreatorActivity(c_url);
+    console.log(creatorActivity);
     expect(creatorActivity).toHaveLength(1);
+    expect(creatorActivity[0].duration).toBeCloseTo(10);
+  });
+
+  it('gets duration of all activity by creator', async () => {
+    let c_key = await new Creator(c_url, c_name).save();
+    let duration = 10;
+    let a_key = await new Activity(a_url, a_title, duration, c_key).save();
+
+    let result = await db.getTimeForCreators();
+    expect(result[0].duration).toBeCloseTo(duration);
   });
 });

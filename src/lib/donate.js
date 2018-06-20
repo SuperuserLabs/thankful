@@ -47,9 +47,9 @@ export default class Donate {
   }
 
   donateAll() {
-    this._myAcc().then(acc => {
-      web3.eth.sendTransaction(
-        {
+    return this._myAcc()
+      .then(acc => {
+        return web3.eth.sendTransaction({
           from: acc,
           to: addr.erik,
           value: 1e16,
@@ -57,15 +57,12 @@ export default class Donate {
           // Function seems buggy
           //data: web3.utils.utf8ToHex('💛'),
           data: '0xf09f929b',
-        },
-        (err, res) => {
-          if (err) {
-            throw err;
-          }
-          console.log('Sent money:', res);
-        }
-      );
-    });
+        });
+      })
+      .then(res => {
+        console.log('Sent money:', res);
+      })
+      .catch(console.error);
   }
 
   _myAcc() {

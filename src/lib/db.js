@@ -81,6 +81,6 @@ export class Database {
   }
 
   connectActivityToCreator(url, creator) {
-    return this.db.activity.put({ url: url, creator: creator });
+    return this.db.activity.update(url, { creator: creator });
   }
 }

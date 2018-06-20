@@ -2,9 +2,9 @@
 
 import browser from 'webextension-polyfill';
 
-export function waitForElement(elementId, retryTime) {
+export function waitForElement(selector, retryTime) {
   return new Promise((resolve, reject) => {
-    let element = document.getElementById(elementId);
+    let element = document.querySelector(selector);
     if (element) {
       resolve(element);
       return;

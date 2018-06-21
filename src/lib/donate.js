@@ -25,6 +25,9 @@ export default class Donate {
         // We might want to use this for unit testing
         // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
+        // TODO: Generate a bad address to test against (account with 0 balance)
+        //console.log(web3.utils.)
+
         return web3.eth.net.getId();
       })
       .then(netId => {
@@ -55,6 +58,9 @@ export default class Donate {
   _donateOne(addr, amount) {
     return this._myAcc()
       .then(acc => {
+        if (!web3.utils.isAddress(addr)) {
+          throw 'Not an address';
+        }
         return web3.eth.sendTransaction({
           from: acc,
           to: addr,
@@ -112,7 +118,9 @@ export default class Donate {
     return this._usdEthRate()
       .then(usdEthRate => {
         const ethAmount = usdAmount.dividedBy(usdEthRate);
-        return ethAmount.multipliedBy(1e18).dividedToIntegerBy(1);
+        return ethAmount
+          .multipliedBy(web3.utils.unitMap.ether)
+          .dividedToIntegerBy(1);
       })
       .catch(console.error);
   }

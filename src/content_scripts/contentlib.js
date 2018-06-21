@@ -1,29 +1,45 @@
 import browser from 'webextension-polyfill';
 
-export function waitForElement(elementId, retryTime) {
-  return new Promise((resolve, reject) => {
-    let element = document.getElementById(elementId);
-    if (element) {
-      // Worked on first try
-      return resolve(element);
-    } else {
-      // Retry
-      let timerId = window.setInterval(() => {
-        element = document.getElementById(elementId);
-        if (element) {
-          clearInterval(timerId);
-          return resolve(element);
-        }
-      }, retryTime);
+async function queryElement(query, node) {
+  let element = node.querySelector(query);
+  if (element) {
+    return element;
+  } else {
+    throw new Error(`No element found for query: ${query}`);
+  }
+}
+
+function wait(ms) {
+  return new Promise((resolve, reject) => setTimeout(resolve, ms));
+}
+
+export async function waitForElement(
+  query,
+  retryTime,
+  retries = 5,
+  node = document
+) {
+  let error;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await queryElement(query, node);
+    } catch (err) {
+      error = err;
     }
-  });
+    await wait(retryTime);
+  }
+  throw error;
 }
 
 /**
  * Add listener to recrawl page on important changes
  */
 export function addPageChangeListener(listener) {
-  browser.tabs.onUpdated.addListener(listener);
+  browser.runtime.onMessage.addListener(message => {
+    if (message.type === 'pageChange') {
+      listener();
+    }
+  });
 }
 
 /**

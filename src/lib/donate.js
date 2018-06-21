@@ -14,8 +14,6 @@ let web3;
 
 export default class Donate {
   constructor() {
-    console.log('in donate constructor');
-
     this._metamaskExtensionId()
       .then(METAMASK_EXTENSION_ID => {
         const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
@@ -40,7 +38,6 @@ export default class Donate {
           web3 = undefined;
           throw 'Not connected to Ropsten, connected to: ' + netId;
         }
-        console.log('Connected to Ropsten');
       })
       .catch(err => {
         throw err;
@@ -58,7 +55,7 @@ export default class Donate {
     });
     await Promise.all(donationPromises)
       .then(res => {
-        console.log('Donations made:', res);
+        console.log('Donations made:', res.length);
       })
       .catch(console.error);
   }
@@ -104,6 +101,18 @@ export default class Donate {
     } else {
       // Assume Chrome if getBrowserInfo isn't defined
       return Promise.resolve('nkbihfbeogaeaoehlefnkodbefgpgknn');
+    }
+  }
+
+  async _ethUsdRate() {
+    try {
+      const response = await fetch(
+        new Request('https://api.coinmarketcap.com/v1/ticker/ethereum/')
+      );
+      const ethInfo = (await response.json())[0];
+      return ethInfo.price_usd;
+    } catch (err) {
+      throw ('Could not get eth/usd exchange rate', err);
     }
   }
 }

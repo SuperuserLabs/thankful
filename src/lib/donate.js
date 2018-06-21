@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider.js';
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
+import BigNumber from 'bignumber.js';
 
 const addrs = {};
 // All on Ropsten
@@ -45,19 +46,10 @@ export default class Donate {
   }
 
   async donateAll(addressAmounts) {
-    console.log(addressAmounts);
-    const donationPromises = [];
-    Object.keys(addressAmounts).forEach(address => {
-      // TODO: Replace with exchange rate and wei conversion stuff
-      donationPromises.push(
-        this._donateOne(address, addressAmounts[address] * 1e16)
-      );
+    const donationPromises = _.toPairs(addressAmounts).map(async pair => {
+      return this._donateOne(pair[0], await this._usdToWei(BigNumber(pair[1])));
     });
-    await Promise.all(donationPromises)
-      .then(res => {
-        console.log('Donations made:', res.length);
-      })
-      .catch(console.error);
+    await Promise.all(donationPromises).catch(console.error);
   }
 
   _donateOne(addr, amount) {
@@ -104,15 +96,24 @@ export default class Donate {
     }
   }
 
-  async _ethUsdRate() {
+  async _usdEthRate() {
     try {
       const response = await fetch(
-        new Request('https://api.coinmarketcap.com/v1/ticker/ethereum/')
+        new Request('https://api.coinmarketcap.com/v2/ticker/1027/')
       );
-      const ethInfo = (await response.json())[0];
-      return ethInfo.price_usd;
+      const ethInfo = await response.json();
+      return BigNumber(ethInfo.data.quotes.USD.price);
     } catch (err) {
-      throw ('Could not get eth/usd exchange rate', err);
+      throw ('Could not get usd/eth exchange rate', err);
     }
+  }
+
+  _usdToWei(usdAmount) {
+    return this._usdEthRate()
+      .then(usdEthRate => {
+        const ethAmount = usdAmount.dividedBy(usdEthRate);
+        return ethAmount.multipliedBy(1e18).dividedToIntegerBy(1);
+      })
+      .catch(console.error);
   }
 }

@@ -3,12 +3,12 @@ import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
 
-const addr = {};
+const addrs = {};
 // All on Ropsten
-addr.erik = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-addr.patrik = '0xbcEf85708670FA0127C484Ac649724B8028Ea08b';
-addr.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
-addr.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
+addrs.erik = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
+addrs.patrik = '0xbcEf85708670FA0127C484Ac649724B8028Ea08b';
+addrs.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
+addrs.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
 
 let web3;
 
@@ -48,12 +48,25 @@ export default class Donate {
   }
 
   donateAll() {
+    //1e16
+    let donationPromises = [];
+    Object.values(addrs).forEach(addr => {
+      donationPromises.push(this._donateOne(addr, 1e16));
+    });
+    Promise.all(donationPromises)
+      .then(res => {
+        console.log('Donations made:', res);
+      })
+      .catch(console.error);
+  }
+
+  _donateOne(addr, amount) {
     return this._myAcc()
       .then(acc => {
         return web3.eth.sendTransaction({
           from: acc,
-          to: addr.erik,
-          value: 1e16,
+          to: addr,
+          value: amount,
           gas: 1e6,
           // Function seems buggy
           //data: web3.utils.utf8ToHex('💛'),

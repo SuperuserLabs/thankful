@@ -47,8 +47,16 @@ export class Database {
     return this.db.activity.get({ url: url });
   }
 
-  getActivities(limit) {
-    return this.db.activity.limit(limit || 100).toArray();
+  getActivities({ limit = 100, withCreators = null } = {}) {
+    let coll = this.db.activity;
+    if (withCreators !== null) {
+      if (withCreators) {
+        coll = coll.filter(a => a.creator !== undefined);
+      } else {
+        coll = coll.filter(a => a.creator === undefined);
+      }
+    }
+    return coll.limit(limit).toArray();
   }
 
   getCreator(url) {
@@ -81,7 +89,6 @@ export class Database {
         // we can put the results onto the bands array
         // before returning it:
         creators.forEach((creator, i) => {
-          console.log(activities[i]);
           creator.duration = _.sum(_.map(activities[i], a => a.duration || 0));
         });
         return creators;

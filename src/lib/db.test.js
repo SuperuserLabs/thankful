@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import _ from 'lodash';
 
 /*
  * Illegal invocation: https://github.com/axemclion/IndexedDBShim/issues/318
@@ -35,6 +36,28 @@ describe('Activity', () => {
     await activity.save();
     activity = await db.getActivity(url);
     expect(activity.duration).toBeCloseTo(23.37, 3);
+  });
+
+  it('get activity filtered by (un)known creators', async () => {
+    await db.logActivity(url, 13.37);
+    await db.connectActivityToCreator(url, 'https://creatorurl.com');
+    await db.logActivity(url + 'qwe', 13.37);
+    await db.logActivity(url + 'asd', 13.37);
+
+    let acts_all = await db.getActivities({});
+    expect(acts_all).toHaveLength(3);
+
+    let acts_with_creators = await db.getActivities({ withCreators: true });
+    _.forEach(acts_with_creators, a => {
+      expect(a.creator).not.toEqual(undefined);
+    });
+    expect(acts_with_creators).toHaveLength(1);
+
+    let acts_without_creators = await db.getActivities({ withCreators: false });
+    _.forEach(acts_without_creators, a => {
+      expect(a.creator).toEqual(undefined);
+    });
+    expect(acts_without_creators).toHaveLength(2);
   });
 });
 
@@ -74,7 +97,6 @@ describe('Creator', () => {
     await db.connectActivityToCreator(activity.url, c_url);
 
     let creatorActivity = await db.getCreatorActivity(c_url);
-    console.log(creatorActivity);
     expect(creatorActivity).toHaveLength(1);
     expect(creatorActivity[0].duration).toBeCloseTo(10);
   });

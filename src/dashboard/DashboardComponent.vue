@@ -40,16 +40,20 @@ div.container
       //    div.col-md-3.text-right
       //      | {{ Math.round(activity.duration) }}s
 
-      table.table.table-sm(style="overflow: hidden; table-layout: fixed")
-        tr
-          th Page
-          th.text-right(style="width: 20%") Duration
-        tr(v-for="activity in orderedUnattributedActivities")
-          td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-            a(:href="activity.url")
-              | {{ activity.title || activity.url }}
-          td.text-right
-            | {{ Math.round(activity.duration) }}s
+      b-card.p-2.bt-0(no-body)
+        table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+          tr
+            th(style="border-top: 0") Page
+            th.text-right(style="width: 20%; border-top: 0") Duration
+          tr(v-for="activity in orderedUnattributedActivities")
+            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+              a(:href="activity.url")
+                | {{ activity.title || activity.url }}
+            td.text-right
+              | {{ Math.round(activity.duration) }}s
+
+        b-button(variant="outline-secondary", size="sm", v-on:click="numUnorderedShow += 10")
+          | Show more
 
     div.col-md-6
       h3 Empty section
@@ -91,6 +95,7 @@ export default {
       unattributedActivities: [],
       donate: new Donate(),
       monthlyDonation: 10,
+      numUnorderedShow: 10,
     };
   },
   computed: {
@@ -99,7 +104,10 @@ export default {
       return _.sum(_.values(addressAmounts));
     },
     orderedUnattributedActivities() {
-      return _.orderBy(this.unattributedActivities, 'duration', 'desc');
+      return _.take(
+        _.orderBy(this.unattributedActivities, 'duration', 'desc'),
+        this.numUnorderedShow
+      );
     },
   },
   methods: {

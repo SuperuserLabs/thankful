@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 
-async function queryElement(query) {
-  let element = document.querySelector(query);
+async function queryElement(query, node) {
+  let element = node.querySelector(query);
   if (element) {
     return element;
   } else {
@@ -10,14 +10,19 @@ async function queryElement(query) {
 }
 
 function wait(ms) {
-  new Promise((resolve, reject) => setTimeout(resolve, ms));
+  return new Promise((resolve, reject) => setTimeout(resolve, ms));
 }
 
-export async function waitForElement(query, retryTime, retries = 3) {
+export async function waitForElement(
+  query,
+  retryTime,
+  retries = 5,
+  node = document
+) {
   let error;
   for (let i = 0; i < retries; i++) {
     try {
-      return await queryElement(query);
+      return await queryElement(query, node);
     } catch (err) {
       error = err;
     }

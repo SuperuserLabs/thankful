@@ -1,8 +1,8 @@
 {
-  "plugins": ["prettier"],
-  "extends": ["prettier"],
+  "plugins": ["prettier", "vue"],
+  "extends": ["prettier", "plugin:vue/essential"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": "warn",
     "no-shadow": [
       "error",
       {
@@ -11,7 +11,7 @@
     ]
   },
   "parserOptions": {
-    "ecmaVersion": 8,
+    "ecmaVersion": 2017,
     "sourceType": "module"
   }
 }

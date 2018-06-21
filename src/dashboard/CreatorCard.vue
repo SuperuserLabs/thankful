@@ -1,9 +1,22 @@
 <template lang="pug">
-b-card(:title="creator.name", class="mb-2")
+b-card(class="mb-2")
+  div.row
+    div.col-md-9
+      h4 {{ creator.name }}
+    div.col-md-3
+      b-input-group(append="$", size="sm")
+        b-form-input(v-model="allocatedFunds",
+                     type="number", min=0, step=0.1)
+
+  p(v-if="!creator.paymentAddress").text-small
+    b-input-group(prepend="ETH Address", size="sm")
+      b-form-input(v-model="address")
+
   // TODO: Add icons to buttons (with FontAwesome)
   b-button.mr-2(variant="outline-success", size="sm", :href="creator.url") Go to creator page
   b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails")
     | #[span(v-if="!showDetails") Show] #[span(v-else) Hide] details
+
   table.table.table-sm.table-hover.mt-3.mb-0(v-if="showDetails")
     tr
       th Page
@@ -26,6 +39,8 @@ export default {
   data() {
     return {
       showDetails: false,
+      address: '',
+      allocatedFunds: 0,
       activities: [],
     };
   },
@@ -34,26 +49,40 @@ export default {
   },
   watch: {
     showDetails(to, from) {
-      if(to === true && this.activities.length === 0) {
+      if (to === true && this.activities.length === 0) {
         this.getActivities();
       }
-    }
+    },
+    allocatedFunds(to) {
+      this.$emit('allocatedFunds', to);
+    },
+    address(to) {
+      this.$emit('address', to);
+    },
   },
   methods: {
     getActivities() {
       db.getCreatorActivity(this.creator.url).then(activities => {
         // Testing
-        if(activities.length === 0) {
+        if (activities.length === 0) {
           activities = [
-            {"url": "youtube.com/watch?v=asd", "title": "asd", "duration": 100},
-            {"url": "youtube.com/watch?v=qwe", "title": "qwe", "duration": 10}
+            {
+              url: 'https://youtube.com/watch?v=asd',
+              title: 'asd',
+              duration: 100,
+            },
+            {
+              url: 'https://youtube.com/watch?v=qwe',
+              title: 'qwe',
+              duration: 10,
+            },
           ];
         }
 
         this.activities = activities;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

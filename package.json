@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
-    "lint": "eslint --ignore-path=.gitignore .",
+    "lint": "eslint --ignore-path=.gitignore --ext .vue .",
     "build": "webpack",
     "dev": "webpack --watch",
     "precommit": "lint-staged"
@@ -29,13 +29,16 @@
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "bluebird": "^3.5.1",
     "bootstrap-vue": "^2.0.0-rc.11",
     "css-loader": "^0.28.11",
     "dexie": "^2.0.4",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-vue": "^4.5.0",
     "fake-indexeddb": "^2.0.4",
     "google-auth-library": "^1.6.1",
     "googleapis": "^32.0.0",
@@ -43,6 +46,7 @@
     "husky": "^0.14.3",
     "jest": "^23.1.0",
     "lint-staged": "^7.2.0",
+    "lodash": "^4.17.10",
     "prettier": "1.13.5",
     "pug": "^2.0.3",
     "pug-plain-loader": "^1.0.0",

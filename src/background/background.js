@@ -69,14 +69,15 @@ function getCurrentTab() {
   let oldTitle = null;
   const db = new Database();
 
-  function receiveCreator(message, sender, sendResponse) {
-    console.log(message);
-    url = message.url;
-    c_url = message.creator.url;
-    c_name = message.creator.id;
-    new Creator(c_url, c_name).save().then(key => {
-      db.connectActivityToCreator(url, c_url);
-    });
+  async function receiveCreator(msg, sender, sendResponse) {
+    console.log('receiveCreator: ' + JSON.stringify(msg));
+    if (msg.type !== 'creatorFound') {
+      return;
+    }
+    // FIXME: Doing a creator.save() overwrites a preexisting creator object
+    await new Creator(msg.creator.url, msg.creator.name).save();
+    await db.connectActivityToCreator(msg.activity.url, msg.creator.url);
+    console.log('Activity connected to creator');
   }
 
   function stethoscope() {

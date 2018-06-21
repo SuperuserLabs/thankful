@@ -12,9 +12,21 @@ div.container
       h3 Creators
       creator-card(v-for="creator in creators",
                    v-bind:creator="creator",
-                   v-bind:key="creator.url")
+                   v-bind:key="creator.url",
+                   @allocatedFunds="creator.allocatedFunds = $event"
+                   @address="creator.address = $event"
+                   )
+
+      b-button(variant="success", size="lg", v-on:click="donate()")
+        | Donate {{ totalAllocated }}$
+
     div.col-md-6
       h3 Empty section
+      p How much to donate each month:
+        // TODO: Form group
+        b-input-group(append="$")
+          b-form-input(v-model="monthlyDonation")
+
       p Nothing here, yet.
 </template>
 
@@ -22,9 +34,20 @@ div.container
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import { Database, Activity, Creator } from '../lib/db.js';
+import _ from 'lodash';
 
 // TODO: Move to appropriate location
 const db = new Database();
+
+function getAddressAmountMapping(creators) {
+  return _.fromPairs(
+    _.map(creators, k => {
+      return [k.address, Number(k.allocatedFunds)];
+    }).filter(d => {
+      return _.every(d);
+    })
+  );
+}
 
 export default {
   components: {
@@ -32,24 +55,31 @@ export default {
   },
   data: function() {
     return {
-      creators: []
+      creators: [],
+      monthlyDonation: 10,
+      totalAllocated: 0,
     };
   },
   methods: {
+    donate() {
+      let addressAmounts = getAddressAmountMapping(this.creators);
+      this.totalAllocated = _.sum(_.values(addressAmounts));
+      console.log(addressAmounts);
+    },
     refresh() {
-      db.getCreators().then((creators) => {
+      db.getCreators().then(creators => {
         console.log(creators);
 
         // Testing
-        if(creators.length === 0) {
+        if (creators.length === 0) {
           creators = [
             {
-              "url": "https://youtube.com/channel/lol",
-              "name": "sadmemeboi",
+              url: 'https://youtube.com/channel/lol',
+              name: 'sadmemeboi',
             },
             {
-              "url": "https://youtube.com/channel/pewdiepie",
-              "name": "pewdiepie",
+              url: 'https://youtube.com/channel/pewdiepie',
+              name: 'pewdiepie',
             },
           ];
         }

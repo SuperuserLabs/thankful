@@ -1,44 +1,49 @@
-'use strict';
-
 import browser from 'webextension-polyfill';
+import { Creator } from '../lib/db.js';
+import {
+  sendCreator,
+  addPageChangeListener,
+  waitForElement,
+} from './contentlib.js';
 
 // TODO: Should content_youtube.js be renamed to content_script.js and have checks for each site?
 
 function crawlPage() {
   // Tries to extract channel URL from page, retries after 1 second if not successful.
-  let ownerContainer = document.getElementById('owner-container');
-  if (ownerContainer) {
+  waitForElement('owner-container', 1000).then(ownerContainer => {
     let url = document.location.href;
     let channelLink = ownerContainer.getElementsByTagName('a')[0];
-    let creator = {
-      id: channelLink.getAttribute('href'),
-      name: channelLink.textContent,
-    };
-    console.log(creator);
+    if (channelLink === undefined) {
+      // TODO: Try again
+      throw 'channelLink was undefined';
+    }
+    let c_url = channelLink.getAttribute('href');
+    if (!c_url.includes('://')) {
+      c_url = 'https://www.youtube.com' + c_url;
+    }
+    let c_name = channelLink.textContent;
+    let creator = new Creator(c_url, c_name);
+    console.log('Found creator: ' + JSON.stringify(creator));
     sendCreator(url, creator);
-  } else {
-    console.log("Couldn't crawl page for channel URL, trying again in 1s");
-    window.setTimeout(crawlPage, 1000);
-  }
+  });
 }
 
-/**
- * Send message to background.js mapping url to creator
- */
-function sendCreator(url, creator) {
-  browser.runtime.sendMessage({ url: url, creator: creator });
-}
+(function() {
+  console.log('crawlPage defined');
 
-crawlPage();
+  crawlPage();
 
-browser.tabs.onUpdated.addListener(crawlPage);
-// FROM: https://stackoverflow.com/a/19758800/965332
-// Something like this needed to report the (content_url -> creator_url) mapping back to the background process.
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-  // If the received message has the expected format...
-  if (msg.text === 'report_back') {
-    // Call the specified callback, passing
-    // the web-page's DOM content as argument
-    sendResponse(document.all[0].outerHTML);
-  }
-});
+  // FIXME: Can't do this from a content script
+  //addPageChangeListener(crawlPage);
+
+  // FROM: https://stackoverflow.com/a/19758800/965332
+  // Something like this needed to report the (content_url -> creator_url) mapping back to the background process.
+  chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+    // If the received message has the expected format...
+    if (msg.text === 'report_back') {
+      // Call the specified callback, passing
+      // the web-page's DOM content as argument
+      sendResponse(document.all[0].outerHTML);
+    }
+  });
+})();

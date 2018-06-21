@@ -24,7 +24,7 @@ div.container
                    @address="creator.address = $event; creator.save();"
                    )
 
-      b-button(variant="success", size="lg", v-on:click="donate()")
+      b-button(variant="success", size="lg", v-on:click="donateAll()")
         | Donate {{ totalAllocated }}$
 
       hr
@@ -64,6 +64,7 @@ div.container
 <script>
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
+import Donate from '../lib/donate.js';
 import { Database, Activity, Creator } from '../lib/db.js';
 import _ from 'lodash';
 
@@ -88,6 +89,7 @@ export default {
     return {
       creators: [],
       unattributedActivities: [],
+      donate: new Donate(),
       monthlyDonation: 10,
     };
   },
@@ -101,9 +103,10 @@ export default {
     },
   },
   methods: {
-    donate() {
+    donateAll() {
       let addressAmounts = getAddressAmountMapping(this.creators);
       console.log(addressAmounts);
+      this.donate.donateAll(addressAmounts);
     },
     refresh() {
       db.getCreators().then(creators => {

@@ -60,5 +60,8 @@
     "webpack": "^4.12.0",
     "webpack-cli": "^3.0.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "metamask-crx": "github:MetaMask/metamask-extension",
+    "web3": "^1.0.0-beta.34"
+  }
 }

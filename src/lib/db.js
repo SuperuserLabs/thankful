@@ -19,6 +19,9 @@ export class Activity {
 
 export class Creator {
   constructor(url, name) {
+    if (typeof url !== 'string') {
+      throw 'url was invalid type';
+    }
     this.url = url;
     this.name = name;
   }

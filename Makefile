@@ -16,3 +16,7 @@ lint-fix:
 
 test:
 	npm run test
+
+clean:
+	git clean -n dist
+	rm -v dist/**/*.{js,html}

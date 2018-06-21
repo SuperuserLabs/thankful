@@ -29,6 +29,7 @@
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "bluebird": "^3.5.1",
     "bootstrap-vue": "^2.0.0-rc.11",

@@ -47,13 +47,16 @@ export default class Donate {
       });
   }
 
-  donateAll() {
-    //1e16
-    let donationPromises = [];
-    Object.values(addrs).forEach(addr => {
-      donationPromises.push(this._donateOne(addr, 1e16));
+  async donateAll(addressAmounts) {
+    console.log(addressAmounts);
+    const donationPromises = [];
+    Object.keys(addressAmounts).forEach(address => {
+      // TODO: Replace with exchange rate and wei conversion stuff
+      donationPromises.push(
+        this._donateOne(address, addressAmounts[address] * 1e16)
+      );
     });
-    Promise.all(donationPromises)
+    await Promise.all(donationPromises)
       .then(res => {
         console.log('Donations made:', res);
       })

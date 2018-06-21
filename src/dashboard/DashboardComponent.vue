@@ -17,7 +17,7 @@ div.container
                    @address="creator.address = $event"
                    )
 
-      b-button(variant="success", size="lg", v-on:click="donate()")
+      b-button(variant="success", size="lg", v-on:click="donateAll()")
         | Donate {{ totalAllocated }}$
 
     div.col-md-6
@@ -63,10 +63,10 @@ export default {
     };
   },
   methods: {
-    donate() {
+    donateAll() {
       let addressAmounts = getAddressAmountMapping(this.creators);
       this.totalAllocated = _.sum(_.values(addressAmounts));
-      console.log(addressAmounts);
+      this.donate.donateAll(addressAmounts);
     },
     refresh() {
       db.getCreators().then(creators => {
@@ -87,9 +87,6 @@ export default {
         }
         this.creators = creators;
       });
-    },
-    donateAll() {
-      this.donate.donateAll();
     },
   },
   created() {

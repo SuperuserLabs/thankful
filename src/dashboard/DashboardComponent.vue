@@ -120,6 +120,13 @@ export default {
             new Creator('https://youtube.com/channel/pewdiepie', 'pewdiepie'),
           ];
         }
+
+        const thankful_team_creator = new Creator("https://getthankful.io", "Thankful Team")
+        // Eriks address
+        thankful_team_creator.paymentAddress = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
+        thankful_team_creator.info = "Optionally donate to the Thankful team";
+        creators.push(thankful_team_creator);
+
         this.creators = creators;
       });
 

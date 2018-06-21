@@ -92,6 +92,14 @@ function getCurrentTab() {
       });
   }
 
+  function sendPageChange(tabId, changeInfo, tab) {
+    browser.tabs.sendMessage(tabId, {
+      type: 'pageChange',
+    });
+  }
+
+  browser.tabs.onUpdated.addListener(sendPageChange);
+
   browser.runtime.onMessage.addListener(receiveCreator);
 
   browser.idle.onStateChanged.addListener(stethoscope);

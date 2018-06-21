@@ -30,16 +30,6 @@ div.container
       hr
 
       h3 Unattributed Activity
-
-
-      //b-card(v-for="activity in orderedUnattributedActivities"
-      //      v-bind:key="activity.url")
-      //  div.row
-      //    div.col-md-9(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden")
-      //      | #[a(:href="activity.url") {{ activity.title || activity.url }}]
-      //    div.col-md-3.text-right
-      //      | {{ Math.round(activity.duration) }}s
-
       b-card.p-2.bt-0(no-body)
         table.table.table-sm(style="overflow: hidden; table-layout: fixed")
           tr
@@ -51,7 +41,6 @@ div.container
                 | {{ activity.title || activity.url }}
             td.text-right
               | {{ Math.round(activity.duration) }}s
-
         b-button(variant="outline-secondary", size="sm", v-on:click="numUnorderedShow += 10")
           | Show more
 

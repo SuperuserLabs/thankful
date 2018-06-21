@@ -39,7 +39,7 @@ export default {
   data() {
     return {
       showDetails: false,
-      address: "",
+      address: '',
       allocatedFunds: 0,
       activities: [],
     };
@@ -49,32 +49,40 @@ export default {
   },
   watch: {
     showDetails(to, from) {
-      if(to === true && this.activities.length === 0) {
+      if (to === true && this.activities.length === 0) {
         this.getActivities();
       }
     },
     allocatedFunds(to) {
-      this.$emit("allocatedFunds", to);
+      this.$emit('allocatedFunds', to);
     },
     address(to) {
-      this.$emit("address", to);
+      this.$emit('address', to);
     },
   },
   methods: {
     getActivities() {
       db.getCreatorActivity(this.creator.url).then(activities => {
         // Testing
-        if(activities.length === 0) {
+        if (activities.length === 0) {
           activities = [
-            {"url": "https://youtube.com/watch?v=asd", "title": "asd", "duration": 100},
-            {"url": "https://youtube.com/watch?v=qwe", "title": "qwe", "duration": 10}
+            {
+              url: 'https://youtube.com/watch?v=asd',
+              title: 'asd',
+              duration: 100,
+            },
+            {
+              url: 'https://youtube.com/watch?v=qwe',
+              title: 'qwe',
+              duration: 10,
+            },
           ];
         }
 
         this.activities = activities;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

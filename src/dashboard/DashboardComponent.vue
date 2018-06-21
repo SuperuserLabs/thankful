@@ -39,14 +39,14 @@ import _ from 'lodash';
 // TODO: Move to appropriate location
 const db = new Database();
 
-
 function getAddressAmountMapping(creators) {
-  return _.fromPairs(_.map(creators,
-    (k) => {
+  return _.fromPairs(
+    _.map(creators, k => {
       return [k.address, Number(k.allocatedFunds)];
-    }).filter((d) => {
+    }).filter(d => {
       return _.every(d);
-    }));
+    })
+  );
 }
 
 export default {
@@ -57,7 +57,7 @@ export default {
     return {
       creators: [],
       monthlyDonation: 10,
-      totalAllocated: 0
+      totalAllocated: 0,
     };
   },
   methods: {
@@ -67,19 +67,19 @@ export default {
       console.log(addressAmounts);
     },
     refresh() {
-      db.getCreators().then((creators) => {
+      db.getCreators().then(creators => {
         console.log(creators);
 
         // Testing
-        if(creators.length === 0) {
+        if (creators.length === 0) {
           creators = [
             {
-              "url": "https://youtube.com/channel/lol",
-              "name": "sadmemeboi",
+              url: 'https://youtube.com/channel/lol',
+              name: 'sadmemeboi',
             },
             {
-              "url": "https://youtube.com/channel/pewdiepie",
-              "name": "pewdiepie",
+              url: 'https://youtube.com/channel/pewdiepie',
+              name: 'pewdiepie',
             },
           ];
         }

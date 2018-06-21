@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
-    "lint": "eslint --ignore-path=.gitignore .",
+    "lint": "eslint --ignore-path=.gitignore --ext .vue .",
     "build": "webpack",
     "dev": "webpack --watch",
     "precommit": "lint-staged"
@@ -37,6 +37,7 @@
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-vue": "^4.5.0",
     "fake-indexeddb": "^2.0.4",
     "google-auth-library": "^1.6.1",
     "googleapis": "^32.0.0",

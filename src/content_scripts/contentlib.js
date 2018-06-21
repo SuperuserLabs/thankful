@@ -1,22 +1,29 @@
 import browser from 'webextension-polyfill';
 
-export function waitForElement(elementId, retryTime) {
-  return new Promise((resolve, reject) => {
-    let element = document.getElementById(elementId);
-    if (element) {
-      // Worked on first try
-      return resolve(element);
-    } else {
-      // Retry
-      let timerId = window.setInterval(() => {
-        element = document.getElementById(elementId);
-        if (element) {
-          clearInterval(timerId);
-          return resolve(element);
-        }
-      }, retryTime);
+async function queryElement(query) {
+  let element = document.querySelector(query);
+  if (element) {
+    return element;
+  } else {
+    throw new Error(`No element found for query: ${query}`);
+  }
+}
+
+function wait(ms) {
+  new Promise((resolve, reject) => setTimeout(resolve, ms));
+}
+
+export async function waitForElement(query, retryTime, retries = 3) {
+  let error;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await queryElement(query);
+    } catch (err) {
+      error = err;
     }
-  });
+    await wait(retryTime);
+  }
+  throw error;
 }
 
 /**

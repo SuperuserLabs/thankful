@@ -23,7 +23,11 @@ export function waitForElement(elementId, retryTime) {
  * Add listener to recrawl page on important changes
  */
 export function addPageChangeListener(listener) {
-  browser.tabs.onUpdated.addListener(listener);
+  browser.runtime.onMessage.addListener(message => {
+    if (message.type === 'pageChange') {
+      listener();
+    }
+  });
 }
 
 /**

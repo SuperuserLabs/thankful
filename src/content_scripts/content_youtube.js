@@ -33,17 +33,5 @@ function crawlPage() {
 
   crawlPage();
 
-  // FIXME: Can't do this from a content script
-  //addPageChangeListener(crawlPage);
-
-  // FROM: https://stackoverflow.com/a/19758800/965332
-  // Something like this needed to report the (content_url -> creator_url) mapping back to the background process.
-  chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-    // If the received message has the expected format...
-    if (msg.text === 'report_back') {
-      // Call the specified callback, passing
-      // the web-page's DOM content as argument
-      sendResponse(document.all[0].outerHTML);
-    }
-  });
+  addPageChangeListener(crawlPage);
 })();

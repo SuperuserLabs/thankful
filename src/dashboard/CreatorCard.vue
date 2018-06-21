@@ -12,6 +12,8 @@ b-card(class="mb-2")
     b-input-group(prepend="ETH Address", size="sm")
       b-form-input(v-model="address")
 
+  p(v-if="creator.info").text-small {{ creator.info }}
+
   // TODO: Add icons to buttons (with FontAwesome)
   b-button.mr-2(variant="outline-success", size="sm", :href="creator.url") Go to creator page
   b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails")

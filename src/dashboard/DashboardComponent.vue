@@ -3,22 +3,46 @@ div.container
   div.row
     div.col.mt-4
       h1 Thankful
+    div.col
+      b-alert(show).mt-2.mb-0.p-2
+        h5 We're in alpha!
+        div
+          | Things are not all they could be and will break, but we're working on it.
+  div.row
+    div.col
       hr
 
   div.row
-    div(v-if="creators.length === 0")
-      | No creators to show
     div.col-md-6
       h3 Creators
+      div(v-if="creators.length === 0")
+        | No creators to show
       creator-card(v-for="creator in creators",
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
-                   @allocatedFunds="creator.allocatedFunds = $event"
-                   @address="creator.address = $event"
+                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();"
+                   @address="creator.address = $event; creator.save();"
                    )
 
       b-button(variant="success", size="lg", v-on:click="donateAll()")
         | Donate {{ totalAllocated }}$
+
+      hr
+
+      h3 Unattributed Activity
+      b-card.p-2.bt-0(no-body)
+        table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+          tr
+            th(style="border-top: 0") Page
+            th.text-right(style="width: 20%; border-top: 0") Duration
+          tr(v-for="activity in orderedUnattributedActivities")
+            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+              a(:href="activity.url")
+                | {{ activity.title || activity.url }}
+            td.text-right
+              | {{ Math.round(activity.duration) }}s
+        b-button(variant="outline-secondary", size="sm", v-on:click="numUnorderedShow += 10")
+          | Show more
 
     div.col-md-6
       h3 Empty section
@@ -57,15 +81,28 @@ export default {
   data: function() {
     return {
       creators: [],
+      unattributedActivities: [],
       donate: new Donate(),
       monthlyDonation: 10,
-      totalAllocated: 0,
+      numUnorderedShow: 10,
     };
+  },
+  computed: {
+    totalAllocated() {
+      let addressAmounts = getAddressAmountMapping(this.creators);
+      return _.sum(_.values(addressAmounts));
+    },
+    orderedUnattributedActivities() {
+      return _.take(
+        _.orderBy(this.unattributedActivities, 'duration', 'desc'),
+        this.numUnorderedShow
+      );
+    },
   },
   methods: {
     donateAll() {
       let addressAmounts = getAddressAmountMapping(this.creators);
-      this.totalAllocated = _.sum(_.values(addressAmounts));
+      console.log(addressAmounts);
       this.donate.donateAll(addressAmounts);
     },
     refresh() {
@@ -75,14 +112,12 @@ export default {
         // Testing
         if (creators.length === 0) {
           creators = [
-            {
-              url: 'https://youtube.com/channel/lol',
-              name: 'sadmemeboi',
-            },
-            {
-              url: 'https://youtube.com/channel/pewdiepie',
-              name: 'pewdiepie',
-            },
+            new Creator(
+              'https://example.com/test',
+              'No data found, all data is testing data'
+            ),
+            new Creator('https://youtube.com/channel/lol', 'sadmemeboi'),
+            new Creator('https://youtube.com/channel/pewdiepie', 'pewdiepie'),
           ];
         }
 
@@ -93,6 +128,10 @@ export default {
         creators.push(thankful_team_creator);
 
         this.creators = creators;
+      });
+
+      db.getActivities({ withCreators: false }).then(acts => {
+        this.unattributedActivities = acts;
       });
     },
   },

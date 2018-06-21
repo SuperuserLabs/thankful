@@ -18,6 +18,9 @@ function crawlPage() {
       throw 'channelLink was undefined';
     }
     let c_url = channelLink.getAttribute('href');
+    if (!c_url.includes('://')) {
+      c_url = 'https://www.youtube.com' + c_url;
+    }
     let c_name = channelLink.textContent;
     let creator = new Creator(c_url, c_name);
     console.log('Found creator: ' + JSON.stringify(creator));

@@ -13,8 +13,8 @@ div.container
       creator-card(v-for="creator in creators",
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
-                   @allocatedFunds="creator.allocatedFunds = $event"
-                   @address="creator.address = $event"
+                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();"
+                   @address="creator.address = $event; creator.save();"
                    )
 
       b-button(variant="success", size="lg", v-on:click="donate()")
@@ -57,13 +57,17 @@ export default {
     return {
       creators: [],
       monthlyDonation: 10,
-      totalAllocated: 0,
     };
+  },
+  computed: {
+    totalAllocated() {
+      let addressAmounts = getAddressAmountMapping(this.creators);
+      return _.sum(_.values(addressAmounts));
+    },
   },
   methods: {
     donate() {
       let addressAmounts = getAddressAmountMapping(this.creators);
-      this.totalAllocated = _.sum(_.values(addressAmounts));
       console.log(addressAmounts);
     },
     refresh() {
@@ -73,14 +77,12 @@ export default {
         // Testing
         if (creators.length === 0) {
           creators = [
-            {
-              url: 'https://youtube.com/channel/lol',
-              name: 'sadmemeboi',
-            },
-            {
-              url: 'https://youtube.com/channel/pewdiepie',
-              name: 'pewdiepie',
-            },
+            new Creator(
+              'https://example.com/test',
+              'No data found, all data is testing data'
+            ),
+            new Creator('https://youtube.com/channel/lol', 'sadmemeboi'),
+            new Creator('https://youtube.com/channel/pewdiepie', 'pewdiepie'),
           ];
         }
         this.creators = creators;

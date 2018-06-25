@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider.js';
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
+import BigNumber from 'bignumber.js';
 
 const addrs = {};
 // All on Ropsten
@@ -14,8 +15,6 @@ let web3;
 
 export default class Donate {
   constructor() {
-    console.log('in donate constructor');
-
     this._metamaskExtensionId()
       .then(METAMASK_EXTENSION_ID => {
         const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
@@ -40,7 +39,6 @@ export default class Donate {
           web3 = undefined;
           throw 'Not connected to Ropsten, connected to: ' + netId;
         }
-        console.log('Connected to Ropsten');
       })
       .catch(err => {
         throw err;
@@ -48,38 +46,51 @@ export default class Donate {
   }
 
   async donateAll(addressAmounts) {
-    console.log(addressAmounts);
-    const donationPromises = [];
-    Object.keys(addressAmounts).forEach(address => {
-      // TODO: Replace with exchange rate and wei conversion stuff
-      donationPromises.push(
-        this._donateOne(address, addressAmounts[address] * 1e16)
-      );
+    const donationPromises = _.toPairs(addressAmounts).map(async pair => {
+      return this._donateOne(pair[0], await this._usdToWei(BigNumber(pair[1])));
     });
-    await Promise.all(donationPromises)
-      .then(res => {
-        console.log('Donations made:', res);
-      })
-      .catch(console.error);
+    await Promise.all(donationPromises).catch(console.error);
   }
 
-  _donateOne(addr, amount) {
-    return this._myAcc()
-      .then(acc => {
-        return web3.eth.sendTransaction({
-          from: acc,
-          to: addr,
-          value: amount,
-          gas: 1e6,
-          // Function seems buggy
-          //data: web3.utils.utf8ToHex('💛'),
-          data: '0xf09f929b',
-        });
+  isAddress(address) {
+    return web3.utils.isAddress(address);
+  }
+
+  // To test this, get a 0-balance address by taking an actual address and
+  // making it lowercase (to get past the checksum) and then changing one
+  // letter/number to something else.
+  hasBalance(address) {
+    return web3.eth
+      .getBalance(address)
+      .then(balance => {
+        return balance > 0;
       })
-      .then(res => {
-        console.log('Sent money:', res);
-      })
-      .catch(console.error);
+      .catch(err => {
+        console.error('Could not get balance of', address, ':', err);
+      });
+  }
+
+  async _donateOne(addr, amount) {
+    try {
+      if (!this.isAddress(addr)) {
+        throw 'Not an address';
+      }
+      if (!(await this.hasBalance(addr))) {
+        throw 'Address looks inactive (0 balance)';
+      }
+      const myAcc = await this._myAcc();
+      await web3.eth.sendTransaction({
+        from: myAcc,
+        to: addr,
+        value: amount,
+        gas: 1e6,
+        // Function seems buggy
+        //data: web3.utils.utf8ToHex('💛'),
+        data: '0xf09f929b',
+      });
+    } catch (error) {
+      console.error('Failed to donate to', addr, ':', error);
+    }
   }
 
   _myAcc() {
@@ -105,5 +116,28 @@ export default class Donate {
       // Assume Chrome if getBrowserInfo isn't defined
       return Promise.resolve('nkbihfbeogaeaoehlefnkodbefgpgknn');
     }
+  }
+
+  async _usdEthRate() {
+    try {
+      const response = await fetch(
+        new Request('https://api.coinmarketcap.com/v2/ticker/1027/')
+      );
+      const ethInfo = await response.json();
+      return BigNumber(ethInfo.data.quotes.USD.price);
+    } catch (err) {
+      throw ('Could not get usd/eth exchange rate', err);
+    }
+  }
+
+  _usdToWei(usdAmount) {
+    return this._usdEthRate()
+      .then(usdEthRate => {
+        const ethAmount = usdAmount.dividedBy(usdEthRate);
+        return ethAmount
+          .multipliedBy(web3.utils.unitMap.ether)
+          .dividedToIntegerBy(1);
+      })
+      .catch(console.error);
   }
 }

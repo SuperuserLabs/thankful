@@ -55,10 +55,14 @@ export default class Donate {
     await Promise.all(donationPromises).catch(console.error);
   }
 
+  isAddress(address) {
+    return web3.utils.isAddress(address);
+  }
+
   _donateOne(addr, amount) {
     return this._myAcc()
       .then(acc => {
-        if (!web3.utils.isAddress(addr)) {
+        if (!this.isAddress(addr)) {
           throw 'Not an address';
         }
         return web3.eth.sendTransaction({

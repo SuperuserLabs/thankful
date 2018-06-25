@@ -73,34 +73,27 @@ export default class Donate {
       });
   }
 
-  _donateOne(addr, amount) {
-    let myAcc;
-    return this._myAcc()
-      .then(acc => {
-        myAcc = acc;
-        if (!this.isAddress(addr)) {
-          throw 'Not an address';
-        }
-        return this.hasBalance(addr);
-      })
-      .then(hasBalance => {
-        if (!hasBalance) {
-          throw 'Address looks inactive (0 balance)';
-        }
-        return web3.eth.sendTransaction({
-          from: myAcc,
-          to: addr,
-          value: amount,
-          gas: 1e6,
-          // Function seems buggy
-          //data: web3.utils.utf8ToHex('💛'),
-          data: '0xf09f929b',
-        });
-      })
-      .then(res => {
-        console.log('Sent money:', res);
-      })
-      .catch(console.error);
+  async _donateOne(addr, amount) {
+    try {
+      if (!this.isAddress(addr)) {
+        throw 'Not an address';
+      }
+      if (!(await this.hasBalance(addr))) {
+        throw 'Address looks inactive (0 balance)';
+      }
+      const myAcc = await this._myAcc();
+      await web3.eth.sendTransaction({
+        from: myAcc,
+        to: addr,
+        value: amount,
+        gas: 1e6,
+        // Function seems buggy
+        //data: web3.utils.utf8ToHex('💛'),
+        data: '0xf09f929b',
+      });
+    } catch (error) {
+      console.error('Failed to donate to', addr, ':', error);
+    }
   }
 
   _myAcc() {

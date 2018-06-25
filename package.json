@@ -63,6 +63,7 @@
     "websocket": "^1.0.26"
   },
   "dependencies": {
+    "bignumber.js": "^7.2.1",
     "metamask-crx": "github:MetaMask/metamask-extension",
     "web3": "^1.0.0-beta.34"
   }

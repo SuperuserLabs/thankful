@@ -3,6 +3,7 @@ import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
 import BigNumber from 'bignumber.js';
+import { Database, Donation } from './db';
 
 const addrs = {};
 // All on Ropsten
@@ -12,9 +13,12 @@ addrs.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
 addrs.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
 
 let web3;
+let db;
 
 export default class Donate {
   constructor() {
+    db = new Database();
+
     this._metamaskExtensionId()
       .then(METAMASK_EXTENSION_ID => {
         const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
@@ -45,9 +49,14 @@ export default class Donate {
       });
   }
 
-  async donateAll(addressAmounts) {
-    const donationPromises = _.toPairs(addressAmounts).map(async pair => {
-      return this._donateOne(pair[0], await this._usdToWei(BigNumber(pair[1])));
+  async donateAll(donations) {
+    const donationPromises = donations.map(async d => {
+      console.log('funds:', d.allocatedFunds);
+      return this._donateOne(
+        d.address,
+        await this._usdToWei(BigNumber(d.allocatedFunds)),
+        d.url
+      );
     });
     await Promise.all(donationPromises).catch(console.error);
   }
@@ -70,7 +79,7 @@ export default class Donate {
       });
   }
 
-  async _donateOne(addr, amount) {
+  async _donateOne(addr, amount, creatorUrl) {
     try {
       if (!this.isAddress(addr)) {
         throw 'Not an address';
@@ -88,6 +97,12 @@ export default class Donate {
         //data: web3.utils.utf8ToHex('💛'),
         data: '0xf09f929b',
       });
+      // TODO: Apparently sendTransaction doesn't fully finish until the block
+      // is mined. The user has plenty of time to close the tab before the
+      // donation is logged, possibly finishing the transaction but not logging
+      // it. Can we solve this?
+      await db.logDonation(new Donation(creatorUrl, amount.toString()));
+      console.log('Logged donation');
     } catch (error) {
       console.error('Failed to donate to', addr, ':', error);
     }

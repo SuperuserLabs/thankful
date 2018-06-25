@@ -129,7 +129,7 @@ export class Database {
     return this.db.activity.update(url, { creator: creator });
   }
 
-  addDonation(donation) {
+  logDonation(donation) {
     return this.db.donations.add(donation);
   }
 }

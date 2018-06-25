@@ -59,14 +59,36 @@ export default class Donate {
     return web3.utils.isAddress(address);
   }
 
+  // To test this, get a 0-balance address by taking an actual address and
+  // making it lowercase (to get past the checksum) and then changing one
+  // letter/number to something else.
+  hasBalance(address) {
+    return web3.eth
+      .getBalance(address)
+      .then(balance => {
+        return balance > 0;
+      })
+      .catch(err => {
+        console.error('Could not get balance of', address, ':', err);
+      });
+  }
+
   _donateOne(addr, amount) {
+    let myAcc;
     return this._myAcc()
       .then(acc => {
+        myAcc = acc;
         if (!this.isAddress(addr)) {
           throw 'Not an address';
         }
+        return this.hasBalance(addr);
+      })
+      .then(hasBalance => {
+        if (!hasBalance) {
+          throw 'Address looks inactive (0 balance)';
+        }
         return web3.eth.sendTransaction({
-          from: acc,
+          from: myAcc,
           to: addr,
           value: amount,
           gas: 1e6,
@@ -127,19 +149,5 @@ export default class Donate {
           .dividedToIntegerBy(1);
       })
       .catch(console.error);
-  }
-
-  // To test this, get a 0-balance address by taking an actual address and
-  // making it lowercase (to get past the checksum) and then changing one
-  // letter/number to something else.
-  _hasBalance(address) {
-    return web3.eth
-      .getBalance(address)
-      .then(balance => {
-        return balance > 0;
-      })
-      .catch(err => {
-        console.error('Could not get balance of', address, ':', err);
-      });
   }
 }

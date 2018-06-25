@@ -128,4 +128,18 @@ export default class Donate {
       })
       .catch(console.error);
   }
+
+  // To test this, get a 0-balance address by taking an actual address and
+  // making it lowercase (to get past the checksum) and then changing one
+  // letter/number to something else.
+  _hasBalance(address) {
+    return web3.eth
+      .getBalance(address)
+      .then(balance => {
+        return balance > 0;
+      })
+      .catch(err => {
+        console.error('Could not get balance of', address, ':', err);
+      });
+  }
 }

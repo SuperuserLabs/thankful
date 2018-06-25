@@ -31,15 +31,25 @@ export class Creator {
   }
 }
 
+export class Donation {
+  constructor(creatorUrl, amount) {
+    this.date = new Date();
+    this.url = creatorUrl;
+    this.amount = amount;
+  }
+}
+
 export class Database {
   constructor() {
     _db = new Dexie('Thankful');
     _db.version(1).stores({
       activity: '&url, title, duration, creator',
       creator: '&url, name',
+      donations: '++id, date, url, amount',
     });
     _db.activity.mapToClass(Activity);
     _db.creator.mapToClass(Creator);
+    _db.donations.mapToClass(Donation);
     this.db = _db;
   }
 
@@ -117,5 +127,9 @@ export class Database {
 
   connectActivityToCreator(url, creator) {
     return this.db.activity.update(url, { creator: creator });
+  }
+
+  addDonation(donation) {
+    return this.db.donations.add(donation);
   }
 }

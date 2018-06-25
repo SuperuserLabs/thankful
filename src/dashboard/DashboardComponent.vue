@@ -101,9 +101,20 @@ export default {
   },
   methods: {
     donateAll() {
+      // TODO: Merge addressAmounts with donations once the PR is merged
       let addressAmounts = getAddressAmountMapping(this.creators);
-      console.log(addressAmounts);
-      this.donate.donateAll(addressAmounts);
+      console.log('addressAmounts:', addressAmounts);
+      //const donations =
+      this.donate.donateAll(addressAmounts).then(() => {
+        // TODO: Make sure we don't log if donations fail
+        return Promise.all(_.toPairs(addressAmounts).map(pair => {
+          return db.addDonation(new Donation('creatorurl', pair[1]));
+        }));
+      }).catch(err => {
+        console.log('Donating failed:', err);
+      })
+         
+
     },
     refresh() {
       db.getCreators().then(creators => {

@@ -25,9 +25,6 @@ export default class Donate {
         // We might want to use this for unit testing
         // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-        // TODO: Generate a bad address to test against (account with 0 balance)
-        //console.log(web3.utils.)
-
         return web3.eth.net.getId();
       })
       .then(netId => {

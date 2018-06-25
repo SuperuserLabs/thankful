@@ -1,18 +1,6 @@
 <template lang="pug">
 div.container
   div.row
-    div.col.mt-4
-      h1 Thankful
-    div.col
-      b-alert(show).mt-2.mb-0.p-2
-        h5 We're in alpha!
-        div
-          | Things are not all they could be and will break, but we're working on it.
-  div.row
-    div.col
-      hr
-
-  div.row
     div.col-md-6
       h3 Creators
       div(v-if="creators.length === 0")
@@ -41,8 +29,8 @@ div.container
                 | {{ activity.title || activity.url }}
             td.text-right
               | {{ Math.round(activity.duration) }}s
-        b-button(variant="outline-secondary", size="sm", v-on:click="numUnorderedShow += 10")
-          | Show more
+        b-button(variant="outline-secondary", size="sm", to="/activity")
+          | Show all
 
     div.col-md-6
       h3 Empty section
@@ -132,10 +120,14 @@ export default {
           ];
         }
 
-        const thankful_team_creator = new Creator("https://getthankful.io", "Thankful Team")
+        const thankful_team_creator = new Creator(
+          'https://getthankful.io',
+          'Thankful Team'
+        );
         // Eriks address
-        thankful_team_creator.paymentAddress = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-        thankful_team_creator.info = "Optionally donate to the Thankful team";
+        thankful_team_creator.paymentAddress =
+          '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
+        thankful_team_creator.info = 'Optionally donate to the Thankful team';
         creators.push(thankful_team_creator);
 
         this.creators = creators;

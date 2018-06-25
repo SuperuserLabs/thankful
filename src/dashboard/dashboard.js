@@ -6,8 +6,11 @@ Vue.use(BootstrapVue);
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
-import DashboardComponent from './DashboardComponent.vue';
+import router from './route.js';
+
+import App from './App.vue';
 new Vue({
   el: '#dashboard',
-  render: h => h(DashboardComponent),
+  router: router,
+  render: h => h(App),
 });

@@ -10,13 +10,16 @@ div.container
             font-awesome-icon(icon="user-plus")
       div(v-if="creators.length === 0")
         | No creators to show
-      creator-card(v-for="(creator, index) in creators.slice().reverse()",
+      creator-card(v-for="(creator, index) in creators",
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
                    v-bind:editing="index === editing",
                    @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
                    @address="creator.address = $event; creator.save();",
                    @save="Object.assign(creator, $event); creator.save(); editing = -1;"
+                   @cancel="cancel(creator)"
+                   @edit="editing = index"
+                   @remove="remove(creator, index)"
                    )
 
       b-button(variant="success", size="lg", v-on:click="donateAll()")
@@ -103,9 +106,20 @@ export default {
     },
     addCreator() {
       if (this.editing < 0) {
-        this.creators.push(new Creator('', ''));
+        this.creators.unshift(new Creator('', ''));
         this.editing = 0;
       }
+    },
+    cancel(creator) {
+      if (creator.url === '') {
+        this.creators.shift();
+      }
+      this.editing = -1;
+    },
+    remove(creator, index) {
+      creator.delete();
+      this.creators.splice(index, 1);
+      this.editing = -1;
     },
     refresh() {
       db.getCreators().then(creators => {

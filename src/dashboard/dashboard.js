@@ -9,10 +9,21 @@ import {
   faInfoCircle,
   faEdit,
   faPen,
+  faTrash,
+  faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faUserPlus, faSave, faBan, faEdit, faInfoCircle, faPen);
+library.add(
+  faUserPlus,
+  faSave,
+  faBan,
+  faEdit,
+  faInfoCircle,
+  faPen,
+  faTrash,
+  faExternalLinkAlt
+);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

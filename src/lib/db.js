@@ -29,6 +29,11 @@ export class Creator {
   save() {
     return _db.creator.put(this);
   }
+
+  delete() {
+    console.log(this.url);
+    return _db.creator.delete(this.url);
+  }
 }
 
 export class Database {

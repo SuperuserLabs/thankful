@@ -32,10 +32,11 @@ export class Creator {
 }
 
 export class Donation {
-  constructor(creatorUrl, amount) {
+  constructor(creatorUrl, amount, transaction) {
     this.date = new Date();
     this.url = creatorUrl;
     this.amount = amount;
+    this.transaction = transaction;
   }
 }
 

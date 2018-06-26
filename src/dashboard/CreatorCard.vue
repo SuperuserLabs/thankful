@@ -9,7 +9,8 @@ b-card(class="mb-2" no-body)
           b-form-input(v-model="allocatedFunds",
                        type="number", min=0, step=0.1)
 
-    p(v-if="!creator.paymentAddress").text-small
+    // TODO: change this to address once adding/editing a creator is added
+    p(v-if="!creator.asdfaddress").text-small
       b-input-group(prepend="ETH Address", size="sm")
         b-form-input(v-model="address")
 

@@ -88,21 +88,23 @@ export default class Donate {
         throw 'Address looks inactive (0 balance)';
       }
       const myAcc = await this._myAcc();
-      await web3.eth.sendTransaction({
-        from: myAcc,
-        to: addr,
-        value: amount,
-        gas: 1e6,
-        // Function seems buggy
-        //data: web3.utils.utf8ToHex('💛'),
-        data: '0xf09f929b',
-      });
-      // TODO: Apparently sendTransaction doesn't fully finish until the block
-      // is mined. The user has plenty of time to close the tab before the
-      // donation is logged, possibly finishing the transaction but not logging
-      // it. Can we solve this?
-      await db.logDonation(new Donation(creatorUrl, amount.toString()));
-      console.log('Logged donation');
+      await web3.eth
+        .sendTransaction({
+          from: myAcc,
+          to: addr,
+          value: amount,
+          gas: 1e6,
+          // Function seems buggy
+          //data: web3.utils.utf8ToHex('💛'),
+          data: '0xf09f929b',
+        })
+        .once('transactionHash', hash => {
+          return db
+            .logDonation(new Donation(creatorUrl, amount.toString(), hash))
+            .catch(err => {
+              console.error('Failed to log donation:', err);
+            });
+        });
     } catch (error) {
       console.error('Failed to donate to', addr, ':', error);
     }

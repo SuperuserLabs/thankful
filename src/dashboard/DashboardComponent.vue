@@ -48,9 +48,9 @@ div.container
             th.text-right(style="width: 20%; border-top: 0") Amount
           tr(v-for="donation in donationList")
             td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              | 2018-06-26
+              | {{donation.date.toLocaleDateString()}}
             td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              | {{donation.url}}
+              | {{donation.creator}}
             td.text-right
               | {{donation.usdAmount}} $
         b-button(variant="outline-secondary", size="sm", to="/activity")

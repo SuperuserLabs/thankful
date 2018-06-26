@@ -137,6 +137,22 @@ export class Database {
 
   getDonations() {
     // TODO: This probably returns the oldest donations, shouldn't
-    return this.db.donations.limit(100).toArray();
+    let donations;
+    return this.db.donations
+      .limit(100)
+      .toArray()
+      .then(ds => {
+        donations = ds;
+        return Promise.all(donations.map(d => this.getCreator(d.url)));
+      })
+      .then(names => {
+        return _.zip(donations, names).map(p => {
+          p[0].creator = p[1].name;
+          return p[0];
+        });
+      })
+      .catch(err => {
+        console.log("Couldn't get donation history from db:", err);
+      });
   }
 }

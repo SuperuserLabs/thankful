@@ -2,9 +2,9 @@
 div.container
   div.row
     div.col-md-6
-      div.row
-        h3.col-md-9 Creators
-        div.col-md-3
+      div.d-flex.flex-row.justify-content-between
+        h3 Creators
+        div
           b-button(v-if="editing < 0",variant="outline-secondary", size="sm", v-on:click="addCreator()")
             | Add creator 
             font-awesome-icon(icon="user-plus")
@@ -16,7 +16,7 @@ div.container
                    v-bind:editing="index === editing",
                    @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
                    @address="creator.address = $event; creator.save();",
-                   @save="Object.assign(creator, $event); creator.save(); editing = -1;"
+                   @save="save(creator, $event)"
                    @cancel="cancel(creator)"
                    @edit="editing = index"
                    @remove="remove(creator, index)"
@@ -120,6 +120,13 @@ export default {
       creator.delete();
       this.creators.splice(index, 1);
       this.editing = -1;
+    },
+    save(creator, edited) {
+      creator.delete().then(() => {
+        Object.assign(creator, edited);
+        creator.save();
+        this.editing = -1;
+      });
     },
     refresh() {
       db.getCreators().then(creators => {

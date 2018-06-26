@@ -31,7 +31,6 @@ export class Creator {
   }
 
   delete() {
-    console.log(this.url);
     return _db.creator.delete(this.url);
   }
 }

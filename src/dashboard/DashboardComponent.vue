@@ -48,9 +48,12 @@ div.container
             th.text-right(style="width: 20%; border-top: 0") Amount
           tr(v-for="donation in donationList")
             td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              | {{donation.date.toLocaleDateString()}}
+              // TODO: Adjust this to also work on mainnet when we have a DEBUG variable
+              a(:href="'https://ropsten.etherscan.io/tx/' + donation.transaction" target="_blank")
+                | {{donation.date.toLocaleDateString()}}
             td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              | {{donation.creator}}
+              a(:href="donation.url" target="_blank")
+                | {{donation.creator}}
             td.text-right
               | {{donation.usdAmount}} $
         b-button(variant="outline-secondary", size="sm", to="/activity")

@@ -120,6 +120,7 @@ export default {
         thankful_team_creator.address =
           '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
         thankful_team_creator.info = 'Optionally donate to the Thankful team';
+        thankful_team_creator.predefined = true;
         creators.push(thankful_team_creator);
 
         this.creators = creators;

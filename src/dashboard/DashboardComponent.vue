@@ -43,7 +43,7 @@ div.container
       b-card.p-2.bt-0(no-body)
         table.table.table-sm(style="overflow: hidden; table-layout: fixed")
           tr
-            th(style="border-top: 0") Date
+            th(style="width: 25%; border-top: 0") Date
             th(style="border-top: 0") Creator
             th.text-right(style="width: 20%; border-top: 0") Amount
           tr(v-for="donation in donationList")
@@ -52,7 +52,7 @@ div.container
             td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
               | {{donation.url}}
             td.text-right
-              | {{donation.amount}} wei
+              | {{donation.usdAmount}} $
         b-button(variant="outline-secondary", size="sm", to="/activity")
           | {{"Don't Show all"}}
 </template>
@@ -148,9 +148,9 @@ export default {
         this.unattributedActivities = acts;
       });
 
-      db.getDonations().then(donations => {
-        this.donationLog = donations;
-      })
+      db.getDonations().then(ds => {
+        this.donationLog = ds;
+      }).catch(console.error);
     },
   },
   created() {

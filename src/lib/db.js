@@ -32,10 +32,11 @@ export class Creator {
 }
 
 export class Donation {
-  constructor(creatorUrl, amount, transaction) {
+  constructor(creatorUrl, weiAmount, usdAmount, transaction) {
     this.date = new Date();
     this.url = creatorUrl;
-    this.amount = amount;
+    this.weiAmount = weiAmount;
+    this.usdAmount = usdAmount;
     this.transaction = transaction;
   }
 }
@@ -46,7 +47,7 @@ export class Database {
     _db.version(1).stores({
       activity: '&url, title, duration, creator',
       creator: '&url, name',
-      donations: '++id, date, url, amount',
+      donations: '++id, date, url, weiAmount, usdAmount',
     });
     _db.activity.mapToClass(Activity);
     _db.creator.mapToClass(Creator);

@@ -51,12 +51,7 @@ export default class Donate {
 
   async donateAll(donations) {
     const donationPromises = donations.map(async d => {
-      console.log('funds:', d.allocatedFunds);
-      return this._donateOne(
-        d.address,
-        await this._usdToWei(BigNumber(d.allocatedFunds)),
-        d.url
-      );
+      return this._donateOne(d.address, BigNumber(d.allocatedFunds), d.url);
     });
     await Promise.all(donationPromises).catch(console.error);
   }
@@ -79,7 +74,7 @@ export default class Donate {
       });
   }
 
-  async _donateOne(addr, amount, creatorUrl) {
+  async _donateOne(addr, usdAmount, creatorUrl) {
     try {
       if (!this.isAddress(addr)) {
         throw 'Not an address';
@@ -87,12 +82,13 @@ export default class Donate {
       if (!(await this.hasBalance(addr))) {
         throw 'Address looks inactive (0 balance)';
       }
+      const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this._myAcc();
       await web3.eth
         .sendTransaction({
           from: myAcc,
           to: addr,
-          value: amount,
+          value: weiAmount,
           gas: 1e6,
           // Function seems buggy
           //data: web3.utils.utf8ToHex('💛'),
@@ -100,7 +96,14 @@ export default class Donate {
         })
         .once('transactionHash', hash => {
           return db
-            .logDonation(new Donation(creatorUrl, amount.toString(), hash))
+            .logDonation(
+              new Donation(
+                creatorUrl,
+                weiAmount.toString(),
+                usdAmount.toString(),
+                hash
+              )
+            )
             .catch(err => {
               console.error('Failed to log donation:', err);
             });
@@ -154,6 +157,16 @@ export default class Donate {
         return ethAmount
           .multipliedBy(web3.utils.unitMap.ether)
           .dividedToIntegerBy(1);
+      })
+      .catch(console.error);
+  }
+
+  // Unused but works
+  _weiToUsd(weiAmount) {
+    return this._usdEthRate()
+      .then(usdEthRate => {
+        const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
+        return ethAmount.multipliedBy(usdEthRate);
       })
       .catch(console.error);
   }

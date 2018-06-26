@@ -8,9 +8,6 @@ dev:
 install:
 	npm install
 
-clean-install:
-	npm ci
-
 lint:
 	npm run lint
 
@@ -24,7 +21,7 @@ clean:
 	git clean -n dist
 	rm -v dist/**/*.{js,html}
 
-package: clean clean-install lint test build
+package: clean install lint test build
 	cd dist/
 	zip -r ../thankful.zip *
 

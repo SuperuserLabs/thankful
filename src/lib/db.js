@@ -136,9 +136,9 @@ export class Database {
   }
 
   getDonations() {
-    // TODO: This probably returns the oldest donations, shouldn't
     let donations;
     return this.db.donations
+      .reverse()
       .limit(100)
       .toArray()
       .then(ds => {

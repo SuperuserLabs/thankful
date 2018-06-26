@@ -133,4 +133,9 @@ export class Database {
   logDonation(donation) {
     return this.db.donations.add(donation);
   }
+
+  getDonations() {
+    // TODO: This probably returns the oldest donations, shouldn't
+    return this.db.donations.limit(100).toArray();
+  }
 }

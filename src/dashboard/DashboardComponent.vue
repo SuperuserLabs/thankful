@@ -39,7 +39,22 @@ div.container
         b-input-group(append="$")
           b-form-input(v-model="monthlyDonation")
 
-      p Nothing here, yet.
+      h3 Donation history
+      b-card.p-2.bt-0(no-body)
+        table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+          tr
+            th(style="border-top: 0") Date
+            th(style="border-top: 0") Creator
+            th.text-right(style="width: 20%; border-top: 0") Amount
+          tr(v-for="donation in donationList")
+            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+              | 2018-06-26
+            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+              | {{donation.url}}
+            td.text-right
+              | {{donation.amount}} wei
+        b-button(variant="outline-secondary", size="sm", to="/activity")
+          | {{"Don't Show all"}}
 </template>
 
 <script>
@@ -74,6 +89,7 @@ export default {
       donate: new Donate(),
       monthlyDonation: 10,
       numUnorderedShow: 10,
+      donationLog: [],
     };
   },
   computed: {
@@ -87,13 +103,15 @@ export default {
         this.numUnorderedShow
       );
     },
+    donationList() {
+      return this.donationLog;
+    }
   },
   methods: {
     donateAll() {
       const donations = this.creators.filter(c => c.allocatedFunds > 0)
-      console.log('donations:', donations);
       this.donate.donateAll(donations).catch(err => {
-        console.log('Donating failed:', err);
+        console.error('Donating failed:', err);
       })
     },
     refresh() {
@@ -129,6 +147,10 @@ export default {
       db.getActivities({ withCreators: false }).then(acts => {
         this.unattributedActivities = acts;
       });
+
+      db.getDonations().then(donations => {
+        this.donationLog = donations;
+      })
     },
   },
   created() {

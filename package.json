@@ -33,6 +33,7 @@
     "babel-preset-env": "^1.7.0",
     "bluebird": "^3.5.1",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "chrome-webstore-upload-cli": "^1.1.1",
     "css-loader": "^0.28.11",
     "dexie": "^2.0.4",
     "eslint": "^4.19.1",

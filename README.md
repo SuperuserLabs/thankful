@@ -12,6 +12,14 @@ By using Thankful, you incentivize people to want you to like what they are doin
 
 Thankful is being developed by Superuser Labs, it is our hope that people will want to express their gratitude towards others so we can have more sane incentives in society.
 
+## Get the alpha!
+
+-   [Chrome Web Store][webstore]
+-   [Mozilla Addons][mozilla]
+
+[webstore]: https://chrome.google.com/webstore/detail/thankful/eapbondnpopbiepnjfhnaaejfdfjhnde
+[mozilla]: https://addons.mozilla.org/en-US/firefox/addon/getthankful/
+
 ## Features
 
 -   Supports data from ActivityWatch.

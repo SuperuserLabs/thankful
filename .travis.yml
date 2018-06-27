@@ -9,3 +9,16 @@ script:
  - make lint
  - make test
  - make build
+ - make package
+
+after_success:
+ - make clean
+ - make build-production
+
+deploy:
+  provider: script
+  script: make publish
+  keep_files: true
+  on:
+    tags: true
+    branch: master

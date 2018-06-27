@@ -1,10 +1,13 @@
 node_modules/
-addon/**/*.js
-addon/**/*.html
-dist/**/*.js
-dist/**/*.html
 .DS_Store
 coverage
 **/*.swp
 .vscode/
 .*cache
+
+# Build artefacts
+addon/**/*.js
+addon/**/*.html
+dist/**/*.js
+dist/**/*.html
+thankful.zip

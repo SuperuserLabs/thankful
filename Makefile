@@ -25,11 +25,13 @@ clean:
 	rm -v dist/**/*.{js,html}
 
 package:
-	cd dist/
-	zip -r ../thankful.zip *
+	cd dist/ && zip -r ../thankful.zip *
 
 publish:
-	echo not implemented
 	# Use these to automatically publish
 	# https://www.npmjs.com/package/chrome-webstore-upload-cli
 	# https://www.npmjs.com/package/firefox-extension-deploy
+	node scripts/publish-mozilla-addons.sh
+	# Doing it like this would expose keys, not acceptable
+	#    webstore upload --source extension.zip --extension-id ${WEBSTORE_EXTENSION_ID} --client-id ${WEBSTORE_CLIENT_ID} --client-secret ${WEBSTORE_CLIENT_SECRET} --refresh-token ${REFRESH_TOKEN}
+

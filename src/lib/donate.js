@@ -79,7 +79,16 @@ export default class Donate {
       });
   }
 
-  async _donateOne(addr, usdAmount, creatorUrl, refreshCallback) {
+  async _donateOne(
+    addr,
+    usdAmount,
+    creatorUrl,
+    refreshCallback,
+    // A basic transaction should only need 21k but we have some margin because
+    // of the data we attach. Also, unused gas is refunded.
+    gasLimit = 1e5
+  ) {
+    console.log('limit', gasLimit);
     try {
       if (!this.isAddress(addr)) {
         throw 'Not an address';
@@ -94,7 +103,7 @@ export default class Donate {
           from: myAcc,
           to: addr,
           value: weiAmount,
-          gas: 1e6,
+          gas: gasLimit,
           // Function seems buggy
           //data: web3.utils.utf8ToHex('💛'),
           data: '0xf09f929b',

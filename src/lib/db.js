@@ -49,6 +49,9 @@ export class Database {
       creator: '&url, name',
       donations: '++id, date, url, weiAmount, usdAmount',
     });
+    // TODO: Version 2
+
+    // TODO: Show "no donations" when there are no donations to show
     _db.activity.mapToClass(Activity);
     _db.creator.mapToClass(Creator);
     _db.donations.mapToClass(Donation);
@@ -138,21 +141,18 @@ export class Database {
   }
 
   getDonations({ limit = 100 } = {}) {
-    let donations;
     return this.db.donations
       .reverse()
       .limit(limit)
       .toArray()
-      .then(ds => {
-        donations = ds;
-        return Promise.all(donations.map(d => this.getCreator(d.url)));
-      })
-      .then(names => {
-        return _.zip(donations, names).map(p => {
-          p[0].creator = p[1].name;
-          return p[0];
-        });
-      })
+      .then(donations =>
+        Promise.all(donations.map(d => this.getCreator(d.url))).then(names => {
+          return _.zip(donations, names).map(p => {
+            p[0].creator = p[1].name;
+            return p[0];
+          });
+        })
+      )
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);
       });

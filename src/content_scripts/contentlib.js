@@ -46,7 +46,7 @@ export function addPageChangeListener(listener) {
  * Send message to background.js mapping url to creator
  */
 export function sendCreator(url, creator) {
-  browser.runtime.sendMessage({
+  return browser.runtime.sendMessage({
     type: 'creatorFound',
     activity: {
       url: url,

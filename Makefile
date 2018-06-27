@@ -2,6 +2,9 @@
 build:
 	npm run build
 
+build-production:
+	env PRODUCTION=true npm run build
+
 dev:
 	npm run dev
 

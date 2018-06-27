@@ -39,8 +39,11 @@ div.container
         b-input-group(append="$")
           b-form-input(v-model="monthlyDonation")
 
+
       h3 Donation history
-      b-card.p-2.bt-0(no-body)
+      div(v-if="donationList.length === 0")
+        | No donations made so far
+      b-card.p-2.bt-0(v-else no-body)
         table.table.table-sm(style="overflow: hidden; table-layout: fixed")
           tr
             th(style="width: 25%; border-top: 0") Date

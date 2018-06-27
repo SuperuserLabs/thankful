@@ -52,7 +52,6 @@ export class Database {
       donations: '++id, date, url, weiAmount, usdAmount',
     });
 
-    // TODO: Show "no donations" when there are no donations to show
     _db.activity.mapToClass(Activity);
     _db.creator.mapToClass(Creator);
     _db.donations.mapToClass(Donation);

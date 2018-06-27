@@ -64,6 +64,9 @@ div.container
 </template>
 
 <script>
+if (!global._babelPolyfill) {
+  require('babel-polyfill');
+}
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import Donate from '../lib/donate.js';

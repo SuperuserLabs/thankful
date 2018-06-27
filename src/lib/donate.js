@@ -88,7 +88,6 @@ export default class Donate {
     // of the data we attach. Also, unused gas is refunded.
     gasLimit = 1e5
   ) {
-    console.log('limit', gasLimit);
     try {
       if (!this.isAddress(addr)) {
         throw 'Not an address';

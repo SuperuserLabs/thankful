@@ -140,7 +140,7 @@ export class Database {
     );
   }
 
-  getDonations({ limit = 100 } = {}) {
+  getDonations(limit = 10) {
     return this.db.donations
       .reverse()
       .limit(limit)

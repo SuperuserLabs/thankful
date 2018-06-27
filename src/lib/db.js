@@ -137,11 +137,11 @@ export class Database {
     );
   }
 
-  getDonations() {
+  getDonations({ limit = 100 } = {}) {
     let donations;
     return this.db.donations
       .reverse()
-      .limit(100)
+      .limit(limit)
       .toArray()
       .then(ds => {
         donations = ds;

@@ -17,6 +17,9 @@ lint-fix:
 test:
 	npm run test
 
+typecheck:
+	mypy scripts/
+
 clean:
 	git clean -n dist
 	rm -v dist/**/*.{js,html}

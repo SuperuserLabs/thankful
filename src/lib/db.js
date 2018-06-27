@@ -131,8 +131,10 @@ export class Database {
     return this.db.activity.update(url, { creator: creator });
   }
 
-  logDonation(donation) {
-    return this.db.donations.add(donation);
+  logDonation(creatorUrl, weiAmount, usdAmount, hash) {
+    return this.db.donations.add(
+      new Donation(creatorUrl, weiAmount.toString(), usdAmount.toString(), hash)
+    );
   }
 
   getDonations() {

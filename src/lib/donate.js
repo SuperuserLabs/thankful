@@ -96,14 +96,7 @@ export default class Donate {
         })
         .once('transactionHash', hash => {
           return db
-            .logDonation(
-              new Donation(
-                creatorUrl,
-                weiAmount.toString(),
-                usdAmount.toString(),
-                hash
-              )
-            )
+            .logDonation(creatorUrl, weiAmount, usdAmount, hash)
             .catch(err => {
               console.error('Failed to log donation:', err);
             });

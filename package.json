@@ -27,6 +27,9 @@
   },
   "homepage": "https://github.com/SuperuserLabs/thankful#readme",
   "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.0",
+    "@fortawesome/free-solid-svg-icons": "^5.1.0",
+    "@fortawesome/vue-fontawesome": "^0.1.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",

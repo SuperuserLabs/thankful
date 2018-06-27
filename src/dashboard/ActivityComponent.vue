@@ -28,10 +28,6 @@ export default {
     };
   },
   computed: {
-    totalAllocated() {
-      let addressAmounts = getAddressAmountMapping(this.creators);
-      return _.sum(_.values(addressAmounts));
-    },
     orderedUnattributedActivities() {
       return _.orderBy(this.unattributedActivities, 'duration', 'desc');
     },

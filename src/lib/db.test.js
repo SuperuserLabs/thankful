@@ -68,6 +68,10 @@ describe('Creator', () => {
   const a_title = 'Elder Scrolls 6 Trailer';
   const a_url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
 
+  beforeEach(() => {
+    db.db.creator.clear();
+  });
+
   it('get all creators', async () => {
     await new Creator(c_url, c_name).save();
     await new Creator('testurl', 'testname').save();
@@ -108,5 +112,20 @@ describe('Creator', () => {
 
     let result = await db.getTimeForCreators();
     expect(result[0].duration).toBeCloseTo(duration);
+  });
+
+  it('correctly deletes creator', async () => {
+    let creator = await db.getCreator(c_url);
+    expect(creator).toBeUndefined(creator);
+
+    await new Creator(c_url, c_name).save();
+
+    creator = await db.getCreator(c_url);
+    expect(creator.url).toBe(c_url);
+    expect(creator.name).toBe(c_name);
+    await creator.delete();
+
+    creator = await db.getCreator(c_url);
+    expect(creator).toBeUndefined(creator);
   });
 });

@@ -47,9 +47,10 @@ export class Database {
     _db.version(1).stores({
       activity: '&url, title, duration, creator',
       creator: '&url, name',
+    });
+    _db.version(2).stores({
       donations: '++id, date, url, weiAmount, usdAmount',
     });
-    // TODO: Version 2
 
     // TODO: Show "no donations" when there are no donations to show
     _db.activity.mapToClass(Activity);

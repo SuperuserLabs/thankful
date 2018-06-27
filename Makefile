@@ -21,11 +21,11 @@ clean:
 	git clean -n dist
 	rm -v dist/**/*.{js,html}
 
-package: clean install lint test build
+package:
 	cd dist/
 	zip -r ../thankful.zip *
 
-publish: package
+publish:
 	echo not implemented
 	# Use these to automatically publish
 	# https://www.npmjs.com/package/chrome-webstore-upload-cli

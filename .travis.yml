@@ -9,3 +9,11 @@ script:
  - make lint
  - make test
  - make build
+ - make package
+
+deploy:
+  provider: script
+  script: make publish
+  on:
+    tags: true
+    branch: master

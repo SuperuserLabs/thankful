@@ -49,11 +49,16 @@ export default class Donate {
       });
   }
 
-  async donateAll(donations) {
+  async donateAll(donations, refreshCallback) {
     const donationPromises = donations.map(async d => {
-      return this._donateOne(d.address, BigNumber(d.allocatedFunds), d.url);
+      return this._donateOne(
+        d.address,
+        BigNumber(d.allocatedFunds),
+        d.url,
+        refreshCallback
+      );
     });
-    await Promise.all(donationPromises).catch(console.error);
+    return Promise.all(donationPromises).catch(console.error);
   }
 
   isAddress(address) {
@@ -74,7 +79,7 @@ export default class Donate {
       });
   }
 
-  async _donateOne(addr, usdAmount, creatorUrl) {
+  async _donateOne(addr, usdAmount, creatorUrl, refreshCallback) {
     try {
       if (!this.isAddress(addr)) {
         throw 'Not an address';
@@ -84,7 +89,7 @@ export default class Donate {
       }
       const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this._myAcc();
-      await web3.eth
+      return web3.eth
         .sendTransaction({
           from: myAcc,
           to: addr,
@@ -97,6 +102,7 @@ export default class Donate {
         .once('transactionHash', hash => {
           return db
             .logDonation(creatorUrl, weiAmount, usdAmount, hash)
+            .then(refreshCallback)
             .catch(err => {
               console.error('Failed to log donation:', err);
             });

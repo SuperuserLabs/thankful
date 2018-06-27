@@ -113,13 +113,8 @@ export default {
   methods: {
     donateAll() {
       const donations = this.creators.filter(c => c.allocatedFunds > 0)
-      this.donate.donateAll(donations)
-        .then(()=> {
-          this.refresh();
-        })
-        .catch(err => {
-          console.error('Donating failed:', err);
-        });
+      this.donate.donateAll(donations, this.refresh)
+        .catch(err => console.error('Donating failed:', err));
     },
     refresh() {
       db.getCreators().then(creators => {

@@ -49,14 +49,37 @@ div.container
         b-input-group(append="$")
           b-form-input(v-model="monthlyDonation")
 
-      p Nothing here, yet.
+
+      h3 Donation history
+      div(v-if="donationList.length === 0")
+        | No donations made so far
+      b-card.p-2.bt-0(v-else no-body)
+        table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+          tr
+            th(style="width: 25%; border-top: 0") Date
+            th(style="border-top: 0") Creator
+            th.text-right(style="width: 20%; border-top: 0") Amount
+          tr(v-for="donation in donationList")
+            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+              // TODO: Adjust this to also work on mainnet when we have a DEBUG variable
+              a(:href="'https://ropsten.etherscan.io/tx/' + donation.transaction" target="_blank")
+                | {{donation.date.toLocaleDateString()}}
+            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+              a(:href="donation.url" target="_blank")
+                | {{donation.creator}}
+            td.text-right
+              | {{donation.usdAmount}} $
+        b-button(variant="outline-secondary", size="sm", to="/activity")
+          | {{"Don't Show all"}}
 </template>
 
 <script>
+import 'idempotent-babel-polyfill';
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import Donate from '../lib/donate.js';
-import { Database, Activity, Creator } from '../lib/db.js';
+import { Database, Activity, Creator, Donation } from '../lib/db.js';
+import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 
 // TODO: Move to appropriate location
@@ -83,6 +106,7 @@ export default {
       donate: new Donate(),
       monthlyDonation: 10,
       numUnorderedShow: 10,
+      donationLog: [],
       editing: -1,
     };
   },
@@ -97,12 +121,15 @@ export default {
         this.numUnorderedShow
       );
     },
+    donationList() {
+      return this.donationLog;
+    }
   },
   methods: {
     donateAll() {
-      let addressAmounts = getAddressAmountMapping(this.creators);
-      console.log(addressAmounts);
-      this.donate.donateAll(addressAmounts);
+      const donations = this.creators.filter(c => c.allocatedFunds > 0)
+      this.donate.donateAll(donations, this.refresh)
+        .catch(err => console.error('Donating failed:', err));
     },
     addCreator() {
       if (this.editing < 0) {
@@ -149,9 +176,10 @@ export default {
           'Thankful Team'
         );
         // Eriks address
-        thankful_team_creator.paymentAddress =
+        thankful_team_creator.address =
           '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
         thankful_team_creator.info = 'Optionally donate to the Thankful team';
+        thankful_team_creator.predefined = true;
         creators.push(thankful_team_creator);
 
         this.creators = creators;
@@ -160,6 +188,10 @@ export default {
       db.getActivities({ withCreators: false }).then(acts => {
         this.unattributedActivities = acts;
       });
+
+      db.getDonations().then(ds => {
+        this.donationLog = ds;
+      }).catch(console.error);
     },
   },
   created() {

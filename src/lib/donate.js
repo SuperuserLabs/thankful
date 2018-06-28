@@ -1,8 +1,10 @@
+import 'idempotent-babel-polyfill';
 import Web3 from 'web3';
 import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider.js';
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
 import BigNumber from 'bignumber.js';
+import { Database, Donation } from './db';
 
 const addrs = {};
 // All on Ropsten
@@ -12,9 +14,12 @@ addrs.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
 addrs.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
 
 let web3;
+let db;
 
 export default class Donate {
   constructor() {
+    db = new Database();
+
     this._metamaskExtensionId()
       .then(METAMASK_EXTENSION_ID => {
         const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
@@ -45,11 +50,16 @@ export default class Donate {
       });
   }
 
-  async donateAll(addressAmounts) {
-    const donationPromises = _.toPairs(addressAmounts).map(async pair => {
-      return this._donateOne(pair[0], await this._usdToWei(BigNumber(pair[1])));
+  async donateAll(donations, refreshCallback) {
+    const donationPromises = donations.map(async d => {
+      return this._donateOne(
+        d.address,
+        BigNumber(d.allocatedFunds),
+        d.url,
+        refreshCallback
+      );
     });
-    await Promise.all(donationPromises).catch(console.error);
+    return Promise.all(donationPromises).catch(console.error);
   }
 
   isAddress(address) {
@@ -70,7 +80,15 @@ export default class Donate {
       });
   }
 
-  async _donateOne(addr, amount) {
+  async _donateOne(
+    addr,
+    usdAmount,
+    creatorUrl,
+    refreshCallback,
+    // A basic transaction should only need 21k but we have some margin because
+    // of the data we attach. Also, unused gas is refunded.
+    gasLimit = 1e5
+  ) {
     try {
       if (!this.isAddress(addr)) {
         throw 'Not an address';
@@ -78,16 +96,26 @@ export default class Donate {
       if (!(await this.hasBalance(addr))) {
         throw 'Address looks inactive (0 balance)';
       }
+      const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this._myAcc();
-      await web3.eth.sendTransaction({
-        from: myAcc,
-        to: addr,
-        value: amount,
-        gas: 1e6,
-        // Function seems buggy
-        //data: web3.utils.utf8ToHex('💛'),
-        data: '0xf09f929b',
-      });
+      return web3.eth
+        .sendTransaction({
+          from: myAcc,
+          to: addr,
+          value: weiAmount,
+          gas: gasLimit,
+          // Function seems buggy
+          //data: web3.utils.utf8ToHex('💛'),
+          data: '0xf09f929b',
+        })
+        .once('transactionHash', hash => {
+          return db
+            .logDonation(creatorUrl, weiAmount, usdAmount, hash)
+            .then(refreshCallback)
+            .catch(err => {
+              console.error('Failed to log donation:', err);
+            });
+        });
     } catch (error) {
       console.error('Failed to donate to', addr, ':', error);
     }
@@ -137,6 +165,16 @@ export default class Donate {
         return ethAmount
           .multipliedBy(web3.utils.unitMap.ether)
           .dividedToIntegerBy(1);
+      })
+      .catch(console.error);
+  }
+
+  // Unused but works
+  _weiToUsd(weiAmount) {
+    return this._usdEthRate()
+      .then(usdEthRate => {
+        const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
+        return ethAmount.multipliedBy(usdEthRate);
       })
       .catch(console.error);
   }

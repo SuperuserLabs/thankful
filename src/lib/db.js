@@ -35,6 +35,16 @@ export class Creator {
   }
 }
 
+export class Donation {
+  constructor(creatorUrl, weiAmount, usdAmount, transaction) {
+    this.date = new Date();
+    this.url = creatorUrl;
+    this.weiAmount = weiAmount;
+    this.usdAmount = usdAmount;
+    this.transaction = transaction;
+  }
+}
+
 export class Database {
   constructor() {
     _db = new Dexie('Thankful');
@@ -42,8 +52,13 @@ export class Database {
       activity: '&url, title, duration, creator',
       creator: '&url, name',
     });
+    _db.version(2).stores({
+      donations: '++id, date, url, weiAmount, usdAmount',
+    });
+
     _db.activity.mapToClass(Activity);
     _db.creator.mapToClass(Creator);
+    _db.donations.mapToClass(Donation);
     this.db = _db;
   }
 
@@ -121,5 +136,29 @@ export class Database {
 
   connectActivityToCreator(url, creator) {
     return this.db.activity.update(url, { creator: creator });
+  }
+
+  logDonation(creatorUrl, weiAmount, usdAmount, hash) {
+    return this.db.donations.add(
+      new Donation(creatorUrl, weiAmount.toString(), usdAmount.toString(), hash)
+    );
+  }
+
+  getDonations(limit = 10) {
+    return this.db.donations
+      .reverse()
+      .limit(limit)
+      .toArray()
+      .then(donations =>
+        Promise.all(donations.map(d => this.getCreator(d.url))).then(names => {
+          return _.zip(donations, names).map(p => {
+            p[0].creator = p[1].name;
+            return p[0];
+          });
+        })
+      )
+      .catch(err => {
+        console.log("Couldn't get donation history from db:", err);
+      });
   }
 }

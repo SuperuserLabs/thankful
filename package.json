@@ -32,7 +32,6 @@
     "@fortawesome/vue-fontawesome": "^0.1.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
-    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "bluebird": "^3.5.1",
     "bootstrap-vue": "^2.0.0-rc.11",
@@ -69,6 +68,7 @@
   },
   "dependencies": {
     "bignumber.js": "^7.2.1",
+    "idempotent-babel-polyfill": "^6.26.0",
     "metamask-crx": "github:MetaMask/metamask-extension",
     "web3": "^1.0.0-beta.34"
   }

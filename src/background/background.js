@@ -113,6 +113,12 @@ error: ${JSON.stringify(message)}`
       });
   }
 
+  browser.browserAction.onClicked.addListener(() => {
+    browser.tabs.create({
+      url: browser.runtime.getURL('dashboard/index.html'),
+    });
+  });
+
   browser.tabs.onUpdated.addListener(sendPageChange);
 
   browser.runtime.onMessage.addListener(receiveCreator);

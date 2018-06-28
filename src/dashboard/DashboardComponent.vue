@@ -29,16 +29,7 @@ div.container
 
       h3 Unattributed Activity
       b-card.p-2.bt-0(no-body)
-        table.table.table-sm(style="overflow: hidden; table-layout: fixed")
-          tr
-            th(style="border-top: 0") Page
-            th.text-right(style="width: 20%; border-top: 0") Duration
-          tr(v-for="activity in orderedUnattributedActivities")
-            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              a(:href="activity.url")
-                | {{ activity.title || activity.url }}
-            td.text-right
-              | {{ Math.round(activity.duration) }}s
+        activity-component(:limit="10")
         b-button(variant="outline-secondary", size="sm", to="/activity")
           | Show all
 
@@ -74,9 +65,9 @@ div.container
 </template>
 
 <script>
-import 'idempotent-babel-polyfill';
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
+import ActivityComponent from './ActivityComponent.vue';
 import Donate from '../lib/donate.js';
 import { Database, Activity, Creator, Donation } from '../lib/db.js';
 import BigNumber from 'bignumber.js';
@@ -98,6 +89,7 @@ function getAddressAmountMapping(creators) {
 export default {
   components: {
     'creator-card': CreatorCard,
+    'activity-component': ActivityComponent,
   },
   data: function() {
     return {

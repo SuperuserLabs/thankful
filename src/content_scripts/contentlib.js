@@ -35,7 +35,7 @@ export async function waitForElement(
  * Add listener to recrawl page on important changes
  */
 export function addPageChangeListener(listener) {
-  browser.runtime.onMessage.addListener(message => {
+  browser.runtime.onMessage.addListener(async message => {
     if (message.type === 'pageChange') {
       listener();
     }

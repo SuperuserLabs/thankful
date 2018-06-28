@@ -68,6 +68,7 @@ function getCurrentTab() {
   let oldUrl = null;
   let oldTitle = null;
   const db = new Database();
+  let noContentScript = {};
 
   async function receiveCreator(msg, sender, sendResponse) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
@@ -93,9 +94,23 @@ function getCurrentTab() {
   }
 
   function sendPageChange(tabId, changeInfo, tab) {
-    browser.tabs.sendMessage(tabId, {
-      type: 'pageChange',
-    });
+    browser.tabs
+      .sendMessage(tabId, {
+        type: 'pageChange',
+      })
+      .then(() => {
+        delete noContentScript[tabId];
+      })
+      .catch(message => {
+        if (!(tabId in noContentScript)) {
+          noContentScript[tabId] = true;
+          console.log(
+            `Error when sending message to content script (maybe not running on this url):
+url: ${tab.url}
+error: ${JSON.stringify(message)}`
+          );
+        }
+      });
   }
 
   browser.tabs.onUpdated.addListener(sendPageChange);

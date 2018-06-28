@@ -1,17 +1,14 @@
 <template lang="pug">
-div.container
-  h3 Unattributed Activity
-  b-card.p-2.bt-0(no-body)
-    table.table.table-sm(style="overflow: hidden; table-layout: fixed")
-      tr
-        th(style="border-top: 0") Page
-        th.text-right(style="width: 20%; border-top: 0") Duration
-      tr(v-for="activity in orderedUnattributedActivities")
-        td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-          a(:href="activity.url")
-            | {{ activity.title || activity.url }}
-        td.text-right
-          | {{ Math.round(activity.duration) }}s
+table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+  tr
+    th(style="border-top: 0") Page
+    th.text-right(style="width: 20%; border-top: 0") Duration
+  tr(v-for="activity in orderedUnattributedActivities")
+    td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+      a(:href="activity.url")
+        | {{ activity.title || activity.url }}
+    td.text-right
+      | {{ Math.round(activity.duration) }}s
 </template>
 
 <script>
@@ -27,9 +24,15 @@ export default {
       unattributedActivities: [],
     };
   },
+  props: {
+    limit: { default: Infinity, type: Number },
+  },
   computed: {
     orderedUnattributedActivities() {
-      return _.orderBy(this.unattributedActivities, 'duration', 'desc');
+      return _.take(
+        _.orderBy(this.unattributedActivities, 'duration', 'desc'),
+        this.limit
+      );
     },
   },
   methods: {
@@ -44,17 +47,3 @@ export default {
   },
 };
 </script>
-
-<style>
-body {
-  background-color: #eee;
-}
-#header {
-  padding-bottom: 9px;
-  margin: 40px 0 20px;
-  border-bottom: 1px solid #eee;
-}
-.card-body {
-  transition-duration: 0.4s;
-}
-</style>

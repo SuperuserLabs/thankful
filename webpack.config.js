@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
-  mode: 'development',
+  mode: process.env['PRODUCTION'] ? 'production' : 'development',
   module: {
     rules: [
       {

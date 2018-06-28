@@ -29,6 +29,10 @@ export class Creator {
   save() {
     return _db.creator.put(this);
   }
+
+  delete() {
+    return _db.creator.delete(this.url);
+  }
 }
 
 export class Donation {

@@ -2,14 +2,24 @@
 div.container
   div.row
     div.col-md-6
-      h3 Creators
+      div.d-flex.flex-row.justify-content-between
+        h3 Creators
+        div
+          b-button(v-if="editing < 0",variant="outline-secondary", size="sm", v-on:click="addCreator()")
+            | Add creator 
+            font-awesome-icon(icon="user-plus")
       div(v-if="creators.length === 0")
         | No creators to show
-      creator-card(v-for="creator in creators",
+      creator-card(v-for="(creator, index) in creators",
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
-                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();"
-                   @address="creator.address = $event; creator.save();"
+                   v-bind:editing="index === editing",
+                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
+                   @address="creator.address = $event; creator.save();",
+                   @save="save(creator, $event)"
+                   @cancel="cancel(creator)"
+                   @edit="editing = index"
+                   @remove="remove(creator, index)"
                    )
 
       b-button(variant="success", size="lg", v-on:click="donateAll()")
@@ -64,9 +74,7 @@ div.container
 </template>
 
 <script>
-if (!global._babelPolyfill) {
-  require('babel-polyfill');
-}
+import 'idempotent-babel-polyfill';
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import Donate from '../lib/donate.js';
@@ -99,6 +107,7 @@ export default {
       monthlyDonation: 10,
       numUnorderedShow: 10,
       donationLog: [],
+      editing: -1,
     };
   },
   computed: {
@@ -121,6 +130,30 @@ export default {
       const donations = this.creators.filter(c => c.allocatedFunds > 0)
       this.donate.donateAll(donations, this.refresh)
         .catch(err => console.error('Donating failed:', err));
+    },
+    addCreator() {
+      if (this.editing < 0) {
+        this.creators.unshift(new Creator('', ''));
+        this.editing = 0;
+      }
+    },
+    cancel(creator) {
+      if (creator.url === '') {
+        this.creators.shift();
+      }
+      this.editing = -1;
+    },
+    remove(creator, index) {
+      creator.delete();
+      this.creators.splice(index, 1);
+      this.editing = -1;
+    },
+    save(creator, edited) {
+      creator.delete().then(() => {
+        Object.assign(creator, edited);
+        creator.save();
+        this.editing = -1;
+      });
     },
     refresh() {
       db.getCreators().then(creators => {

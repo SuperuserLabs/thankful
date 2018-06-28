@@ -42,32 +42,17 @@ div.container
 
 
       h3 Donation history
-      div(v-if="donationList.length === 0")
-        | No donations made so far
-      b-card.p-2.bt-0(v-else no-body)
-        table.table.table-sm(style="overflow: hidden; table-layout: fixed")
-          tr
-            th(style="width: 25%; border-top: 0") Date
-            th(style="border-top: 0") Creator
-            th.text-right(style="width: 20%; border-top: 0") Amount
-          tr(v-for="donation in donationList")
-            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              // TODO: Adjust this to also work on mainnet when we have a DEBUG variable
-              a(:href="'https://ropsten.etherscan.io/tx/' + donation.transaction" target="_blank")
-                | {{donation.date.toLocaleDateString()}}
-            td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-              a(:href="donation.url" target="_blank")
-                | {{donation.creator}}
-            td.text-right
-              | {{donation.usdAmount}} $
-        b-button(variant="outline-secondary", size="sm", to="/activity")
-          | {{"Don't Show all"}}
+      b-card.p-2.bt-0(no-body)
+        donation-history-component(:limit="10")
+        b-button(variant="outline-secondary", size="sm", to="/donations")
+          | {{"Show all"}}
 </template>
 
 <script>
 import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
+import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import Donate from '../lib/donate.js';
 import { Database, Activity, Creator, Donation } from '../lib/db.js';
 import BigNumber from 'bignumber.js';
@@ -90,15 +75,13 @@ export default {
   components: {
     'creator-card': CreatorCard,
     'activity-component': ActivityComponent,
+    'donation-history-component': DonationHistoryComponent,
   },
   data: function() {
     return {
       creators: [],
-      unattributedActivities: [],
       donate: new Donate(),
       monthlyDonation: 10,
-      numUnorderedShow: 10,
-      donationLog: [],
       editing: -1,
     };
   },
@@ -107,20 +90,12 @@ export default {
       let addressAmounts = getAddressAmountMapping(this.creators);
       return _.sum(_.values(addressAmounts));
     },
-    orderedUnattributedActivities() {
-      return _.take(
-        _.orderBy(this.unattributedActivities, 'duration', 'desc'),
-        this.numUnorderedShow
-      );
-    },
-    donationList() {
-      return this.donationLog;
-    }
   },
   methods: {
     donateAll() {
-      const donations = this.creators.filter(c => c.allocatedFunds > 0)
-      this.donate.donateAll(donations, this.refresh)
+      const donations = this.creators.filter(c => c.allocatedFunds > 0);
+      this.donate
+        .donateAll(donations, this.refresh)
         .catch(err => console.error('Donating failed:', err));
     },
     addCreator() {
@@ -176,14 +151,6 @@ export default {
 
         this.creators = creators;
       });
-
-      db.getActivities({ withCreators: false }).then(acts => {
-        this.unattributedActivities = acts;
-      });
-
-      db.getDonations().then(ds => {
-        this.donationLog = ds;
-      }).catch(console.error);
     },
   },
   created() {
@@ -192,16 +159,5 @@ export default {
 };
 </script>
 
-<style>
-body {
-  background-color: #eee;
-}
-#header {
-  padding-bottom: 9px;
-  margin: 40px 0 20px;
-  border-bottom: 1px solid #eee;
-}
-.card-body {
-  transition-duration: 0.4s;
-}
+<style src="./dashboard.css">
 </style>

@@ -12,7 +12,6 @@ table.table.table-sm(style="overflow: hidden; table-layout: fixed")
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import { Database } from '../lib/db.js';
 import _ from 'lodash';
 

@@ -2,14 +2,14 @@
 div.container
   h3 Unattributed Activity
   b-card.p-2.bt-0(no-body)
-    activity-component
+    donation-history-component
 </template>
 <script>
-import ActivityComponent from './ActivityComponent.vue';
+import DonationHistoryComponent from './DonationHistoryComponent.vue';
 
 export default {
   components: {
-    'activity-component': ActivityComponent,
+    'donation-history-component': DonationHistoryComponent,
   },
   data: () => ({}),
 };

@@ -1,6 +1,6 @@
 <template lang="pug">
 div.container
-  h3 Unattributed Activity
+  h3 Donation history
   b-card.p-2.bt-0(no-body)
     donation-history-component
 </template>

@@ -6,8 +6,8 @@ b-card(class="mb-2" no-body)
         a(target="_blank", :href="url").col-md-9
           div
             h4
+              |  {{ name }}&nbsp
               font-awesome-icon(icon="external-link-alt", size="xs")
-              |  {{ name }} 
         div.col-md-3
           b-input-group(append="$", size="sm")
             b-form-input(v-model="allocatedFunds",

@@ -43,10 +43,13 @@ module.exports = {
     ],
   },
   entry: {
-    background: ['./src/background/background.js'],
-    popup: ['./src/popup/popup.js'],
-    dashboard: ['./src/dashboard/dashboard.js'],
-    content_youtube: ['./src/content_scripts/content_youtube.js'],
+    background: ['idempotent-babel-polyfill', './src/background/background.js'],
+    popup: ['idempotent-babel-polyfill', './src/popup/popup.js'],
+    dashboard: ['idempotent-babel-polyfill', './src/dashboard/dashboard.js'],
+    content_youtube: [
+      'idempotent-babel-polyfill',
+      './src/content_scripts/content_youtube.js',
+    ],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

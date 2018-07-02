@@ -1,8 +1,8 @@
 <template lang="pug">
 div(v-if="donationList.length === 0")
   | No donations made so far
-div(v-else)
-  table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+div(v-else).d-flex.flex-column
+  table.table.table-sm(style="overflow: hidden; table-layout: fixed").mb-0
     tr
       th(style="width: 25%; border-top: 0") Date
       th(style="border-top: 0") Creator
@@ -17,6 +17,8 @@ div(v-else)
           | {{donation.creator}}
       td.text-right
         | {{donation.usdAmount}} $
+  b-button(v-if="to && donationList.length > limit", variant="outline-secondary", size="sm", :to="to")
+    | {{"Show all"}}
 </template>
 <script>
 import { Database } from '../lib/db.js';
@@ -28,6 +30,7 @@ export default {
   data: () => ({ donations: [] }),
   props: {
     limit: { default: Infinity, type: Number },
+    to: { default: null, type: String },
   },
   computed: {
     donationList() {

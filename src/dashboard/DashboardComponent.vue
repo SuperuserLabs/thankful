@@ -43,9 +43,7 @@ div.container
 
       h3 Donation history
       b-card.p-2.bt-0(no-body)
-        donation-history-component(:limit="10", ref="donationHistory")
-        b-button(variant="outline-secondary", size="sm", to="/donations")
-          | {{"Show all"}}
+        donation-history-component(:limit="10", ref="donationHistory", to="/donations")
 </template>
 
 <script>

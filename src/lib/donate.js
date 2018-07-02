@@ -39,15 +39,14 @@ export default class Donate {
         // 3:  Ropsten testnet
         // 4:  Rinkeby testnet
         // 42: Kovan testnet
-        if (netId !== 3) {
-          // Abort if not connected to Ropsten (testnet)
-          web3 = undefined;
-          throw 'Not connected to Ropsten, connected to: ' + netId;
-        }
+        console.log(netId);
       })
       .catch(err => {
         throw err;
       });
+  }
+  async getId() {
+    return web3.eth.net.getId();
   }
 
   async donateAll(donations, refreshCallback) {

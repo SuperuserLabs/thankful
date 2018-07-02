@@ -9,6 +9,9 @@ let version = (
   process.env['THANKFUL_VERSION'] || process.env['TRAVIS_TAG']
 ).replace('v', '');
 
+console.log(`GUID: ${extension_id}`);
+console.log(`Deploying version: ${version}`);
+
 deploy({
   // obtained by following the instructions here:
   // https://addons-server.readthedocs.io/en/latest/topics/api/auth.html

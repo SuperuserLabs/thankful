@@ -13,4 +13,4 @@ with open(manifest_file, "r") as f:
     data["version"] = version
 
 with open(manifest_file, "w") as f:
-    json.dump(data, f)
+    json.dump(data, f, indent=2)

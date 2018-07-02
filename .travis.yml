@@ -2,6 +2,9 @@ language: node_js
 node_js:
   - "8"
 
+env:
+ - MOZILLA_EXTENSION_ID=b4bbcd8e-acc0-4044-b09b-1c15d0b66875
+
 install:
  - make install
 

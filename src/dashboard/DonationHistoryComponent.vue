@@ -18,7 +18,7 @@ div(v-else).d-flex.flex-column
       td.text-right
         | {{donation.usdAmount}} $
   b-button(v-if="to && donationList.length > limit", variant="outline-secondary", size="sm", :to="to")
-    | {{"Show all"}}
+    | Show all
 </template>
 <script>
 import { Database } from '../lib/db.js';

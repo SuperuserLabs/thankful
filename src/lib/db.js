@@ -66,8 +66,8 @@ export class Database {
     return this.db.activity.get({ url: url });
   }
 
-  getActivities({ limit = 100, withCreators = null } = {}) {
-    let coll = this.db.activity;
+  getActivities({ limit = 1000, withCreators = null } = {}) {
+    let coll = this.db.activity.orderBy('duration').reverse();
     if (withCreators !== null) {
       if (withCreators) {
         coll = coll.filter(a => a.creator !== undefined);

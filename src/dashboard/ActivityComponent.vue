@@ -1,14 +1,19 @@
 <template lang="pug">
-table.table.table-sm(style="overflow: hidden; table-layout: fixed")
-  tr
-    th(style="border-top: 0") Page
-    th.text-right(style="width: 20%; border-top: 0") Duration
-  tr(v-for="activity in orderedUnattributedActivities")
-    td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-      a(:href="activity.url")
-        | {{ activity.title || activity.url }}
-    td.text-right
-      | {{ Math.round(activity.duration) }}s
+div(v-if="activities.length === 0")
+  | No activity logged
+div(v-else).d-flex.flex-column
+  table.table.table-sm(style="overflow: hidden; table-layout: fixed")
+    tr
+      th(style="border-top: 0") Page
+      th.text-right(style="width: 20%; border-top: 0") Duration
+    tr(v-for="activity in orderedActivities")
+      td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
+        a(:href="activity.url")
+          | {{ activity.title || activity.url }}
+      td.text-right
+        | {{ Math.round(activity.duration) }}s
+  b-button(v-if="to && activities.length > limit", variant="outline-secondary", size="sm", :to="to")
+    | Show all
 </template>
 
 <script>
@@ -20,25 +25,30 @@ const db = new Database();
 export default {
   data: function() {
     return {
-      unattributedActivities: [],
+      activities: [],
     };
   },
   props: {
     limit: { default: Infinity, type: Number },
+    unattributed: { default: false, type: Boolean },
+    to: { default: null, type: String },
   },
   computed: {
-    orderedUnattributedActivities() {
-      return _.take(
-        _.orderBy(this.unattributedActivities, 'duration', 'desc'),
-        this.limit
-      );
+    orderedActivities() {
+      return _.take(_.orderBy(this.activities, 'duration', 'desc'), this.limit);
     },
   },
   methods: {
     refresh() {
-      db.getActivities({ withCreators: false }).then(acts => {
-        this.unattributedActivities = acts;
-      });
+      if (this.unattributed) {
+        db.getActivities({ withCreators: false }).then(acts => {
+          this.activities = acts;
+        });
+      } else {
+        db.getActivities().then(acts => {
+          this.activities = acts;
+        });
+      }
     },
   },
   created() {

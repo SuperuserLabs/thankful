@@ -19,19 +19,20 @@ b-card(class="mb-2" no-body)
         b-input-group(prepend="ETH Address", size="sm")
           b-form-input(v-model="address")
 
-      p(v-if="creator.info").text-small {{ creator.info }}
+      p(v-if="creator.info").text-small
+        | {{ creator.info }}
 
       b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails")
-        | #[span(v-if="!showDetails") Show] #[span(v-else) Hide] details 
-        font-awesome-icon(icon="info-circle")
+        | #[font-awesome-icon(icon="info-circle")] #[span(v-if="!showDetails") Show] #[span(v-else) Hide] details
       b-button(v-if="creator.edited", v-on:click='$emit("edit")', variant='outline-secondary', size='sm').float-right
-        | Edit 
-        font-awesome-icon(icon="edit")
+        | #[font-awesome-icon(icon="edit")] Edit
 
       table.table.table-sm.table-hover.mt-3.mb-0(v-if="showDetails")
         tr
           th Page
           th Duration
+        tr(v-if="activities.length == 0" colspan="0")
+          td No activity found for creator
         tr(v-for="activity in activities")
           td
             a(:href='activity.url', target="blank")
@@ -46,15 +47,12 @@ b-card(class="mb-2" no-body)
       b-input-group(prepend="ETH Address", size="sm")
         b-form-input(placeholder="Address", v-model='address')
       div.pt-3
-        b-button(v-if='creator.edited', variant="outline-danger", size="sm", v-on:click='$emit("remove")')
-          | Delete 
-          font-awesome-icon(icon="trash")
-        b-button(variant="outline-success", size="sm", v-on:click='save()').float-right.mr-2
-          | Save 
-          font-awesome-icon(icon="save")
-        b-button(variant="outline-danger", size="sm", v-on:click='cancel()').float-right.mr-2
-          | Cancel 
-          font-awesome-icon(icon="ban")
+        b-button(v-if='creator.edited', variant="danger", size="sm", v-on:click='$emit("remove")')
+          | #[font-awesome-icon(icon="trash")] Delete
+        b-button(variant="success", size="sm", v-on:click='save()').float-right.mr-2
+          | #[font-awesome-icon(icon="save")] Save
+        b-button(variant="danger", size="sm", v-on:click='cancel()').float-right.mr-2
+          | #[font-awesome-icon(icon="ban")] Cancel
 </template>
 
 <script>
@@ -105,22 +103,6 @@ export default {
     },
     getActivities() {
       db.getCreatorActivity(this.creator.url).then(activities => {
-        // Testing
-        if (activities.length === 0) {
-          activities = [
-            {
-              url: 'https://youtube.com/watch?v=asd',
-              title: 'asd',
-              duration: 100,
-            },
-            {
-              url: 'https://youtube.com/watch?v=qwe',
-              title: 'qwe',
-              duration: 10,
-            },
-          ];
-        }
-
         this.activities = activities;
       });
     },

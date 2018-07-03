@@ -153,7 +153,6 @@ export default {
       db.getCreators().then(creators => {
         console.log(creators);
 
-<<<<<<< HEAD
         // Testing
         if (creators.length === 0) {
           creators = [
@@ -193,9 +192,6 @@ export default {
         thankful_team_creator.predefined = true;
         this.creators.push(thankful_team_creator);
 
-=======
-        this.creators = creators;
->>>>>>> 62d9668acf6b8497ce870b984399bbdb7a71e2ed
         this.$refs.donationHistory.refresh();
 
         this.donate.getId().then(id => {

@@ -5,7 +5,7 @@ b-card(no-body)
       div.row
         a(target="_blank", :href="url").col-md-9
           div
-            h4
+            h6
               | {{ name }}&nbsp;#[font-awesome-icon(icon="external-link-alt", size="xs")]
         div.col-md-3
           b-input-group(append="$", size="sm")

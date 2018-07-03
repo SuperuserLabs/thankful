@@ -7,8 +7,7 @@ div.container
       div(v-if='netId === -1')
         | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
       div(v-else)
-        | You are connected to the 
-        span {{ netName }}
+        | You are connected to the {{ netName }}
     b-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
       | {{ error }}
   div.row

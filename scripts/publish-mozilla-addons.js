@@ -4,9 +4,13 @@ var deploy = require('firefox-extension-deploy');
 let secret = process.env['MOZILLA_SECRET'];
 let issuer = process.env['MOZILLA_ISSUER'];
 let extension_id = process.env['MOZILLA_EXTENSION_ID'];
-let version = process.env['THANKFUL_VERSION'];
 
-console.log(process.env);
+let version = (
+  process.env['THANKFUL_VERSION'] || process.env['TRAVIS_TAG']
+).replace('v', '');
+
+console.log(`GUID: ${extension_id}`);
+console.log(`Deploying version: ${version}`);
 
 deploy({
   // obtained by following the instructions here:

@@ -121,21 +121,19 @@ export class Database {
     // otherwise creates new Activity with the given duration.
     return this.db.activity.get({ url: url }).then(activity => {
       if (activity === undefined) {
-        activity = Object.assign(
-          {
-            url: url,
-            duration: 0,
-          },
-          options
-        );
+        activity = {
+          url: url,
+          duration: 0,
+        };
       }
       activity.duration += duration;
+      Object.assign(activity, options);
       return this.db.activity.put(activity);
     });
   }
 
   connectActivityToCreator(url, creator) {
-    return this.db.activity.update(url, { creator: creator });
+    return this.logActivity(url, 0, { creator: creator });
   }
 
   logDonation(creatorUrl, weiAmount, usdAmount, hash) {

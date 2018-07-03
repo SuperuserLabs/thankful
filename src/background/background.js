@@ -91,6 +91,9 @@ function getCurrentTab() {
       .catch(error => {
         console.log(`Stethoscope: ${error}`);
       });
+    browser.tabs.query({ active: false, audible: true }).then(tabs => {
+      console.log('Audible and inactive tabs:', tabs);
+    });
   }
 
   function sendPageChange(tabId, changeInfo, tab) {

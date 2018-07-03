@@ -1,14 +1,11 @@
 <template lang="pug">
 div.container
-  div(v-if="netId === -1").mb-2
+  div.mb-2
     b-alert(show).mt-2.mb-0.p-2
-      div
+      div(v-if="netId === -1")
         | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-  div(v-else).mb-2
-    b-alert(show).mt-2.mb-0.p-2
-      div
-        | You are connected to the 
-        span {{ netName }}
+      div(v-else)
+        | You are connected to the {{ netName }}
   div.row
     div.md-6
       div
@@ -23,9 +20,8 @@ div.container
       div.d-flex.flex-row.justify-content-between
         h3 Creators
         div
-          b-button(v-if="editing < 0",variant="outline-secondary", size="sm", v-on:click="addCreator()")
-            | Add creator 
-            font-awesome-icon(icon="user-plus")
+          b-button(v-if="editing < 0",variant="success", size="sm", v-on:click="addCreator()")
+            | #[font-awesome-icon(icon="user-plus")] Add creator
       div(v-if="creators.length === 0")
         | No creators to show
 
@@ -52,8 +48,6 @@ div.container
         activity-component(:limit="10", :unattributed="true", to="/activity")
 
     div.col-md-4
-
-
       h3 Donation history
       b-card.p-2.bt-0(no-body)
         donation-history-component(:limit="10", ref="donationHistory", to="/donations")
@@ -81,6 +75,18 @@ function getAddressAmountMapping(creators) {
     })
   );
 }
+
+function initThankfulTeamCreator() {
+  const creator = new Creator('https://getthankful.io', 'Thankful Team');
+  // Erik's address
+  // TODO: Change to a multisig wallet
+  creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
+  creator.info = 'Be thankful for Thankful and donate to the Thankful team!';
+  return creator.save();
+}
+
+// TODO: Move to better place
+initThankfulTeamCreator();
 
 export default {
   components: {
@@ -147,6 +153,7 @@ export default {
       db.getCreators().then(creators => {
         console.log(creators);
 
+<<<<<<< HEAD
         // Testing
         if (creators.length === 0) {
           creators = [
@@ -186,6 +193,9 @@ export default {
         thankful_team_creator.predefined = true;
         this.creators.push(thankful_team_creator);
 
+=======
+        this.creators = creators;
+>>>>>>> 62d9668acf6b8497ce870b984399bbdb7a71e2ed
         this.$refs.donationHistory.refresh();
 
         this.donate.getId().then(id => {

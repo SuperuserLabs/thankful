@@ -180,3 +180,6 @@ export class Database {
       });
   }
 }
+
+// FIXME: Hax
+new Database();

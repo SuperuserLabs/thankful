@@ -151,6 +151,22 @@ export default {
           ];
         }
 
+        // Find accumulated duration for creators
+        let creatorsWithDuration = Promise.all(
+          creators.map(c =>
+            db.getCreatorActivity(c.url).then(acts =>
+              Object.assign({}, c, {
+                duration: _.sum(acts.map(act => act.duration)),
+              })
+            )
+          )
+        );
+
+        // Sort creators by duration
+        creatorsWithDuration.then(x => {
+          this.creators = _.sortBy(x, 'duration').reverse();
+        });
+
         const thankful_team_creator = new Creator(
           'https://getthankful.io',
           'Thankful Team'
@@ -160,9 +176,8 @@ export default {
           '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
         thankful_team_creator.info = 'Optionally donate to the Thankful team';
         thankful_team_creator.predefined = true;
-        creators.push(thankful_team_creator);
+        this.creators.push(thankful_team_creator);
 
-        this.creators = creators;
         this.$refs.donationHistory.refresh();
 
         this.donate.getId().then(id => {

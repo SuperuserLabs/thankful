@@ -4,34 +4,61 @@ import _ from 'lodash';
 
 let _db = undefined;
 
-export class Activity {
+// In the future, use private fields instead:
+//   https://github.com/tc39/proposal-class-fields
+// I thought I could use symbols, but that didn't work out.
+let modelAttrs = {};
+
+class Model {
+  constructor(table, key) {
+    modelAttrs[this.constructor] = { table: table, key: key };
+  }
+
+  save() {
+    // Does an update if the row already exists, otherwise does a put.
+    // TODO: Doesn't work for some reason
+    const exists =
+      modelAttrs[this.constructor].table
+        .where(modelAttrs[this.constructor].key)
+        .equals(this[modelAttrs[this.constructor].key])
+        .count() > 0;
+    if (exists) {
+      console.log('exists');
+      let key = this[modelAttrs[this.constructor].key];
+      return modelAttrs[this.constructor].table.update(key, this);
+    } else {
+      return this.put();
+    }
+  }
+
+  put() {
+    return modelAttrs[this.constructor].table.put(this);
+  }
+
+  delete() {
+    let key = this[modelAttrs[this.constructor].key];
+    return modelAttrs[this.constructor].table.delete(key);
+  }
+}
+
+export class Activity extends Model {
   constructor(url, title, duration, creator) {
+    super(_db.activity, 'url');
     this.url = url;
     this.title = title;
     this.duration = duration;
     this.creator = creator;
   }
-
-  save() {
-    return _db.activity.put(this);
-  }
 }
 
-export class Creator {
+export class Creator extends Model {
   constructor(url, name) {
+    super(_db.creator, 'url');
     if (typeof url !== 'string') {
       throw 'url was invalid type';
     }
     this.url = url;
     this.name = name;
-  }
-
-  save() {
-    return _db.creator.put(this);
-  }
-
-  delete() {
-    return _db.creator.delete(this.url);
   }
 }
 

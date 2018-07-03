@@ -19,16 +19,7 @@ class Model {
     let keyname = modelAttrs[this.constructor].key;
     let key = this[keyname];
     let table = modelAttrs[this.constructor].table;
-    const exists =
-      (await table
-        .where(keyname)
-        .equals(this[keyname])
-        .count()) > 0;
-    if (exists) {
-      return table.update(key, this);
-    } else {
-      return this.put();
-    }
+    return table.add(this).catch(err => table.update(key, this));
   }
 
   put() {

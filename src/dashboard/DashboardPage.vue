@@ -10,7 +10,16 @@ div.container
         | You are connected to the 
         span {{ netName }}
   div.row
-    div.col-md-6
+    div.md-6
+      div
+        h4 Monthly donation:
+      // TODO: Form group
+      b-input-group(append="$").mt-2
+        b-form-input(v-model="monthlyDonation")
+  div.row
+    hr
+  div.row
+    div.col-md-8
       div.d-flex.flex-row.justify-content-between
         h3 Creators
         div
@@ -19,17 +28,20 @@ div.container
             font-awesome-icon(icon="user-plus")
       div(v-if="creators.length === 0")
         | No creators to show
-      creator-card(v-for="(creator, index) in creators",
-                   v-bind:creator="creator",
-                   v-bind:key="creator.url",
-                   v-bind:editing="index === editing",
-                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
-                   @address="creator.address = $event; creator.save();",
-                   @save="save(creator, $event)"
-                   @cancel="cancel(creator)"
-                   @edit="editing = index"
-                   @remove="remove(creator, index)"
-                   )
+
+      div.d-flex.flex-wrap
+        creator-card(v-for="(creator, index) in creators",
+                     v-bind:creator="creator",
+                     v-bind:key="creator.url",
+                     v-bind:editing="index === editing",
+                     @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
+                     @address="creator.address = $event; creator.save();",
+                     @save="save(creator, $event)"
+                     @cancel="cancel(creator)"
+                     @edit="editing = index"
+                     @remove="remove(creator, index)"
+                     style='flex:50%'
+                     )
 
       b-button(variant="success", size="lg", v-on:click="donateAll()")
         | Donate {{ totalAllocated }}$
@@ -39,11 +51,7 @@ div.container
       b-card.p-2.bt-0(no-body)
         activity-component(:limit="10", :unattributed="true", to="/activity")
 
-    div.col-md-6
-      h3 Monthly donation:
-        // TODO: Form group
-        b-input-group(append="$").mt-2
-          b-form-input(v-model="monthlyDonation")
+    div.col-md-4
 
 
       h3 Donation history

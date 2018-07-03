@@ -1,11 +1,11 @@
 <template lang="pug">
-b-card(class="mb-2" no-body)
+b-card(no-body)
   b-card-body.p-3
     div(v-if="!editing")
       div.row
         a(target="_blank", :href="url").col-md-9
           div
-            h4
+            h6
               |  {{ name }}&nbsp
               font-awesome-icon(icon="external-link-alt", size="xs")
         div.col-md-3
@@ -143,8 +143,8 @@ export default {
 </script>
 
 <style>
-a h4,
-a h4:visited {
+a h6,
+a h6:visited {
   color: #222 !important;
 }
 </style>

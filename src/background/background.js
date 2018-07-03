@@ -77,8 +77,16 @@ function getCurrentTab() {
     }
     // FIXME: Doing a creator.save() overwrites a preexisting creator object
     await new Creator(msg.creator.url, msg.creator.name).save();
-    await db.connectActivityToCreator(msg.activity.url, msg.creator.url);
-    console.log('Activity connected to creator');
+    let result = await db.connectActivityToCreator(
+      msg.activity.url,
+      msg.creator.url
+    );
+    if (result === 0) {
+      console.log('Failed connecting activity to creator');
+    } else {
+      console.log('Successfully connected activity to creator');
+    }
+    await db.getActivity(msg.activity.url);
   }
 
   function stethoscope() {
@@ -118,6 +126,8 @@ error: ${JSON.stringify(message)}`
       url: browser.runtime.getURL('dashboard/index.html'),
     });
   });
+
+  browser.tabs.onUpdated.addListener(stethoscope);
 
   browser.tabs.onUpdated.addListener(sendPageChange);
 

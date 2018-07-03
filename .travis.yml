@@ -13,11 +13,10 @@ script:
 
 after_success:
  - make clean
- - make build-production
 
 deploy:
   provider: script
-  script: make publish
+  script: make publish-amo
   keep_files: true
   on:
     tags: true

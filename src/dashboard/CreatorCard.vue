@@ -6,8 +6,10 @@ b-card(class="mb-2" no-body)
         a(target="_blank", :href="url").col-md-9
           div
             h4
+              font-awesome-icon(v-if='isDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
               |  {{ name }}&nbsp
-              font-awesome-icon(icon="external-link-alt", size="xs")
+              sup.text-secondary
+                font-awesome-icon(icon="external-link-alt", size="xs")
         div.col-md-3
           b-input-group(append="$", size="sm")
             b-form-input(v-model="allocatedFunds",
@@ -90,6 +92,10 @@ export default {
     },
   },
   methods: {
+    isDomain(url, hostname) {
+      let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
+      return reg.test(url);
+    },
     setDefaultData(obj) {
       return Object.assign(obj, {
         address: this.creator.address || '',

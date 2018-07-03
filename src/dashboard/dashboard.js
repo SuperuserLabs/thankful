@@ -10,8 +10,10 @@ import {
   faEdit,
   faPen,
   faTrash,
+  faExclamationTriangle,
   faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
+import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 library.add(
@@ -22,6 +24,8 @@ library.add(
   faInfoCircle,
   faPen,
   faTrash,
+  faYoutube,
+  faExclamationTriangle,
   faExternalLinkAlt
 );
 

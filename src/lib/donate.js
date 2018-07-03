@@ -39,7 +39,6 @@ export default class Donate {
         // 3:  Ropsten testnet
         // 4:  Rinkeby testnet
         // 42: Kovan testnet
-        console.log(netId);
       })
       .catch(err => {
         throw err;
@@ -50,15 +49,15 @@ export default class Donate {
   }
 
   async donateAll(donations, refreshCallback) {
-    const donationPromises = donations.map(async d => {
-      return this._donateOne(
+    const donationPromises = donations.map(async d =>
+      this._donateOne(
         d.address,
         BigNumber(d.allocatedFunds),
         d.url,
         refreshCallback
-      );
-    });
-    return Promise.all(donationPromises).catch(console.error);
+      )
+    );
+    return Promise.all(donationPromises);
   }
 
   isAddress(address) {
@@ -69,14 +68,9 @@ export default class Donate {
   // making it lowercase (to get past the checksum) and then changing one
   // letter/number to something else.
   hasBalance(address) {
-    return web3.eth
-      .getBalance(address)
-      .then(balance => {
-        return balance > 0;
-      })
-      .catch(err => {
-        console.error('Could not get balance of', address, ':', err);
-      });
+    return web3.eth.getBalance(address).then(balance => {
+      return balance > 0;
+    });
   }
 
   async _donateOne(
@@ -110,13 +104,10 @@ export default class Donate {
         .once('transactionHash', hash => {
           return db
             .logDonation(creatorUrl, weiAmount, usdAmount, hash)
-            .then(refreshCallback)
-            .catch(err => {
-              console.error('Failed to log donation:', err);
-            });
+            .then(refreshCallback);
         });
     } catch (error) {
-      console.error('Failed to donate to', addr, ':', error);
+      throw error;
     }
   }
 
@@ -128,17 +119,14 @@ export default class Donate {
 
   _metamaskExtensionId() {
     if (browser.runtime.getBrowserInfo) {
-      return browser.runtime
-        .getBrowserInfo()
-        .then(res => {
-          if (res.name === 'Firefox') {
-            return 'webextension@metamask.io';
-          } else {
-            // Assume Chrome if it's some other string
-            return 'nkbihfbeogaeaoehlefnkodbefgpgknn';
-          }
-        })
-        .catch(console.error);
+      return browser.runtime.getBrowserInfo().then(res => {
+        if (res.name === 'Firefox') {
+          return 'webextension@metamask.io';
+        } else {
+          // Assume Chrome if it's some other string
+          return 'nkbihfbeogaeaoehlefnkodbefgpgknn';
+        }
+      });
     } else {
       // Assume Chrome if getBrowserInfo isn't defined
       return Promise.resolve('nkbihfbeogaeaoehlefnkodbefgpgknn');
@@ -158,23 +146,19 @@ export default class Donate {
   }
 
   _usdToWei(usdAmount) {
-    return this._usdEthRate()
-      .then(usdEthRate => {
-        const ethAmount = usdAmount.dividedBy(usdEthRate);
-        return ethAmount
-          .multipliedBy(web3.utils.unitMap.ether)
-          .dividedToIntegerBy(1);
-      })
-      .catch(console.error);
+    return this._usdEthRate().then(usdEthRate => {
+      const ethAmount = usdAmount.dividedBy(usdEthRate);
+      return ethAmount
+        .multipliedBy(web3.utils.unitMap.ether)
+        .dividedToIntegerBy(1);
+    });
   }
 
   // Unused but works
   _weiToUsd(weiAmount) {
-    return this._usdEthRate()
-      .then(usdEthRate => {
-        const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
-        return ethAmount.multipliedBy(usdEthRate);
-      })
-      .catch(console.error);
+    return this._usdEthRate().then(usdEthRate => {
+      const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
+      return ethAmount.multipliedBy(usdEthRate);
+    });
   }
 }

@@ -121,11 +121,10 @@ export class Database {
     // otherwise creates new Activity with the given duration.
     return this.db.activity.get({ url: url }).then(activity => {
       if (activity === undefined) {
-        activity = 
-          {
-            url: url,
-            duration: 0,
-          }
+        activity = {
+          url: url,
+          duration: 0,
+        };
       }
       activity.duration += duration;
       Object.assign(activity, options);
@@ -134,7 +133,7 @@ export class Database {
   }
 
   connectActivityToCreator(url, creator) {
-    return this.logActivity(url, 0, {'creator': creator})
+    return this.logActivity(url, 0, { creator: creator });
   }
 
   logDonation(creatorUrl, weiAmount, usdAmount, hash) {

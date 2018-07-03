@@ -181,5 +181,6 @@ export class Database {
   }
 }
 
-// FIXME: Hax
+// FIXME: Hax, needed to be able to do operations on models before
+//        another Database object has been instantiated.
 new Database();

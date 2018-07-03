@@ -18,25 +18,28 @@ class Model {
     // Does an update if the row already exists, otherwise does a put.
     let keyname = modelAttrs[this.constructor].key;
     let key = this[keyname];
+    let table = modelAttrs[this.constructor].table;
     const exists =
-      (await modelAttrs[this.constructor].table
+      (await table
         .where(keyname)
         .equals(this[keyname])
         .count()) > 0;
     if (exists) {
-      return modelAttrs[this.constructor].table.update(key, this);
+      return table.update(key, this);
     } else {
       return this.put();
     }
   }
 
   put() {
-    return modelAttrs[this.constructor].table.put(this);
+    let table = modelAttrs[this.constructor].table;
+    return table.put(this);
   }
 
   delete() {
     let key = this[modelAttrs[this.constructor].key];
-    return modelAttrs[this.constructor].table.delete(key);
+    let table = modelAttrs[this.constructor].table;
+    return table.delete(key);
   }
 }
 

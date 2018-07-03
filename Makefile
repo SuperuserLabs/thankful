@@ -29,16 +29,26 @@ clean:
 package:
 	cd dist/ && zip -r ../thankful.zip *
 
-publish:
+publish-amo:
 	make clean
 	python3 scripts/set_version.py dist/manifest.json
 	python3 scripts/set_version.py package.json
 	make build-production
 	make package
-	# Use these to automatically publish
-	# https://www.npmjs.com/package/chrome-webstore-upload-cli
-	# https://www.npmjs.com/package/firefox-extension-deploy
 	env MOZILLA_EXTENSION_ID='{b4bbcd8e-acc0-4044-b09b-1c15d0b66875}' \
 		node scripts/publish-mozilla-addons.js
+
+publish-webstore:
+	# This will likely not be able to run in CI, see:
+	#	https://github.com/SuperuserLabs/thankful/pull/39#issuecomment-401839665
+	make clean
+	python3 scripts/set_version.py dist/manifest.json
+	python3 scripts/set_version.py package.json
+	make build-production
+	make package
 	# Doing it like this would expose keys, not acceptable
-	#    webstore upload --source extension.zip --extension-id ${WEBSTORE_EXTENSION_ID} --client-id ${WEBSTORE_CLIENT_ID} --client-secret ${WEBSTORE_CLIENT_SECRET} --refresh-token ${REFRESH_TOKEN}
+	webstore upload --source extension.zip \
+					--extension-id 'eapbondnpopbiepnjfhnaaejfdfjhnde' \
+					--client-id ${WEBSTORE_CLIENT_ID} \
+					--client-secret ${WEBSTORE_CLIENT_SECRET} \
+					--refresh-token ${REFRESH_TOKEN}

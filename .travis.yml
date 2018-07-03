@@ -16,7 +16,7 @@ after_success:
 
 deploy:
   provider: script
-  script: make publish
+  script: make publish-amo
   keep_files: true
   on:
     tags: true

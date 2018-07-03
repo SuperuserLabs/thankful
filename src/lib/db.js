@@ -14,17 +14,16 @@ class Model {
     modelAttrs[this.constructor] = { table: table, key: key };
   }
 
-  save() {
+  async save() {
     // Does an update if the row already exists, otherwise does a put.
-    // TODO: Doesn't work for some reason
+    let keyname = modelAttrs[this.constructor].key;
+    let key = this[keyname];
     const exists =
-      modelAttrs[this.constructor].table
-        .where(modelAttrs[this.constructor].key)
-        .equals(this[modelAttrs[this.constructor].key])
-        .count() > 0;
+      (await modelAttrs[this.constructor].table
+        .where(keyname)
+        .equals(this[keyname])
+        .count()) > 0;
     if (exists) {
-      console.log('exists');
-      let key = this[modelAttrs[this.constructor].key];
       return modelAttrs[this.constructor].table.update(key, this);
     } else {
       return this.put();

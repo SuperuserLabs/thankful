@@ -1,11 +1,15 @@
 <template lang="pug">
 div.container
-  div.mb-2
-    b-alert(show).mt-2.mb-0.p-2
-      div(v-if="netId === -1")
+  a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
+    font-awesome-icon(icon="exclamation-triangle", size='3x', style='cursor:pointer').text-warning
+  div
+    b-alert(show)
+      div(v-if='netId === -1')
         | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
       div(v-else)
         | You are connected to the {{ netName }}
+    b-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
+      | {{ error }}
   div.row
     div.col-md-6
       div.d-flex.flex-row.justify-content-between
@@ -27,8 +31,10 @@ div.container
                    @remove="remove(creator, index)"
                    )
 
-      b-button(variant="success", size="lg", v-on:click="donateAll()")
-        | Donate {{ totalAllocated }}$
+      div.d-flex.flex-row
+        div
+          b-button(variant="success", size="lg", v-on:click="donateAll()")
+            | Donate {{ totalAllocated }}$
       hr
 
       h3 Unattributed Activity
@@ -95,6 +101,8 @@ export default {
       monthlyDonation: 10,
       editing: -1,
       netId: -1,
+      errors: [],
+      dismissedErrors: 0,
     };
   },
   computed: {
@@ -113,11 +121,20 @@ export default {
     },
   },
   methods: {
+    toTop() {
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    },
+    errfun(title, sink = this.errors) {
+      return message => {
+        sink.push(`${title}: ${message}`);
+      };
+    },
     donateAll() {
       const donations = this.creators.filter(c => c.allocatedFunds > 0);
       this.donate
         .donateAll(donations, this.refresh)
-        .catch(err => console.error('Donating failed:', err));
+        .catch(this.errfun('Donating failed'));
     },
     addCreator() {
       if (this.editing < 0) {
@@ -145,13 +162,10 @@ export default {
     },
     refresh() {
       db.getCreators().then(creators => {
-        console.log(creators);
-
         this.creators = creators;
         this.$refs.donationHistory.refresh();
 
         this.donate.getId().then(id => {
-          console.log(id);
           this.netId = id;
         });
       });

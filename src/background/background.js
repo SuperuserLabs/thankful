@@ -111,22 +111,23 @@ function getCurrentTab() {
           currentUrls
         );
         const newUrls = _.difference(currentUrls, Object.keys(audibleTimers));
+
         goneUrls.forEach(url => {
-          const duration = audibleTimers[url]('a');
+          const duration = audibleTimers[url]();
           const title = audibleTitles[url];
           delete audibleTimers[url];
           delete audibleTitles[url];
           db.logActivity(url, duration, { title: title });
         });
         stillUrls.forEach(url => {
-          const duration = audibleTimers[url]('a');
+          const duration = audibleTimers[url]();
           let title = _.find(tabs, tab => tab.url === url).title;
           audibleTitles[url] = title;
           db.logActivity(url, duration, { title: title });
         });
         newUrls.forEach(url => {
           audibleTimers[url] = valueConstantTicker();
-          audibleTimers[url]('a');
+          audibleTimers[url]();
           audibleTitles[url] = _.find(tabs, tab => tab.url === url).title;
         });
       })

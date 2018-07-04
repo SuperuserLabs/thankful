@@ -27,7 +27,7 @@ div.container
     div(v-if="creators.length === 0")
       | No creators to show
 
-    div.row
+    div.row.mb-3
       creator-card(v-for="(creator, index) in creators",
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
@@ -39,6 +39,8 @@ div.container
                    @edit="editing = index"
                    @remove="remove(creator, index)"
                    ).col-sm-12.col-md-6.col-lg-4
+
+    donation-summary-component(:donations="donations")
 
     b-button(variant="success", size="lg", v-on:click="donateAll()")
       | Donate {{ totalAllocated }}$
@@ -60,6 +62,7 @@ import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
+import DonationSummaryComponent from './DonationSummaryComponent.vue';
 import Donate from '../lib/donate.js';
 import { Database, Activity, Creator, Donation } from '../lib/db.js';
 import BigNumber from 'bignumber.js';
@@ -95,6 +98,7 @@ export default {
     'creator-card': CreatorCard,
     'activity-component': ActivityComponent,
     'donation-history-component': DonationHistoryComponent,
+    'donation-summary-component': DonationSummaryComponent,
   },
   data: function() {
     return {
@@ -121,6 +125,12 @@ export default {
       };
       return names[this.netId];
     },
+    donations() {
+      return _.sortBy(
+        this.creators.filter(c => c.allocatedFunds > 0),
+        c => -parseFloat(c.allocatedFunds)
+      );
+    },
   },
   methods: {
     toTop() {
@@ -133,7 +143,7 @@ export default {
       };
     },
     donateAll() {
-      const donations = this.creators.filter(c => c.allocatedFunds > 0);
+      const donations = this.donations;
       this.donate
         .donateAll(donations, this.refresh)
         .catch(this.errfun('Donating failed'));
@@ -168,7 +178,7 @@ export default {
         let creatorsWithDuration = Promise.all(
           creators.map(c =>
             db.getCreatorActivity(c.url).then(acts =>
-              Object.assign({}, c, {
+              Object.assign({ __proto__: c.__proto__ }, c, {
                 duration: _.sum(acts.map(act => act.duration)),
               })
             )
@@ -179,6 +189,7 @@ export default {
         creatorsWithDuration.then(x => {
           this.creators = _.sortBy(x, 'duration').reverse();
         });
+
         this.$refs.donationHistory.refresh();
 
         this.donate.getId().then(id => {

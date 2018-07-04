@@ -15,10 +15,6 @@ b-card(no-body)
             b-form-input(v-model="allocatedFunds",
                          type="number", min=0, step=0.1)
 
-      p(v-if="!creator.predefined").text-small
-        b-input-group(size="sm")
-          b-form-input(v-model="address", placeholder="ETH Address")
-
       p(v-if="creator.info").text-small
         | {{ creator.info }}
 

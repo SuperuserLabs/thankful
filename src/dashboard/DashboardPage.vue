@@ -2,58 +2,54 @@
 div.container
   a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
     font-awesome-icon(icon="exclamation-triangle", size='3x', style='cursor:pointer').text-warning
-  div
-    b-alert(show)
-      div(v-if='netId === -1')
-        | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-      div(v-else)
-        | You are connected to the {{ netName }}
-    b-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
-      | {{ error }}
   div.row
-    div.md-6
+    div.col-md-6
       div
-        h4 Monthly donation:
-      // TODO: Form group
-      b-input-group(append="$").mt-2
-        b-form-input(v-model="monthlyDonation")
-  div.row
+        b-alert(show)
+          div(v-if='netId === -1')
+            | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
+          div(v-else)
+            | You are connected to the {{ netName }}
+        b-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
+          | {{ error }}
+    b-row(align-h='end').col-md-6.p-0
+      b-form(inline)
+        b-input-group(append="$").mb-2.mr-sm-2.mb-sm-0
+          b-form-input(v-model="monthlyDonation")
+        b-button(variant="success")
+          | Distribute
+  div
+    div.d-flex.flex-row.justify-content-between
+      h3 Creators
+      div
+        b-button(v-if="editing < 0",variant="success", size="sm", v-on:click="addCreator()")
+          | #[font-awesome-icon(icon="user-plus")] Add creator
+    div(v-if="creators.length === 0")
+      | No creators to show
+
+    div.row
+      creator-card(v-for="(creator, index) in creators",
+                   v-bind:creator="creator",
+                   v-bind:key="creator.url",
+                   v-bind:editing="index === editing",
+                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
+                   @address="creator.address = $event; creator.save();",
+                   @save="save(creator, $event)"
+                   @cancel="cancel(creator)"
+                   @edit="editing = index"
+                   @remove="remove(creator, index)"
+                   ).col-sm-12.col-md-6.col-lg-4
+
+    b-button(variant="success", size="lg", v-on:click="donateAll()")
+      | Donate {{ totalAllocated }}$
     hr
+
   div.row
-    div.col-md-8
-      div.d-flex.flex-row.justify-content-between
-        h3 Creators
-        div
-          b-button(v-if="editing < 0",variant="success", size="sm", v-on:click="addCreator()")
-            | #[font-awesome-icon(icon="user-plus")] Add creator
-      div(v-if="creators.length === 0")
-        | No creators to show
-
-      div.d-flex.flex-wrap
-        creator-card(v-for="(creator, index) in creators",
-                     v-bind:creator="creator",
-                     v-bind:key="creator.url",
-                     v-bind:editing="index === editing",
-                     @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
-                     @address="creator.address = $event; creator.save();",
-                     @save="save(creator, $event)"
-                     @cancel="cancel(creator)"
-                     @edit="editing = index"
-                     @remove="remove(creator, index)"
-                     style='flex:50%'
-                     )
-
-      div.d-flex.flex-row
-        div
-          b-button(variant="success", size="lg", v-on:click="donateAll()")
-            | Donate {{ totalAllocated }}$
-      hr
-
+    div.col-6
       h3 Unattributed Activity
       b-card.p-2.bt-0(no-body)
         activity-component(:limit="10", :unattributed="true", to="/activity")
-
-    div.col-md-4
+    div.col-6
       h3 Donation history
       b-card.p-2.bt-0(no-body)
         donation-history-component(:limit="10", ref="donationHistory", to="/donations")

@@ -3,21 +3,21 @@ b-card(no-body)
   b-card-body.p-3
     div(v-if="!editing")
       div.row
-        a(target="_blank", :href="url").col-md-9
+        a(target="_blank", :href="url").col-sm-8.col-md-7.col-xl-8
           div
             h6
               font-awesome-icon(v-if='isDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
               |  {{ name }}&nbsp
               sup.text-secondary
                 font-awesome-icon(icon="external-link-alt", size="xs")
-        div.col-md-3
+        div.col-sm-4.col-md-5.col-xl-4
           b-input-group(append="$", size="sm")
             b-form-input(v-model="allocatedFunds",
                          type="number", min=0, step=0.1)
 
       p(v-if="!creator.predefined").text-small
-        b-input-group(prepend="ETH Address", size="sm")
-          b-form-input(v-model="address")
+        b-input-group(size="sm")
+          b-form-input(v-model="address", placeholder="ETH Address")
 
       p(v-if="creator.info").text-small
         | {{ creator.info }}

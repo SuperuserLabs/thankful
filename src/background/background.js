@@ -104,7 +104,6 @@ function getCurrentTab() {
     browser.tabs
       .query({ active: false, audible: true })
       .then(tabs => {
-        console.log('Audible and inactive tabs:', tabs);
         const currentUrls = tabs.map(tab => tab.url);
         const goneUrls = _.difference(Object.keys(audibleTimers), currentUrls);
         const stillUrls = _.intersection(
@@ -118,20 +117,17 @@ function getCurrentTab() {
           delete audibleTimers[url];
           delete audibleTitles[url];
           db.logActivity(url, duration, { title: title });
-          console.log('logged audible duration gone:', duration, url);
         });
         stillUrls.forEach(url => {
           const duration = audibleTimers[url]('a');
           let title = _.find(tabs, tab => tab.url === url).title;
           audibleTitles[url] = title;
           db.logActivity(url, duration, { title: title });
-          console.log('logged audible duration still:', duration, url);
         });
         newUrls.forEach(url => {
           audibleTimers[url] = valueConstantTicker();
           audibleTimers[url]('a');
           audibleTitles[url] = _.find(tabs, tab => tab.url === url).title;
-          console.log('new audible:', url);
         });
       })
       .catch(error => {

@@ -4,34 +4,54 @@ import _ from 'lodash';
 
 let _db = undefined;
 
-export class Activity {
+// In the future, use private fields instead:
+//   https://github.com/tc39/proposal-class-fields
+// I thought I could use symbols, but that didn't work out.
+let modelAttrs = {};
+
+class Model {
+  constructor(table, key) {
+    modelAttrs[this.constructor] = { table: table, key: key };
+  }
+
+  async save() {
+    // Does an update if the row already exists, otherwise does a put.
+    let keyname = modelAttrs[this.constructor].key;
+    let key = this[keyname];
+    let table = modelAttrs[this.constructor].table;
+    return table.add(this).catch(err => table.update(key, this));
+  }
+
+  put() {
+    let table = modelAttrs[this.constructor].table;
+    return table.put(this);
+  }
+
+  delete() {
+    let key = this[modelAttrs[this.constructor].key];
+    let table = modelAttrs[this.constructor].table;
+    return table.delete(key);
+  }
+}
+
+export class Activity extends Model {
   constructor(url, title, duration, creator) {
+    super(_db.activity, 'url');
     this.url = url;
     this.title = title;
     this.duration = duration;
     this.creator = creator;
   }
-
-  save() {
-    return _db.activity.put(this);
-  }
 }
 
-export class Creator {
+export class Creator extends Model {
   constructor(url, name) {
+    super(_db.creator, 'url');
     if (typeof url !== 'string') {
       throw 'url was invalid type';
     }
     this.url = url;
     this.name = name;
-  }
-
-  save() {
-    return _db.creator.put(this);
-  }
-
-  delete() {
-    return _db.creator.delete(this.url);
   }
 }
 
@@ -121,21 +141,19 @@ export class Database {
     // otherwise creates new Activity with the given duration.
     return this.db.activity.get({ url: url }).then(activity => {
       if (activity === undefined) {
-        activity = Object.assign(
-          {
-            url: url,
-            duration: 0,
-          },
-          options
-        );
+        activity = {
+          url: url,
+          duration: 0,
+        };
       }
       activity.duration += duration;
+      Object.assign(activity, options);
       return this.db.activity.put(activity);
     });
   }
 
   connectActivityToCreator(url, creator) {
-    return this.db.activity.update(url, { creator: creator });
+    return this.logActivity(url, 0, { creator: creator });
   }
 
   logDonation(creatorUrl, weiAmount, usdAmount, hash) {
@@ -162,3 +180,7 @@ export class Database {
       });
   }
 }
+
+// FIXME: Hax, needed to be able to do operations on models before
+//        another Database object has been instantiated.
+new Database();

@@ -88,7 +88,7 @@ describe('Creator', () => {
     expect(creator.name).toBe(c_name);
   });
 
-  it('connect activity to creator', async () => {
+  it('add creator and connect activity to creator', async () => {
     let key = await new Creator(c_url, c_name).save();
 
     // Test fetching creator by key

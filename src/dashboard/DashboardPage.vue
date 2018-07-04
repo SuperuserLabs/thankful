@@ -1,22 +1,22 @@
 <template lang="pug">
 div.container
-  div(v-if="netId === -1").mb-2
-    b-alert(show).mt-2.mb-0.p-2
-      div
+  a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
+    font-awesome-icon(icon="exclamation-triangle", size='3x', style='cursor:pointer').text-warning
+  div
+    b-alert(show)
+      div(v-if='netId === -1')
         | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-  div(v-else).mb-2
-    b-alert(show).mt-2.mb-0.p-2
-      div
-        | You are connected to the 
-        span {{ netName }}
+      div(v-else)
+        | You are connected to the {{ netName }}
+    b-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
+      | {{ error }}
   div.row
     div.col-md-6
       div.d-flex.flex-row.justify-content-between
         h3 Creators
         div
-          b-button(v-if="editing < 0",variant="outline-secondary", size="sm", v-on:click="addCreator()")
-            | Add creator 
-            font-awesome-icon(icon="user-plus")
+          b-button(v-if="editing < 0",variant="success", size="sm", v-on:click="addCreator()")
+            | #[font-awesome-icon(icon="user-plus")] Add creator
       div(v-if="creators.length === 0")
         | No creators to show
       creator-card(v-for="(creator, index) in creators",
@@ -31,8 +31,10 @@ div.container
                    @remove="remove(creator, index)"
                    )
 
-      b-button(variant="success", size="lg", v-on:click="donateAll()")
-        | Donate {{ totalAllocated }}$
+      div.d-flex.flex-row
+        div
+          b-button(variant="success", size="lg", v-on:click="donateAll()")
+            | Donate {{ totalAllocated }}$
       hr
 
       h3 Unattributed Activity
@@ -40,7 +42,7 @@ div.container
         activity-component(:limit="10", :unattributed="true", to="/activity")
 
     div.col-md-6
-      h3 Monthly donation:
+      h3 Monthly donation
         // TODO: Form group
         b-input-group(append="$").mt-2
           b-form-input(v-model="monthlyDonation")
@@ -74,6 +76,18 @@ function getAddressAmountMapping(creators) {
   );
 }
 
+function initThankfulTeamCreator() {
+  const creator = new Creator('https://getthankful.io', 'Thankful Team');
+  // Erik's address
+  // TODO: Change to a multisig wallet
+  creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
+  creator.info = 'Be thankful for Thankful and donate to the Thankful team!';
+  return creator.save();
+}
+
+// TODO: Move to better place
+initThankfulTeamCreator();
+
 export default {
   components: {
     'creator-card': CreatorCard,
@@ -87,6 +101,8 @@ export default {
       monthlyDonation: 10,
       editing: -1,
       netId: -1,
+      errors: [],
+      dismissedErrors: 0,
     };
   },
   computed: {
@@ -105,11 +121,20 @@ export default {
     },
   },
   methods: {
+    toTop() {
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    },
+    errfun(title, sink = this.errors) {
+      return message => {
+        sink.push(`${title}: ${message}`);
+      };
+    },
     donateAll() {
       const donations = this.creators.filter(c => c.allocatedFunds > 0);
       this.donate
         .donateAll(donations, this.refresh)
-        .catch(err => console.error('Donating failed:', err));
+        .catch(this.errfun('Donating failed'));
     },
     addCreator() {
       if (this.editing < 0) {
@@ -137,36 +162,10 @@ export default {
     },
     refresh() {
       db.getCreators().then(creators => {
-        console.log(creators);
-
-        // Testing
-        if (creators.length === 0) {
-          creators = [
-            new Creator(
-              'https://example.com/test',
-              'No data found, all data is testing data'
-            ),
-            new Creator('https://youtube.com/channel/lol', 'sadmemeboi'),
-            new Creator('https://youtube.com/channel/pewdiepie', 'pewdiepie'),
-          ];
-        }
-
-        const thankful_team_creator = new Creator(
-          'https://getthankful.io',
-          'Thankful Team'
-        );
-        // Eriks address
-        thankful_team_creator.address =
-          '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-        thankful_team_creator.info = 'Optionally donate to the Thankful team';
-        thankful_team_creator.predefined = true;
-        creators.push(thankful_team_creator);
-
         this.creators = creators;
         this.$refs.donationHistory.refresh();
 
         this.donate.getId().then(id => {
-          console.log(id);
           this.netId = id;
         });
       });

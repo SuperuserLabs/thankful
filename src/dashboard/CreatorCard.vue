@@ -57,6 +57,7 @@ b-card(class="mb-2" no-body)
 
 <script>
 import { Database } from '../lib/db.js';
+import { isDomain } from '../lib/url.js';
 
 // TODO: Move to appropriate location
 let db = new Database();
@@ -90,10 +91,7 @@ export default {
     },
   },
   methods: {
-    isDomain(url, hostname) {
-      let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
-      return reg.test(url);
-    },
+    isDomain: isDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {
         address: this.creator.address || '',

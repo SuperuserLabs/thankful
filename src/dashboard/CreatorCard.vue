@@ -6,7 +6,7 @@ b-card(class="mb-2" no-body)
         a(target="_blank", :href="url").col-md-9
           div
             h4
-              font-awesome-icon(v-if='isDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
+              font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
               |  {{ name }}&nbsp
               sup.text-secondary
                 font-awesome-icon(icon="external-link-alt", size="xs")
@@ -57,7 +57,7 @@ b-card(class="mb-2" no-body)
 
 <script>
 import { Database } from '../lib/db.js';
-import { isDomain } from '../lib/url.js';
+import { isOnDomain } from '../lib/url.js';
 
 // TODO: Move to appropriate location
 let db = new Database();
@@ -91,7 +91,7 @@ export default {
     },
   },
   methods: {
-    isDomain: isDomain,
+    isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {
         address: this.creator.address || '',

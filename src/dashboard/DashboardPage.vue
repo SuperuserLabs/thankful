@@ -27,7 +27,7 @@ div.container
     div(v-if="creators.length === 0")
       | No creators to show
 
-    div.row.mb-3
+    div.card-columns
       creator-card(v-for="(creator, index) in creators",
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
@@ -38,7 +38,7 @@ div.container
                    @cancel="cancel(creator)"
                    @edit="editing = index"
                    @remove="remove(creator, index)"
-                   ).col-sm-12.col-md-6.col-lg-4
+                   )
 
     donation-summary-component(:donations="donations")
 
@@ -87,6 +87,7 @@ function initThankfulTeamCreator() {
   // TODO: Change to a multisig wallet
   creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
   creator.info = 'Be thankful for Thankful and donate to the Thankful team!';
+  creator.priority = 1;
   return creator.save();
 }
 
@@ -102,7 +103,7 @@ export default {
   },
   data: function() {
     return {
-      creators: [],
+      creatorList: [],
       donate: new Donate(),
       monthlyDonation: 10,
       editing: -1,
@@ -131,6 +132,9 @@ export default {
         c => -parseFloat(c.allocatedFunds)
       );
     },
+    creators() {
+      return _.take(this.creatorList, 12);
+    },
   },
   methods: {
     toTop() {
@@ -150,7 +154,9 @@ export default {
     },
     addCreator() {
       if (this.editing < 0) {
-        this.creators.unshift(new Creator('', ''));
+        let c = new Creator('', '');
+        c.priority = 2;
+        this.creatorList.unshift(c);
         this.editing = 0;
       }
     },
@@ -162,7 +168,7 @@ export default {
     },
     remove(creator, index) {
       creator.delete();
-      this.creators.splice(index, 1);
+      this.creatorList.splice(index, 1);
       this.editing = -1;
     },
     save(creator, edited) {
@@ -187,7 +193,11 @@ export default {
 
         // Sort creators by duration
         creatorsWithDuration.then(x => {
-          this.creators = _.sortBy(x, 'duration').reverse();
+          this.creatorList = _.orderBy(
+            x,
+            ['priority', 'duration'],
+            ['asc', 'desc']
+          );
         });
 
         this.$refs.donationHistory.refresh();

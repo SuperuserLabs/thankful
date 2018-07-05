@@ -10,6 +10,7 @@ import {
   faEdit,
   faPen,
   faTrash,
+  faEyeSlash,
   faExclamationTriangle,
   faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
@@ -24,6 +25,7 @@ library.add(
   faInfoCircle,
   faPen,
   faTrash,
+  faEyeSlash,
   faYoutube,
   faExclamationTriangle,
   faExternalLinkAlt

@@ -2,26 +2,25 @@
 b-card(no-body)
   b-card-body.p-3
     div(v-if="!editing")
-      div.row
-        a(target="_blank", :href="url").col-sm-8.col-md-7.col-xl-8
-          div
-            h6
-              font-awesome-icon(v-if='isDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
-              |  {{ name }}&nbsp
-              sup.text-secondary
-                font-awesome-icon(icon="external-link-alt", size="xs")
-        div.col-sm-4.col-md-5.col-xl-4
-          b-input-group(append="$", size="sm")
-            b-form-input(v-model="allocatedFunds",
-                         type="number", min=0, step=0.1)
+      a(target="_blank", :href="url")
+        div
+          h6
+            font-awesome-icon(v-if='isDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
+            |  {{ name }}&nbsp
+            sup.text-secondary
+              font-awesome-icon(icon="external-link-alt", size="xs")
 
       p(v-if="creator.info").text-small
         | {{ creator.info }}
-
-      b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails")
-        | #[font-awesome-icon(icon="info-circle")] #[span(v-if="!showDetails") Show] #[span(v-else) Hide] details
-      b-button(v-if="creator.edited", v-on:click='$emit("edit")', variant='outline-secondary', size='sm').float-right
-        | #[font-awesome-icon(icon="edit")] Edit
+      div.row
+        b-input-group(append="$", size="sm").col-4
+          b-form-input(v-model="allocatedFunds", type="number", min=0, step=0.1)
+        b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails").mr-1
+          | #[font-awesome-icon(icon="info-circle")] Details
+        b-button(v-on:click='$emit("edit")', variant='outline-secondary', size='sm').mr-1
+          | #[font-awesome-icon(icon="edit")] Edit
+        b-button(v-on:click='$emit("ignore")', variant='outline-secondary', size='sm').mr-1
+          | #[font-awesome-icon(icon="eye-slash")] Ignore
 
       table.table.table-sm.table-hover.mt-3.mb-0(v-if="showDetails")
         tr

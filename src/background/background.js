@@ -52,7 +52,7 @@ function getCurrentTab() {
     // FIXME: Doing a creator.save() overwrites a preexisting creator object
     await new Creator(msg.creator.url, msg.creator.name).save();
     let result = await db.connectActivityToCreator(
-      msg.activity.url,
+      canonicalizeUrl(msg.activity.url),
       msg.creator.url
     );
     if (result === 0) {
@@ -60,7 +60,7 @@ function getCurrentTab() {
     } else {
       console.log('Successfully connected activity to creator');
     }
-    await db.getActivity(msg.activity.url);
+    await db.getActivity(canonicalizeUrl(msg.activity.url));
   }
 
   async function stethoscope() {

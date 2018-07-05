@@ -54,13 +54,11 @@ div.container
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import Donate from '../lib/donate.js';
-import { Database, Activity, Creator, Donation } from '../lib/db.js';
-import BigNumber from 'bignumber.js';
+import { Database, Creator } from '../lib/db.js';
 import _ from 'lodash';
 
 // TODO: Move to appropriate location

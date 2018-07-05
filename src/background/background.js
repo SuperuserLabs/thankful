@@ -2,14 +2,14 @@
 
 import browser from 'webextension-polyfill';
 import { valueConstantTicker } from '../lib/calltime.js';
-import { Database, Activity, Creator } from '../lib/db.js';
+import { Database, Creator } from '../lib/db.js';
 import _ from 'lodash';
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
  */
 async function isTabActive(tabInfo) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     let detectionIntervalInSeconds = 60;
     if (tabInfo.audible) {
       resolve(true);
@@ -43,7 +43,7 @@ function getCurrentTab() {
   const tabTimers = {};
   const tabTitles = {};
 
-  async function receiveCreator(msg, sender, sendResponse) {
+  async function receiveCreator(msg) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
     if (msg.type !== 'creatorFound') {
       return;

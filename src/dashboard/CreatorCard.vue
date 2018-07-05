@@ -77,7 +77,7 @@ export default {
     editing: Boolean,
   },
   watch: {
-    showDetails(to, from) {
+    showDetails(to) {
       if (to === true && this.activities.length === 0) {
         this.getActivities();
       }

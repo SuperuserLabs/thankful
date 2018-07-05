@@ -5,7 +5,8 @@ b-card(no-body)
       a(target="_blank", :href="url")
         div
           h6
-            font-awesome-icon(v-if='isDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
+            font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
+            font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="xs", color='black')
             |  {{ name }}&nbsp
             sup.text-secondary
               font-awesome-icon(icon="external-link-alt", size="xs")
@@ -54,6 +55,7 @@ b-card(no-body)
 import { Database } from '../lib/db.js';
 import { formatSecs } from '../lib/time.js';
 import _ from 'lodash';
+import { isOnDomain } from '../lib/url.js';
 
 // TODO: Move to appropriate location
 let db = new Database();
@@ -92,6 +94,7 @@ export default {
       let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
       return reg.test(url);
     },
+    isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {
         address: this.creator.address || '',

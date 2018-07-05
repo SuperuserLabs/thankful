@@ -63,85 +63,88 @@ function getCurrentTab() {
 }
 
 (function() {
-  rescheduleAlarm();
-
-  let oldUrl = null;
-  let oldTitle = null;
-  const db = new Database();
-  let noContentScript = {};
-
-  async function receiveCreator(msg, sender, sendResponse) {
-    console.log('receiveCreator: ' + JSON.stringify(msg));
-    if (msg.type !== 'creatorFound') {
-      return;
-    }
-    // FIXME: Doing a creator.save() overwrites a preexisting creator object
-    await new Creator(msg.creator.url, msg.creator.name).save();
-    let result = await db.connectActivityToCreator(
-      msg.activity.url,
-      msg.creator.url
-    );
-    if (result === 0) {
-      console.log('Failed connecting activity to creator');
-    } else {
-      console.log('Successfully connected activity to creator');
-    }
-    await db.getActivity(msg.activity.url);
-  }
-
-  function stethoscope() {
-    getCurrentTab()
-      .then(tabInfo => {
-        heartbeat(tabInfo, db, oldUrl, oldTitle);
-        oldUrl = tabInfo.url;
-        oldTitle = tabInfo.title;
-      })
-      .catch(error => {
-        console.log(`Stethoscope: ${error}`);
-      });
-  }
-
-  function sendPageChange(tabId, changeInfo, tab) {
-    browser.tabs
-      .sendMessage(tabId, {
-        type: 'pageChange',
-      })
-      .then(() => {
-        delete noContentScript[tabId];
-      })
-      .catch(message => {
-        if (!(tabId in noContentScript)) {
-          noContentScript[tabId] = true;
-          console.log(
-            `Error when sending message to content script (maybe not running on this url):
-url: ${tab.url}
-error: ${JSON.stringify(message)}`
-          );
-        }
-      });
-  }
-
   browser.browserAction.onClicked.addListener(() => {
     browser.tabs.create({
       url: browser.runtime.getURL('dashboard/index.html'),
     });
   });
 
-  browser.tabs.onUpdated.addListener(stethoscope);
+  // Do not track in icognito
+  if (!tab.incognito) {
+    rescheduleAlarm();
 
-  browser.tabs.onUpdated.addListener(sendPageChange);
+    let oldUrl = null;
+    let oldTitle = null;
+    const db = new Database();
+    let noContentScript = {};
 
-  browser.runtime.onMessage.addListener(receiveCreator);
-
-  browser.idle.onStateChanged.addListener(stethoscope);
-
-  browser.tabs.onActivated.addListener(stethoscope);
-
-  browser.alarms.onAlarm.addListener(alarm => {
-    if (alarm.name === 'heartbeat') {
-      console.log('Heartbeat alarm triggered');
-      stethoscope();
+    async function receiveCreator(msg, sender, sendResponse) {
+      console.log('receiveCreator: ' + JSON.stringify(msg));
+      if (msg.type !== 'creatorFound') {
+        return;
+      }
+      // FIXME: Doing a creator.save() overwrites a preexisting creator object
+      await new Creator(msg.creator.url, msg.creator.name).save();
+      let result = await db.connectActivityToCreator(
+        msg.activity.url,
+        msg.creator.url
+      );
+      if (result === 0) {
+        console.log('Failed connecting activity to creator');
+      } else {
+        console.log('Successfully connected activity to creator');
+      }
+      await db.getActivity(msg.activity.url);
     }
-  });
-  stethoscope();
+
+    function stethoscope() {
+      getCurrentTab()
+        .then(tabInfo => {
+          heartbeat(tabInfo, db, oldUrl, oldTitle);
+          oldUrl = tabInfo.url;
+          oldTitle = tabInfo.title;
+        })
+        .catch(error => {
+          console.log(`Stethoscope: ${error}`);
+        });
+    }
+
+    function sendPageChange(tabId, changeInfo, tab) {
+      browser.tabs
+        .sendMessage(tabId, {
+          type: 'pageChange',
+        })
+        .then(() => {
+          delete noContentScript[tabId];
+        })
+        .catch(message => {
+          if (!(tabId in noContentScript)) {
+            noContentScript[tabId] = true;
+            console.log(
+              `Error when sending message to content script (maybe not running on this url):
+url: ${tab.url}
+error: ${JSON.stringify(message)}`
+            );
+          }
+        });
+    }
+
+    browser.tabs.onUpdated.addListener(stethoscope);
+
+    browser.tabs.onUpdated.addListener(sendPageChange);
+
+    browser.runtime.onMessage.addListener(receiveCreator);
+
+    browser.idle.onStateChanged.addListener(stethoscope);
+
+    browser.tabs.onActivated.addListener(stethoscope);
+
+    browser.alarms.onAlarm.addListener(alarm => {
+      if (alarm.name === 'heartbeat') {
+        console.log('Heartbeat alarm triggered');
+        stethoscope();
+      }
+    });
+    stethoscope();
+  }
 })();

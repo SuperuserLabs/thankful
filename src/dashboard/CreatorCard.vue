@@ -34,7 +34,7 @@ b-card(no-body)
             a(:href='activity.url', target="blank")
               | {{ activity.title || activity.url }}
           td.text-right
-            | {{ formatSecs(activity.duration) }}
+            | {{ activity.duration | friendlyDuration }}
     div(v-else)
       b-form-input(v-if='errors.name', placeholder="Name", v-model='name').border.border-danger
       b-form-input(v-else, placeholder="Name", v-model='name')
@@ -53,7 +53,6 @@ b-card(no-body)
 
 <script>
 import { Database } from '../lib/db.js';
-import { formatSecs } from '../lib/time.js';
 import _ from 'lodash';
 import { isOnDomain } from '../lib/url.js';
 
@@ -89,7 +88,6 @@ export default {
     },
   },
   methods: {
-    formatSecs: formatSecs,
     isDomain(url, hostname) {
       let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
       return reg.test(url);

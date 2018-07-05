@@ -1,5 +1,5 @@
 export function formatSecs(secs) {
-  secs = Math.floor(secs);
+  secs = Math.round(secs);
   if (secs < 60) {
     return `${secs} s`;
   } else if (secs < 3600) {

@@ -11,7 +11,7 @@ div(v-else).d-flex.flex-column
         a(:href="activity.url")
           | {{ activity.title || activity.url }}
       td.text-right
-        | {{ formatSecs(activity.duration) }}
+        | {{ activity.duration | friendlyDuration }}
   b-button(v-if="to && activities.length > limit", variant="outline-secondary", size="sm", :to="to")
     | Show all
 </template>

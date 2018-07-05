@@ -11,3 +11,6 @@ addon/**/*.html
 dist/**/*.js
 dist/**/*.html
 thankful.zip
+
+# .env secrets
+.env-webstore

@@ -88,10 +88,6 @@ export default {
     },
   },
   methods: {
-    isDomain(url, hostname) {
-      let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
-      return reg.test(url);
-    },
     isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {

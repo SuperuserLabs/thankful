@@ -38,6 +38,7 @@ div.container
                    @cancel="cancel(creator)"
                    @edit="editing = index"
                    @remove="remove(creator, index)"
+                   @ignore="ignore(creator, index)"
                    )
 
     donation-summary-component(:donations="donations")
@@ -171,6 +172,12 @@ export default {
       this.creatorList.splice(index, 1);
       this.editing = -1;
     },
+    ignore(creator, index) {
+      creator.ignore = true;
+      creator.save();
+      this.creatorList.splice(index, 1);
+      this.editing = -1;
+    },
     save(creator, edited) {
       creator.delete().then(() => {
         Object.assign(creator, edited);
@@ -182,7 +189,7 @@ export default {
       db.getCreators().then(creators => {
         // Find accumulated duration for creators
         let creatorsWithDuration = Promise.all(
-          creators.map(c =>
+          creators.filter(c => c.ignore !== true).map(c =>
             db.getCreatorActivity(c.url).then(acts =>
               Object.assign({ __proto__: c.__proto__ }, c, {
                 duration: _.sum(acts.map(act => act.duration)),

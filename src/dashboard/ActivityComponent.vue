@@ -5,19 +5,20 @@ div(v-else).d-flex.flex-column
   table.table.table-sm(style="overflow: hidden; table-layout: fixed")
     tr
       th(style="border-top: 0") Page
-      th.text-right(style="width: 20%; border-top: 0") Duration
+      th.text-right(style="width: 25%; border-top: 0") Duration
     tr(v-for="activity in orderedActivities")
       td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
         a(:href="activity.url")
           | {{ activity.title || activity.url }}
       td.text-right
-        | {{ Math.round(activity.duration) }}s
+        | {{ formatSecs(activity.duration) }}
   b-button(v-if="to && activities.length > limit", variant="outline-secondary", size="sm", :to="to")
     | Show all
 </template>
 
 <script>
 import { Database } from '../lib/db.js';
+import { formatSecs } from '../lib/time.js';
 import _ from 'lodash';
 
 const db = new Database();
@@ -39,6 +40,7 @@ export default {
     },
   },
   methods: {
+    formatSecs: formatSecs,
     refresh() {
       if (this.unattributed) {
         db.getActivities({ withCreators: false }).then(acts => {

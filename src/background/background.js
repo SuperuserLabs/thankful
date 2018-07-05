@@ -8,10 +8,8 @@ const sinceLastCall = valueConstantTicker();
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
- *
- * This is an asychronous function that returns a Promise.
  */
-function isTabActive(tabInfo) {
+async function isTabActive(tabInfo) {
   return new Promise((resolve, reject) => {
     let detectionIntervalInSeconds = 60;
     if (tabInfo.audible) {
@@ -24,31 +22,31 @@ function isTabActive(tabInfo) {
   });
 }
 
-function heartbeat(tabInfo, db, oldUrl, oldTitle) {
-  isTabActive(tabInfo)
-    .then(active => {
-      if (active) {
-        if (oldUrl) {
-          let url = tabInfo.url;
-          let duration = sinceLastCall(oldUrl);
+//function heartbeat(tabInfo, db, oldUrl, oldTitle) {
+//  isTabActive(tabInfo)
+//    .then(active => {
+//      if (active) {
+//        if (oldUrl) {
+//          let url = tabInfo.url;
+//          let duration = sinceLastCall(oldUrl);
+//
+//          db.logActivity(oldUrl, duration, { title: oldTitle });
+//
+//          sinceLastCall(url);
+//
+//          rescheduleAlarm();
+//        }
+//      } else {
+//        throw new Error('Not active, not logging');
+//      }
+//    })
+//    .catch(error => {
+//      console.log(error);
+//      sinceLastCall();
+//    });
+//}
 
-          db.logActivity(oldUrl, duration, { title: oldTitle });
-
-          sinceLastCall(url);
-
-          rescheduleAlarm();
-        }
-      } else {
-        throw new Error('Not active, not logging');
-      }
-    })
-    .catch(error => {
-      console.log(error);
-      sinceLastCall();
-    });
-}
-
-function rescheduleAlarm() {
+async function rescheduleAlarm() {
   // Cancels any preexisting heartbeat alarm and then schedules a new one.
   browser.alarms
     .clear('heartbeat')
@@ -91,49 +89,47 @@ function getCurrentTab() {
     await db.getActivity(msg.activity.url);
   }
 
-  function stethoscope() {
-    getCurrentTab()
-      .then(tabInfo => {
-        heartbeat(tabInfo, db, oldUrl, oldTitle);
-        oldUrl = tabInfo.url;
-        oldTitle = tabInfo.title;
-      })
-      .catch(error => {
-        console.log(`Stethoscope: ${error}`);
-      });
-    browser.tabs
-      .query({ active: false, audible: true })
-      .then(tabs => {
-        const currentUrls = tabs.map(tab => tab.url);
-        const goneUrls = _.difference(Object.keys(audibleTimers), currentUrls);
-        const stillUrls = _.intersection(
-          Object.keys(audibleTimers),
-          currentUrls
-        );
-        const newUrls = _.difference(currentUrls, Object.keys(audibleTimers));
+  async function stethoscope() {
+    try {
+      const currentTab = await getCurrentTab();
+      const currentTabArray = (await isTabActive(currentTab))
+        ? [currentTab]
+        : [];
+      console.log('currentarray', currentTabArray);
+      const audibleTabs = await browser.tabs.query({ audible: true });
+      console.log('audibles', audibleTabs);
+      const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
+      console.log('tabs', tabs);
 
-        goneUrls.forEach(url => {
-          const duration = audibleTimers[url]();
-          const title = audibleTitles[url];
-          delete audibleTimers[url];
-          delete audibleTitles[url];
-          db.logActivity(url, duration, { title: title });
-        });
-        stillUrls.forEach(url => {
-          const duration = audibleTimers[url]();
-          let title = _.find(tabs, tab => tab.url === url).title;
-          audibleTitles[url] = title;
-          db.logActivity(url, duration, { title: title });
-        });
-        newUrls.forEach(url => {
-          audibleTimers[url] = valueConstantTicker();
-          audibleTimers[url]();
-          audibleTitles[url] = _.find(tabs, tab => tab.url === url).title;
-        });
-      })
-      .catch(error => {
-        console.log(`Stethoscope audible: ${error}`);
+      const currentUrls = tabs.map(tab => tab.url);
+      const goneUrls = _.difference(Object.keys(audibleTimers), currentUrls);
+      const stillUrls = _.intersection(Object.keys(audibleTimers), currentUrls);
+      const newUrls = _.difference(currentUrls, Object.keys(audibleTimers));
+
+      goneUrls.forEach(url => {
+        const duration = audibleTimers[url]();
+        const title = audibleTitles[url];
+        delete audibleTimers[url];
+        delete audibleTitles[url];
+        db.logActivity(url, duration, { title: title });
+        console.log('logging', url, duration, title);
       });
+      stillUrls.forEach(url => {
+        const duration = audibleTimers[url]();
+        let title = _.find(tabs, tab => tab.url === url).title;
+        audibleTitles[url] = title;
+        db.logActivity(url, duration, { title: title });
+        console.log('logging', url, duration, title);
+      });
+      newUrls.forEach(url => {
+        audibleTimers[url] = valueConstantTicker();
+        audibleTimers[url]();
+        audibleTitles[url] = _.find(tabs, tab => tab.url === url).title;
+      });
+      await rescheduleAlarm();
+    } catch (error) {
+      console.log(`Stethoscope error: ${error}`);
+    }
   }
 
   function sendPageChange(tabId, changeInfo, tab) {

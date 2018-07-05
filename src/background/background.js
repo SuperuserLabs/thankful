@@ -1,6 +1,7 @@
 'use strict';
 
 import browser from 'webextension-polyfill';
+import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Creator } from '../lib/db.js';
 import _ from 'lodash';
@@ -71,7 +72,7 @@ function getCurrentTab() {
       const audibleTabs = await browser.tabs.query({ audible: true });
       const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
 
-      const currentUrls = tabs.map(tab => tab.url);
+      const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
       const goneUrls = _.difference(Object.keys(tabTimers), currentUrls);
       const stillUrls = _.intersection(Object.keys(tabTimers), currentUrls);
       const newUrls = _.difference(currentUrls, Object.keys(tabTimers));
@@ -85,14 +86,17 @@ function getCurrentTab() {
       });
       stillUrls.forEach(url => {
         const duration = tabTimers[url]();
-        let title = _.find(tabs, tab => tab.url === url).title;
+        let title = _.find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
         tabTitles[url] = title;
         db.logActivity(url, duration, { title: title });
       });
       newUrls.forEach(url => {
         tabTimers[url] = valueConstantTicker();
         tabTimers[url]();
-        tabTitles[url] = _.find(tabs, tab => tab.url === url).title;
+        tabTitles[url] = _.find(
+          tabs,
+          tab => canonicalizeUrl(tab.url) === url
+        ).title;
       });
       await rescheduleAlarm();
     } catch (error) {

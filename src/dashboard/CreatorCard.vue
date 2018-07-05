@@ -73,7 +73,7 @@ export default {
     editing: Boolean,
   },
   watch: {
-    showDetails(to, from) {
+    showDetails(to) {
       if (to === true && this.activities.length === 0) {
         this.getActivities();
       }
@@ -88,10 +88,6 @@ export default {
     },
   },
   methods: {
-    isDomain(url, hostname) {
-      let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
-      return reg.test(url);
-    },
     isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {

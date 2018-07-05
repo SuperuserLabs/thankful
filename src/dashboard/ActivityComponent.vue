@@ -18,7 +18,6 @@ div(v-else).d-flex.flex-column
 
 <script>
 import { Database } from '../lib/db.js';
-import { formatSecs } from '../lib/time.js';
 import _ from 'lodash';
 
 const db = new Database();

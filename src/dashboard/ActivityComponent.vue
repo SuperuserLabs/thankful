@@ -40,7 +40,6 @@ export default {
     },
   },
   methods: {
-    formatSecs: formatSecs,
     refresh() {
       if (this.unattributed) {
         db.getActivities({ withCreators: false }).then(acts => {

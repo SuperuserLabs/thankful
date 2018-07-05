@@ -1,32 +1,27 @@
 <template lang="pug">
-b-card(class="mb-2" no-body)
+b-card(no-body)
   b-card-body.p-3
     div(v-if="!editing")
-      div.row
-        a(target="_blank", :href="url").col-md-9
-          div
-            h4
-              font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
-              font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="xs", color='black')
-              |  {{ name }}&nbsp
-              sup.text-secondary
-                font-awesome-icon(icon="external-link-alt", size="xs")
-        div.col-md-3
-          b-input-group(append="$", size="sm")
-            b-form-input(v-model="allocatedFunds",
-                         type="number", min=0, step=0.1)
-
-      p(v-if="!creator.predefined").text-small
-        b-input-group(prepend="ETH Address", size="sm")
-          b-form-input(v-model="address")
+      a(target="_blank", :href="url")
+        div
+          h6
+            font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
+            font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="xs", color='black')
+            |  {{ name }}&nbsp
+            sup.text-secondary
+              font-awesome-icon(icon="external-link-alt", size="xs")
 
       p(v-if="creator.info").text-small
         | {{ creator.info }}
-
-      b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails")
-        | #[font-awesome-icon(icon="info-circle")] #[span(v-if="!showDetails") Show] #[span(v-else) Hide] details
-      b-button(v-if="creator.edited", v-on:click='$emit("edit")', variant='outline-secondary', size='sm').float-right
-        | #[font-awesome-icon(icon="edit")] Edit
+      div.d-flex.justify-content-between
+        div
+          b-button(size="sm", :variant="'outline-secondary'", v-on:click="showDetails = !showDetails")
+            | #[font-awesome-icon(icon="info-circle")] Details
+        div
+          b-button(v-on:click='$emit("edit")', variant='outline-secondary', size='sm').mr-1
+            | #[font-awesome-icon(icon="edit")] Edit
+          b-button(v-on:click='$emit("ignore")', variant='outline-secondary', size='sm')
+            | #[font-awesome-icon(icon="eye-slash")] Ignore
 
       table.table.table-sm.table-hover.mt-3.mb-0(v-if="showDetails")
         tr
@@ -39,7 +34,7 @@ b-card(class="mb-2" no-body)
             a(:href='activity.url', target="blank")
               | {{ activity.title || activity.url }}
           td.text-right
-            | {{ activity.duration.toFixed(0) }}s
+            | {{ activity.duration | friendlyDuration }}
     div(v-else)
       b-form-input(v-if='errors.name', placeholder="Name", v-model='name').border.border-danger
       b-form-input(v-else, placeholder="Name", v-model='name')
@@ -58,6 +53,7 @@ b-card(class="mb-2" no-body)
 
 <script>
 import { Database } from '../lib/db.js';
+import _ from 'lodash';
 import { isOnDomain } from '../lib/url.js';
 
 // TODO: Move to appropriate location
@@ -92,6 +88,10 @@ export default {
     },
   },
   methods: {
+    isDomain(url, hostname) {
+      let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
+      return reg.test(url);
+    },
     isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {
@@ -102,7 +102,7 @@ export default {
     },
     getActivities() {
       db.getCreatorActivity(this.creator.url).then(activities => {
-        this.activities = activities;
+        this.activities = _.orderBy(activities, 'duration', 'desc');
       });
     },
     save() {
@@ -130,8 +130,8 @@ export default {
 </script>
 
 <style>
-a h4,
-a h4:visited {
+a h6,
+a h6:visited {
   color: #222 !important;
 }
 </style>

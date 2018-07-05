@@ -10,11 +10,13 @@ import {
   faEdit,
   faPen,
   faTrash,
+  faEyeSlash,
   faExclamationTriangle,
   faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { formatSecs } from '../lib/time.js';
 
 library.add(
   faUserPlus,
@@ -24,6 +26,7 @@ library.add(
   faInfoCircle,
   faPen,
   faTrash,
+  faEyeSlash,
   faYoutube,
   faGithub,
   faExclamationTriangle,
@@ -40,6 +43,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import router from './route.js';
 
 import App from './App.vue';
+
+Vue.filter('friendlyDuration', formatSecs);
+
 new Vue({
   el: '#dashboard',
   router: router,

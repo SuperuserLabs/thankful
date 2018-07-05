@@ -9,3 +9,21 @@ body {
 .card-body {
   transition-duration: 0.4s;
 }
+
+@media (min-width: 596px) {
+  .card-columns {
+    column-count: 1;
+  }
+}
+
+@media (min-width: 992px) {
+  .card-columns {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1200px) {
+  .card-columns {
+    column-count: 3;
+  }
+}

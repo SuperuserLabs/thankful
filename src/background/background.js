@@ -69,6 +69,8 @@ function getCurrentTab() {
   let oldTitle = null;
   const db = new Database();
   let noContentScript = {};
+  const audibleTimers = {};
+  const audibleTitles = {};
 
   async function receiveCreator(msg, sender, sendResponse) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
@@ -98,6 +100,39 @@ function getCurrentTab() {
       })
       .catch(error => {
         console.log(`Stethoscope: ${error}`);
+      });
+    browser.tabs
+      .query({ active: false, audible: true })
+      .then(tabs => {
+        const currentUrls = tabs.map(tab => tab.url);
+        const goneUrls = _.difference(Object.keys(audibleTimers), currentUrls);
+        const stillUrls = _.intersection(
+          Object.keys(audibleTimers),
+          currentUrls
+        );
+        const newUrls = _.difference(currentUrls, Object.keys(audibleTimers));
+
+        goneUrls.forEach(url => {
+          const duration = audibleTimers[url]();
+          const title = audibleTitles[url];
+          delete audibleTimers[url];
+          delete audibleTitles[url];
+          db.logActivity(url, duration, { title: title });
+        });
+        stillUrls.forEach(url => {
+          const duration = audibleTimers[url]();
+          let title = _.find(tabs, tab => tab.url === url).title;
+          audibleTitles[url] = title;
+          db.logActivity(url, duration, { title: title });
+        });
+        newUrls.forEach(url => {
+          audibleTimers[url] = valueConstantTicker();
+          audibleTimers[url]();
+          audibleTitles[url] = _.find(tabs, tab => tab.url === url).title;
+        });
+      })
+      .catch(error => {
+        console.log(`Stethoscope audible: ${error}`);
       });
   }
 

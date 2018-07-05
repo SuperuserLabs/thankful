@@ -3,8 +3,7 @@
 import browser from 'webextension-polyfill';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Activity, Creator } from '../lib/db.js';
-
-const sinceLastCall = valueConstantTicker();
+import _ from 'lodash';
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
@@ -21,30 +20,6 @@ async function isTabActive(tabInfo) {
     }
   });
 }
-
-//function heartbeat(tabInfo, db, oldUrl, oldTitle) {
-//  isTabActive(tabInfo)
-//    .then(active => {
-//      if (active) {
-//        if (oldUrl) {
-//          let url = tabInfo.url;
-//          let duration = sinceLastCall(oldUrl);
-//
-//          db.logActivity(oldUrl, duration, { title: oldTitle });
-//
-//          sinceLastCall(url);
-//
-//          rescheduleAlarm();
-//        }
-//      } else {
-//        throw new Error('Not active, not logging');
-//      }
-//    })
-//    .catch(error => {
-//      console.log(error);
-//      sinceLastCall();
-//    });
-//}
 
 async function rescheduleAlarm() {
   // Cancels any preexisting heartbeat alarm and then schedules a new one.
@@ -63,8 +38,6 @@ function getCurrentTab() {
 (function() {
   rescheduleAlarm();
 
-  let oldUrl = null;
-  let oldTitle = null;
   const db = new Database();
   let noContentScript = {};
   const audibleTimers = {};
@@ -95,11 +68,8 @@ function getCurrentTab() {
       const currentTabArray = (await isTabActive(currentTab))
         ? [currentTab]
         : [];
-      console.log('currentarray', currentTabArray);
       const audibleTabs = await browser.tabs.query({ audible: true });
-      console.log('audibles', audibleTabs);
       const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
-      console.log('tabs', tabs);
 
       const currentUrls = tabs.map(tab => tab.url);
       const goneUrls = _.difference(Object.keys(audibleTimers), currentUrls);
@@ -112,14 +82,12 @@ function getCurrentTab() {
         delete audibleTimers[url];
         delete audibleTitles[url];
         db.logActivity(url, duration, { title: title });
-        console.log('logging', url, duration, title);
       });
       stillUrls.forEach(url => {
         const duration = audibleTimers[url]();
         let title = _.find(tabs, tab => tab.url === url).title;
         audibleTitles[url] = title;
         db.logActivity(url, duration, { title: title });
-        console.log('logging', url, duration, title);
       });
       newUrls.forEach(url => {
         audibleTimers[url] = valueConstantTicker();

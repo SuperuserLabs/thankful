@@ -1,7 +1,8 @@
 import Dexie from 'dexie';
 import Promise from 'bluebird';
 import _ from 'lodash';
-import isOnDomain from './url';
+import { isOnDomain } from './url.js';
+import isReserved from 'github-reserved-names';
 
 let _db = undefined;
 
@@ -38,6 +39,12 @@ class Model {
 export class Activity extends Model {
   constructor(url, title, duration, creator) {
     super(_db.activity, 'url');
+    // Clean title from leading ({number}) as common for
+    // notification counters on e.g. YouTube.
+    if (title !== undefined) {
+      title = title.replace(/^\([0-9]+\)\s*/, '');
+    }
+
     this.url = url;
     this.title = title;
     this.duration = duration;
@@ -186,8 +193,6 @@ export class Database {
     //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
     let activities = await this.getActivities({ withCreators: false });
     activities = _.filter(activities, a => {
-      // TODO: Use isOnDomain (breaks on my machine, idk)
-      // isOnDomain(a.url, 'github.com');
       return a.url.includes('https://github.com/');
     });
 
@@ -195,7 +200,7 @@ export class Database {
       let u = new URL(a.url);
       let path = u.pathname;
       let user_or_org = u.pathname.split('/')[1];
-      if (user_or_org.length > 0) {
+      if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
         let creator_url = `https://github.com/${user_or_org}`;
         await new Creator(creator_url, user_or_org).save();
         await this.connectActivityToCreator(a.url, creator_url);

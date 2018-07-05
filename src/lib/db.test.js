@@ -15,6 +15,7 @@ import { Database, Activity, Creator } from './db.js';
 async function clearDB(db) {
   await db.db.creator.clear();
   await db.db.activity.clear();
+  await db.db.donations.clear();
 }
 
 describe('Activity', () => {
@@ -155,5 +156,13 @@ describe('GitHub activity', () => {
     expect(activity.creator).toEqual(c_url);
     let creator = await db.getCreator(c_url);
     expect(creator.url).toEqual(c_url);
+  });
+
+  it('should not attribute non-user pages', async () => {
+    let url = 'https://github.com/orgs/SuperuserLabs';
+    await db.logActivity(url, 10);
+    await db.attributeGithubActivity();
+    let activity = await db.getActivity(url);
+    expect(activity.creator).toBeUndefined();
   });
 });

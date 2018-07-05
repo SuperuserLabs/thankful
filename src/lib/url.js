@@ -1,7 +1,5 @@
-'use strict';
-
 export function isOnDomain(url, domain) {
-  url = new URL(url);
+  let urla = new URL(url);
   let reg = RegExp(`${domain}$`);
-  return reg.test(url.hostname);
+  return reg.test(urla.hostname);
 }

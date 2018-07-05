@@ -13,7 +13,7 @@ import {
   faExclamationTriangle,
   faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import { faYoutube } from '@fortawesome/free-brands-svg-icons';
+import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 library.add(
@@ -25,6 +25,7 @@ library.add(
   faPen,
   faTrash,
   faYoutube,
+  faGithub,
   faExclamationTriangle,
   faExternalLinkAlt
 );

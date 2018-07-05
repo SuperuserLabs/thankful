@@ -147,10 +147,13 @@ describe('GitHub activity', () => {
   });
 
   it('attributes activity', async () => {
+    let c_url = 'https://github.com/SuperuserLabs';
     let url = 'https://github.com/SuperuserLabs/thankful';
     await db.logActivity(url, 10);
-    await db.attributeGitHubActivity();
+    await db.attributeGithubActivity();
     let activity = await db.getActivity(url);
-    expect(activity.creator).toEqual('https://github.com/SuperuserLabs');
+    expect(activity.creator).toEqual(c_url);
+    let creator = await db.getCreator(c_url);
+    expect(creator.url).toEqual(c_url);
   });
 });

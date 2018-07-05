@@ -181,20 +181,25 @@ export class Database {
       });
   }
 
-  async attributeGitHubActivity() {
+  async attributeGithubActivity() {
+    // If getActivities() takes a long time to run, consider using:
+    //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
     let activities = await this.getActivities({ withCreators: false });
     activities = _.filter(activities, a => {
       // TODO: Use isOnDomain (breaks on my machine, idk)
       // isOnDomain(a.url, 'github.com');
-      return a.url.includes('github.com');
+      return a.url.includes('https://github.com/');
     });
 
     let promises = _.map(activities, async a => {
       let u = new URL(a.url);
       let path = u.pathname;
       let user_or_org = u.pathname.split('/')[1];
-      let creator_url = `https://github.com/${user_or_org}`;
-      await this.connectActivityToCreator(a.url, creator_url);
+      if (user_or_org.length > 0) {
+        let creator_url = `https://github.com/${user_or_org}`;
+        await new Creator(creator_url, user_or_org).save();
+        await this.connectActivityToCreator(a.url, creator_url);
+      }
     });
 
     await Promise.all(promises);

@@ -85,9 +85,6 @@ function initThankfulTeamCreator() {
   return creator.save();
 }
 
-// TODO: Move to better place
-initThankfulTeamCreator();
-
 export default {
   components: {
     'creator-card': CreatorCard,
@@ -173,6 +170,11 @@ export default {
   },
   created() {
     this.refresh();
+  },
+  beforeCreate() {
+    // These below are async, might not have run in time
+    initThankfulTeamCreator();
+    db.attributeGithubActivity();
   },
 };
 </script>

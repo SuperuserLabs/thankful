@@ -7,6 +7,7 @@ b-card(class="mb-2" no-body)
           div
             h4
               font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="xs", color='red')
+              font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="xs", color='black')
               |  {{ name }}&nbsp
               sup.text-secondary
                 font-awesome-icon(icon="external-link-alt", size="xs")

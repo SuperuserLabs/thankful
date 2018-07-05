@@ -12,11 +12,21 @@ Dexie.dependencies.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
 import { Database, Activity, Creator } from './db.js';
 
+async function clearDB(db) {
+  await db.db.creator.clear();
+  await db.db.activity.clear();
+  await db.db.donations.clear();
+}
+
 describe('Activity', () => {
   const db = new Database();
   const url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
 
-  it('correctly adds activity', async () => {
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('logs activity using logActivity', async () => {
     await db.logActivity(url, 13.37);
     let activity = await db.getActivity(url);
     expect(activity.duration).toBeCloseTo(13.37, 3);
@@ -26,7 +36,7 @@ describe('Activity', () => {
     expect(activity.duration).toBeCloseTo(23.37, 3);
   });
 
-  it('correctly adds activity', async () => {
+  it('logs activity by manually editing the Activity object', async () => {
     let activity = new Activity(url, undefined, 13.37);
     await activity.save();
     activity = await db.getActivity(url);
@@ -68,8 +78,8 @@ describe('Creator', () => {
   const a_title = 'Elder Scrolls 6 Trailer';
   const a_url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
 
-  beforeEach(() => {
-    db.db.creator.clear();
+  beforeEach(async () => {
+    await clearDB(db);
   });
 
   it('get all creators', async () => {
@@ -127,5 +137,32 @@ describe('Creator', () => {
 
     creator = await db.getCreator(c_url);
     expect(creator).toBeUndefined(creator);
+  });
+});
+
+describe('GitHub activity', () => {
+  const db = new Database();
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('attributes activity', async () => {
+    let c_url = 'https://github.com/SuperuserLabs';
+    let url = 'https://github.com/SuperuserLabs/thankful';
+    await db.logActivity(url, 10);
+    await db.attributeGithubActivity();
+    let activity = await db.getActivity(url);
+    expect(activity.creator).toEqual(c_url);
+    let creator = await db.getCreator(c_url);
+    expect(creator.url).toEqual(c_url);
+  });
+
+  it('should not attribute non-user pages', async () => {
+    let url = 'https://github.com/orgs/SuperuserLabs';
+    await db.logActivity(url, 10);
+    await db.attributeGithubActivity();
+    let activity = await db.getActivity(url);
+    expect(activity.creator).toBeUndefined();
   });
 });

@@ -1,6 +1,8 @@
 import Dexie from 'dexie';
 import Promise from 'bluebird';
 import _ from 'lodash';
+import { isOnDomain } from './url.js';
+import isReserved from 'github-reserved-names';
 
 let _db = undefined;
 
@@ -37,6 +39,12 @@ class Model {
 export class Activity extends Model {
   constructor(url, title, duration, creator) {
     super(_db.activity, 'url');
+    // Clean title from leading ({number}) as common for
+    // notification counters on e.g. YouTube.
+    if (title !== undefined) {
+      title = title.replace(/^\([0-9]+\)\s*/, '');
+    }
+
     this.url = url;
     this.title = title;
     this.duration = duration;
@@ -82,11 +90,11 @@ export class Database {
     this.db = _db;
   }
 
-  getActivity(url) {
-    return this.db.activity.get({ url: url });
+  async getActivity(url) {
+    return await this.db.activity.get({ url: url });
   }
 
-  getActivities({ limit = 1000, withCreators = null } = {}) {
+  async getActivities({ limit = 1000, withCreators = null } = {}) {
     let coll = this.db.activity.orderBy('duration').reverse();
     if (withCreators !== null) {
       if (withCreators) {
@@ -98,15 +106,15 @@ export class Database {
     return coll.limit(limit).toArray();
   }
 
-  getCreator(url) {
+  async getCreator(url) {
     return this.db.creator.get({ url: url });
   }
 
-  getCreators(limit) {
+  async getCreators(limit) {
     return this.db.creator.limit(limit || 100).toArray();
   }
 
-  getCreatorActivity(c_url) {
+  async getCreatorActivity(c_url) {
     // Get all activity connected to a certain creator
     return this.db.activity
       .where('creator')
@@ -114,7 +122,7 @@ export class Database {
       .toArray();
   }
 
-  getTimeForCreators() {
+  async getTimeForCreators() {
     let creatorCollection = this.db.creator;
     return creatorCollection.toArray(creators => {
       // Query related properties:
@@ -135,7 +143,7 @@ export class Database {
     });
   }
 
-  logActivity(url, duration, options = {}) {
+  async logActivity(url, duration, options = {}) {
     // TODO: Use update instead of put if url exists
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
@@ -152,17 +160,17 @@ export class Database {
     });
   }
 
-  connectActivityToCreator(url, creator) {
+  async connectActivityToCreator(url, creator) {
     return this.logActivity(url, 0, { creator: creator });
   }
 
-  logDonation(creatorUrl, weiAmount, usdAmount, hash) {
+  async logDonation(creatorUrl, weiAmount, usdAmount, hash) {
     return this.db.donations.add(
       new Donation(creatorUrl, weiAmount.toString(), usdAmount.toString(), hash)
     );
   }
 
-  getDonations(limit = 10) {
+  async getDonations(limit = 10) {
     return this.db.donations
       .reverse()
       .limit(limit)
@@ -178,6 +186,29 @@ export class Database {
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);
       });
+  }
+
+  async attributeGithubActivity() {
+    // If getActivities() takes a long time to run, consider using:
+    //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
+    let activities = await this.getActivities({ withCreators: false });
+    activities = _.filter(activities, a => {
+      return a.url.includes('https://github.com/');
+    });
+
+    let promises = _.map(activities, async a => {
+      let u = new URL(a.url);
+      let path = u.pathname;
+      let user_or_org = u.pathname.split('/')[1];
+      if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
+        let creator_url = `https://github.com/${user_or_org}`;
+        await new Creator(creator_url, user_or_org).save();
+        await this.connectActivityToCreator(a.url, creator_url);
+      }
+    });
+
+    await Promise.all(promises);
+    return null;
   }
 }
 

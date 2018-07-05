@@ -16,7 +16,7 @@ div.container
       b-form(inline)
         b-input-group(append="$").mb-2.mr-sm-2.mb-sm-0
           b-form-input(v-model="monthlyDonation")
-        b-button(variant="success")
+        b-button(variant="success", @click="distribute")
           | Distribute
   div
     div.d-flex.flex-row.justify-content-between
@@ -32,7 +32,6 @@ div.container
                    v-bind:creator="creator",
                    v-bind:key="creator.url",
                    v-bind:editing="index === editing",
-                   @allocatedFunds="creator.allocatedFunds = $event; creator.save();",
                    @address="creator.address = $event; creator.save();",
                    @save="save(creator, $event)"
                    @cancel="cancel(creator)"
@@ -125,9 +124,10 @@ export default {
       return names[this.netId];
     },
     donations() {
-      return _.sortBy(
-        this.creators.filter(c => c.allocatedFunds > 0),
-        c => -parseFloat(c.allocatedFunds)
+      return _.orderBy(
+        this.creators,
+        c => parseFloat(c.allocatedFunds),
+        'desc'
       );
     },
     creators() {
@@ -143,6 +143,13 @@ export default {
       return message => {
         sink.push(`${title}: ${message}`);
       };
+    },
+    distribute() {
+      let scoring = c => Math.sqrt(c.duration);
+      let totScore = _.sum(this.creators.map(scoring));
+      _.each(this.creators, c => {
+        c.allocatedFunds = (this.monthlyDonation * scoring(c)) / totScore;
+      });
     },
     donateAll() {
       const donations = this.donations;
@@ -190,6 +197,7 @@ export default {
             db.getCreatorActivity(c.url).then(acts =>
               Object.assign({ __proto__: c.__proto__ }, c, {
                 duration: _.sum(acts.map(act => act.duration)),
+                allocatedFunds: 0,
               })
             )
           )

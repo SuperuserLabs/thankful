@@ -11,7 +11,7 @@ b-card(no-body)
             sup.text-secondary
               font-awesome-icon(icon="external-link-alt", size="xs")
 
-      p(v-if="creator.info").text-small
+      p(v-if="creator.info").small.font-italic
         | {{ creator.info }}
       div.d-flex.justify-content-between
         div

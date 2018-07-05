@@ -91,6 +91,9 @@ export default class Donate {
       }
       const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this._myAcc();
+      if (!myAcc) {
+        throw 'You are not logged in to metamask, please install the extension and/or log in';
+      }
       return web3.eth
         .sendTransaction({
           from: myAcc,

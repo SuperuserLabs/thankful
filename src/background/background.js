@@ -157,8 +157,15 @@ error: ${JSON.stringify(message)}`
   }
 
   browser.browserAction.onClicked.addListener(() => {
-    browser.tabs.create({
-      url: browser.runtime.getURL('dashboard/index.html'),
+    let dashboard_url = browser.runtime.getURL('dashboard/index.html');
+    browser.tabs.query({ currentWindow: true, url: dashboard_url }).then(e => {
+      if (e.length < 1) {
+        browser.tabs.create({
+          url: dashboard_url,
+        });
+      } else {
+        browser.tabs.update(e[0].id, { active: true });
+      }
     });
   });
 

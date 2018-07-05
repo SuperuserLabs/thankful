@@ -1,6 +1,7 @@
 'use strict';
 
 import browser from 'webextension-polyfill';
+import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Activity, Creator } from '../lib/db.js';
 
@@ -29,7 +30,7 @@ function heartbeat(tabInfo, db, oldUrl, oldTitle) {
     .then(active => {
       if (active) {
         if (oldUrl) {
-          let url = tabInfo.url;
+          let url = canonicalizeUrl(tabInfo.url);
           let duration = sinceLastCall(oldUrl);
 
           db.logActivity(oldUrl, duration, { title: oldTitle });
@@ -92,15 +93,11 @@ function getCurrentTab() {
   }
 
   function stethoscope() {
-    getCurrentTab()
-      .then(tabInfo => {
-        heartbeat(tabInfo, db, oldUrl, oldTitle);
-        oldUrl = tabInfo.url;
-        oldTitle = tabInfo.title;
-      })
-      .catch(error => {
-        console.log(`Stethoscope: ${error}`);
-      });
+    getCurrentTab().then(tabInfo => {
+      heartbeat(tabInfo, db, oldUrl, oldTitle);
+      oldUrl = canonicalizeUrl(tabInfo.url);
+      oldTitle = tabInfo.title;
+    });
     browser.tabs
       .query({ active: false, audible: true })
       .then(tabs => {

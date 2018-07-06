@@ -5,7 +5,7 @@ div.container
   div.row
     div.col-md-6
       div
-        b-alert(show)
+        b-alert(show).border-0
           div(v-if='netId === -1')
             | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
           div(v-else)
@@ -16,7 +16,7 @@ div.container
       b-form(inline)
         b-input-group(append="$").mb-2.mr-sm-2.mb-sm-0
           b-form-input(v-model="monthlyDonation")
-        b-button(variant="success", @click="distribute")
+        b-button(variant="success", @click="$refs.donationSummary.distribute(monthlyDonation)")
           | Distribute
   div
     div.d-flex.flex-row.justify-content-between
@@ -40,11 +40,7 @@ div.container
                    @ignore="ignore(creator, index)"
                    )
 
-    donation-summary-component(:donations="donations")
-
-    b-button(variant="success", size="lg", v-on:click="donateAll()")
-      | Donate {{ totalAllocated }}$
-    hr
+    donation-summary-component(:donate='donate', :creators="creators", :totAmount="parseFloat(monthlyDonation)", ref='donationSummary', @error="errfun('Donating failed')($event)")
 
   div.row
     div.col-6
@@ -71,16 +67,6 @@ import _ from 'lodash';
 // TODO: Move to appropriate location
 const db = new Database();
 
-function getAddressAmountMapping(creators) {
-  return _.fromPairs(
-    _.map(creators, k => {
-      return [k.address, Number(k.allocatedFunds)];
-    }).filter(d => {
-      return _.every(d);
-    })
-  );
-}
-
 function initThankfulTeamCreator() {
   const creator = new Creator('https://getthankful.io', 'Thankful Team');
   // Erik's address
@@ -88,6 +74,7 @@ function initThankfulTeamCreator() {
   creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
   creator.info = 'Be thankful for Thankful and donate to the Thankful team!';
   creator.priority = 1;
+  creator.share = 0.2;
   return creator.save();
 }
 
@@ -107,13 +94,10 @@ export default {
       netId: -1,
       errors: [],
       dismissedErrors: 0,
+      thankfulShare: 0.2,
     };
   },
   computed: {
-    totalAllocated() {
-      let addressAmounts = getAddressAmountMapping(this.creators);
-      return _.sum(_.values(addressAmounts));
-    },
     netName() {
       let names = {
         1: 'Main Ethereum Network',
@@ -122,13 +106,6 @@ export default {
         42: 'Kovan Test Network',
       };
       return names[this.netId];
-    },
-    donations() {
-      return _.orderBy(
-        this.creators,
-        c => parseFloat(c.allocatedFunds),
-        'desc'
-      );
     },
     creators() {
       return _.take(this.creatorList, 12);
@@ -143,19 +120,6 @@ export default {
       return message => {
         sink.push(`${title}: ${message}`);
       };
-    },
-    distribute() {
-      let scoring = c => Math.sqrt(c.duration);
-      let totScore = _.sum(this.creators.map(scoring));
-      _.each(this.creators, c => {
-        c.allocatedFunds = (this.monthlyDonation * scoring(c)) / totScore;
-      });
-    },
-    donateAll() {
-      const donations = this.donations;
-      this.donate
-        .donateAll(donations, this.refresh)
-        .catch(this.errfun('Donating failed'));
     },
     addCreator() {
       if (this.editing < 0) {
@@ -197,7 +161,6 @@ export default {
             db.getCreatorActivity(c.url).then(acts =>
               Object.assign({ __proto__: c.__proto__ }, c, {
                 duration: _.sum(acts.map(act => act.duration)),
-                allocatedFunds: 0,
               })
             )
           )
@@ -213,6 +176,7 @@ export default {
         });
 
         this.$refs.donationHistory.refresh();
+        this.$refs.donationSummary.distribute();
 
         this.donate.getId().then(id => {
           this.netId = id;

@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body)
+b-card(no-body).border-0
   b-card-body.p-3
     div(v-if="!editing")
       a(target="_blank", :href="url")

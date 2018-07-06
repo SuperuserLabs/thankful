@@ -49,14 +49,18 @@ export default class Donate {
   }
 
   async donateAll(donations, refreshCallback) {
-    const donationPromises = donations.map(async d =>
-      this._donateOne(
-        d.address,
-        BigNumber(d.allocatedFunds),
-        d.url,
-        refreshCallback
-      )
-    );
+    const donationPromises = donations.map(async d => {
+      if (d.address !== undefined) {
+        this._donateOne(
+          d.address,
+          BigNumber(d.allocatedFunds),
+          d.url,
+          refreshCallback
+        );
+      } else {
+        console.log(`${d.name} does not have an address yet`);
+      }
+    });
     return Promise.all(donationPromises);
   }
 

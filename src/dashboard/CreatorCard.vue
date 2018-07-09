@@ -19,16 +19,10 @@ export default {
   },
   props: {
     creator: Object,
-    editing: Boolean,
   },
   watch: {
     allocatedFunds(to) {
       this.$emit('allocatedFunds', to);
-    },
-    address(to) {
-      if (!this.editing) {
-        this.$emit('address', to);
-      }
     },
   },
   methods: {

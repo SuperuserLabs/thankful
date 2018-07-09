@@ -16,8 +16,6 @@ div
       | Show all
 </template>
 <script>
-import _ from 'lodash';
-
 export default {
   data: () => ({
     donations: [],

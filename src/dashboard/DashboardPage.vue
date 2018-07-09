@@ -11,7 +11,7 @@ div
       v-card
         v-card-title
           span.headline Editing
-          v-btn(color="secondary", flat, v-on:click='$emit("ignore")')
+          v-btn(color="secondary", flat, @click='ignore(editing);')
             | #[font-awesome-icon(icon="eye-slash")] Ignore
         v-card-text
           v-layout(wrap)
@@ -21,8 +21,11 @@ div
               v-text-field(v-model='editedCreator.url', label='Homepage')
             v-flex(xs12)
               v-text-field(v-model='editedCreator.address', label='ETH Address')
-          p(v-if="editedCreator.info").text-small
+          p(v-if="editedCreator.info")
             | {{ editedCreator.info }}
+          v-layout(row)
+            v-spacer
+            v-btn(color="primary", flat, @click='save(`Saved creator ${editedCreator.name}`)') Save
           v-data-table(:headers="activityHeaders", :items="activities", :pagination.sync='pagination')
             template(slot='items', slot-scope='props')
               td
@@ -30,6 +33,8 @@ div
                   | {{ props.item.title || props.item.url }}
               td.text-right
                 | {{ props.item.duration | friendlyDuration }}
+    v-snackbar(v-model='snackMessage.length > 0', top) {{ snackMessage }}
+      v-btn(color="pink", flat, @click="undo();") Undo
     v-container(grid-list-md)
       v-flex(xs12).mb-3
         div.headline Your favorite creators
@@ -40,14 +45,7 @@ div
         v-flex(v-for="(creator, index) in creators", xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
-                       v-bind:editing="index === editing",
-                       @address="creator.address = $event; creator.save();",
-                       @save="save(creator, $event)"
-                       @cancel="cancel(creator)"
-                       @edit="editing = index"
-                       @remove="remove(creator, index)"
-                       @ignore="ignore(creator, index)"
-                       @click="edit(creator)"
+                       @click="edit(creator, index)"
                        )
         v-flex(xs12, sm6, md3)
           v-card(hover)
@@ -102,13 +100,15 @@ export default {
     errors: [],
     dismissedErrors: 0,
     dialog: false,
-    editedCreator: { name: '' },
+    currentCreator: {},
+    editedCreator: { name: '', url: '', address: '' },
     activities: [],
     activityHeaders: [
       { text: 'Page', value: 'title' },
       { text: 'Duration', value: 'duration' },
     ],
     pagination: { sortBy: 'duration', descending: true },
+    snackMessage: '',
   }),
   computed: {
     creators() {
@@ -138,32 +138,44 @@ export default {
         this.editing = 0;
       }
     },
-    cancel(creator) {
-      if (creator.url === '') {
-        this.creators.shift();
-      }
-      this.editing = -1;
-    },
     remove(creator, index) {
+      Object.assign(this.editedCreator, creator);
       creator.delete();
       this.creatorList.splice(index, 1);
       this.editing = -1;
+      this.dialog = false;
     },
-    ignore(creator, index) {
-      creator.ignore = true;
-      creator.save();
+    ignore(index) {
+      this.editedCreator.ignore = true;
+      this.save(`Ignored ${this.editedCreator.name}.`);
       this.creatorList.splice(index, 1);
-      this.editing = -1;
     },
-    save(creator, edited) {
-      creator.delete().then(() => {
-        Object.assign(creator, edited);
-        creator.save();
-        this.editing = -1;
+    save(message = '') {
+      const alternate = this.editedCreator;
+      const current = this.currentCreator;
+      const tmp = Object.assign({}, current);
+      return current
+        .delete()
+        .then(() => {
+          Object.assign(current, alternate);
+          return current.save();
+        })
+        .then(() => {
+          this.editing = -1;
+          this.editedCreator = tmp;
+          this.dialog = false;
+          this.snackMessage = message;
+        });
+    },
+    undo() {
+      this.save().then(() => {
+        this.refresh();
       });
     },
-    edit(creator) {
-      this.editedCreator = creator;
+    edit(creator, index) {
+      this.currentCreator = creator;
+      this.editing = index;
+      this.editedCreator = _.assignIn({}, creator);
       this.getActivities(creator);
       this.dialog = true;
     },

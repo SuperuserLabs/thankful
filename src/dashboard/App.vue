@@ -1,24 +1,27 @@
 <template lang="pug">
-div.container#content
-  div.row
-    div.col.mt-4
-      b-navbar
-        b-navbar-brand(to="/")
-          | Thankful Dashboard
-    div.col
-      b-alert(show).mt-2.mb-0.p-2
-        h5 We're in alpha!
+v-app
+  v-content
+    v-layout
+      div.pl-3
+        h1 #[router-link(to="/") Thankful Dashboard]
+        h3 We're in alpha
         div
-          | Things are not all they could be and will break, but we're working on it.
-  div.row
-    div.col
-      hr
+          | We're still figuring things out. Please report any issues #[a(href='https://github.com/SuperuserLabs/thankful/issues') here].
+      v-container(fluid, fill-height)
+        v-spacer
+        net-info
+    hr
 
-  router-view
+  v-container(fluid)
+    router-view
 </template>
 <script>
+import NetInfo from './NetInfo.vue';
+
 export default {
-  components: {},
+  components: {
+    'net-info': NetInfo,
+  },
   data: function() {
     return {};
   },

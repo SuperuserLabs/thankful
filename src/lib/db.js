@@ -53,13 +53,14 @@ export class Activity extends Model {
 }
 
 export class Creator extends Model {
-  constructor(url, name) {
+  constructor(url, name, ignore = false) {
     super(_db.creator, 'url');
     if (typeof url !== 'string') {
       throw 'url was invalid type';
     }
     this.url = url;
     this.name = name;
+    this.ignore = ignore;
   }
 }
 
@@ -82,6 +83,9 @@ export class Database {
     });
     _db.version(2).stores({
       donations: '++id, date, url, weiAmount, usdAmount',
+    });
+    _db.version(3).stores({
+      creator: '&url, name, ignore',
     });
 
     _db.activity.mapToClass(Activity);

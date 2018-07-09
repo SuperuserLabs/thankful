@@ -146,6 +146,7 @@ export default {
       this.dialog = false;
     },
     ignore(index) {
+      this.currentCreator.ignore = false;
       this.editedCreator.ignore = true;
       this.save(`Ignored ${this.editedCreator.name}.`);
       this.creatorList.splice(index, 1);

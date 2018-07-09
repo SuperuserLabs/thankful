@@ -1,5 +1,5 @@
 <template lang="pug">
-v-chip(color='green', text-color='white')
+v-chip(:color='netColor', text-color='white')
   div(v-if='netId === -1')
     | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
   div(v-else)
@@ -18,15 +18,27 @@ export default {
       };
       return names[this.netId];
     },
+    netColor() {
+      let names = {
+        '-1': 'warning',
+        1: 'green',
+        3: 'red',
+        4: 'orange',
+        42: 'purple',
+      };
+      return names[this.netId];
+    },
+  },
+  methods: {
+    update() {
+      this.$donate.getId().then(id => {
+        this.netId = id;
+      });
+    },
   },
   created() {
-    setInterval(
-      () =>
-        this.$donate.getId().then(id => {
-          this.netId = id;
-        }),
-      5000
-    );
+    setInterval(this.update, 5000);
+    setTimeout(this.update, 500);
   },
 };
 </script>

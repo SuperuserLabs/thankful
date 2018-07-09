@@ -11,7 +11,8 @@
     "no-shadow": [
       "error",
       {
-        "builtinGlobals": true
+        "builtinGlobals": true,
+        "allow": ["name"]
       }
     ],
     "no-console": ["off"]

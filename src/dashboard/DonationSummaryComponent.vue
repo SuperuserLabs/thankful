@@ -50,7 +50,6 @@ export default {
   },
   props: {
     creators: Array,
-    donate: Object,
   },
   computed: {
     total() {
@@ -89,7 +88,8 @@ export default {
       });
     },
     donateAll() {
-      this.donate
+      console.log(this.$donate);
+      this.$donate
         .donateAll(this.donations, this.refresh)
         .catch(e => this.$emit('error', e));
     },

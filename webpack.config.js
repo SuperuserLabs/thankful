@@ -40,6 +40,14 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.(eot|ttf|woff2?)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
+        use: [
+          {
+            loader: 'url-loader',
+          },
+        ],
+      },
     ],
   },
   entry: {

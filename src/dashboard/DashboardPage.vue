@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
-    font-awesome-icon(icon="exclamation-triangle", size='3x', style='cursor:pointer').text-warning
+    v-icon(color='warning', x-large) warning
   v-layout(row, wrap)
     v-flex(xs6)
       v-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
@@ -12,7 +12,7 @@ div
         v-card-title
           span.headline Editing
           v-btn(color="secondary", flat, @click='ignore(editing);')
-            | #[font-awesome-icon(icon="eye-slash")] Ignore
+            | #[v-icon visibility_off] Ignore
         v-card-text
           v-layout(wrap)
             v-flex(xs12)

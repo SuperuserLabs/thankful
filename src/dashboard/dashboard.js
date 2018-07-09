@@ -2,40 +2,15 @@ import Vue from 'vue';
 import Vuetify from 'vuetify';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faUserPlus,
-  faSave,
-  faBan,
-  faInfoCircle,
-  faEdit,
-  faPen,
-  faTrash,
-  faEyeSlash,
-  faExclamationTriangle,
-  faExternalLinkAlt,
-} from '@fortawesome/free-solid-svg-icons';
 import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+library.add(faYoutube, faGithub);
+
 import { formatSecs } from '../lib/time.js';
-import colors from 'vuetify/es5/util/colors';
-
-library.add(
-  faUserPlus,
-  faSave,
-  faBan,
-  faEdit,
-  faInfoCircle,
-  faPen,
-  faTrash,
-  faEyeSlash,
-  faYoutube,
-  faGithub,
-  faExclamationTriangle,
-  faExternalLinkAlt
-);
-
 import Donate from '../lib/donate.js';
 import { Database } from '../lib/db.js';
+
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

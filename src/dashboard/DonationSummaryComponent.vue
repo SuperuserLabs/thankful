@@ -5,7 +5,7 @@ div.pt-2
       v-toolbar-title Donation Summary
       v-spacer
       v-flex(xs2, md1)
-        v-text-field(v-model="totAmount", type='number', append-icon='attach_money', single-line, hide-details)
+        v-text-field(v-model="totAmount", type='number', prefix="$", single-line, hide-details)
       v-btn(color="primary", flat, @click="distribute(totAmount)")
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
@@ -27,7 +27,7 @@ div.pt-2
             
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
-      | Send your thanks! ({{ total.toFixed(2) }}$)
+      | Send your thanks! (${{ total.toFixed(2) }})
   hr
 </template>
 

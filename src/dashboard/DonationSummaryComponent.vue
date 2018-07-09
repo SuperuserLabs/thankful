@@ -18,9 +18,9 @@ div.pt-2
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
         td {{ props.item.address }}
         td {{ props.item.funds }}
-  div.text-xs-center.pt-2
-    v-btn(size="lg", v-on:click="donateAll()")
-      | Donate {{ total.toFixed(2) }}$
+  div.text-xs-center.pt-2.pb-3
+    v-btn(color='primary', v-on:click="donateAll()")
+      | Send your thanks! ({{ total.toFixed(2) }}$)
   hr
 </template>
 

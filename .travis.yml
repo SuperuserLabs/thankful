@@ -17,7 +17,7 @@ after_success:
 deploy:
   provider: script
   script: make publish-amo
-  keep_files: true
+  skip_cleanup: true
   on:
     tags: true
     branch: master

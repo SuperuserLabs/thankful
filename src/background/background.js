@@ -1,18 +1,16 @@
 'use strict';
 
 import browser from 'webextension-polyfill';
+import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
-import { Database, Activity, Creator } from '../lib/db.js';
-
-const sinceLastCall = valueConstantTicker();
+import { Database, Creator } from '../lib/db.js';
+import _ from 'lodash';
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
- *
- * This is an asychronous function that returns a Promise.
  */
-function isTabActive(tabInfo) {
-  return new Promise((resolve, reject) => {
+async function isTabActive(tabInfo) {
+  return new Promise(resolve => {
     let detectionIntervalInSeconds = 60;
     if (tabInfo.audible) {
       resolve(true);
@@ -24,31 +22,7 @@ function isTabActive(tabInfo) {
   });
 }
 
-function heartbeat(tabInfo, db, oldUrl, oldTitle) {
-  isTabActive(tabInfo)
-    .then(active => {
-      if (active) {
-        if (oldUrl) {
-          let url = tabInfo.url;
-          let duration = sinceLastCall(oldUrl);
-
-          db.logActivity(oldUrl, duration, { title: oldTitle });
-
-          sinceLastCall(url);
-
-          rescheduleAlarm();
-        }
-      } else {
-        throw new Error('Not active, not logging');
-      }
-    })
-    .catch(error => {
-      console.log(error);
-      sinceLastCall();
-    });
-}
-
-function rescheduleAlarm() {
+async function rescheduleAlarm() {
   // Cancels any preexisting heartbeat alarm and then schedules a new one.
   browser.alarms
     .clear('heartbeat')
@@ -65,14 +39,12 @@ function getCurrentTab() {
 (function() {
   rescheduleAlarm();
 
-  let oldUrl = null;
-  let oldTitle = null;
   const db = new Database();
   let noContentScript = {};
-  const audibleTimers = {};
-  const audibleTitles = {};
+  const tabTimers = {};
+  const tabTitles = {};
 
-  async function receiveCreator(msg, sender, sendResponse) {
+  async function receiveCreator(msg) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
     if (msg.type !== 'creatorFound') {
       return;
@@ -80,7 +52,7 @@ function getCurrentTab() {
     // FIXME: Doing a creator.save() overwrites a preexisting creator object
     await new Creator(msg.creator.url, msg.creator.name).save();
     let result = await db.connectActivityToCreator(
-      msg.activity.url,
+      canonicalizeUrl(msg.activity.url),
       msg.creator.url
     );
     if (result === 0) {
@@ -88,52 +60,48 @@ function getCurrentTab() {
     } else {
       console.log('Successfully connected activity to creator');
     }
-    await db.getActivity(msg.activity.url);
+    await db.getActivity(canonicalizeUrl(msg.activity.url));
   }
 
-  function stethoscope() {
-    getCurrentTab()
-      .then(tabInfo => {
-        heartbeat(tabInfo, db, oldUrl, oldTitle);
-        oldUrl = tabInfo.url;
-        oldTitle = tabInfo.title;
-      })
-      .catch(error => {
-        console.log(`Stethoscope: ${error}`);
-      });
-    browser.tabs
-      .query({ active: false, audible: true })
-      .then(tabs => {
-        const currentUrls = tabs.map(tab => tab.url);
-        const goneUrls = _.difference(Object.keys(audibleTimers), currentUrls);
-        const stillUrls = _.intersection(
-          Object.keys(audibleTimers),
-          currentUrls
-        );
-        const newUrls = _.difference(currentUrls, Object.keys(audibleTimers));
+  async function stethoscope() {
+    try {
+      const currentTab = await getCurrentTab();
+      const currentTabArray = (await isTabActive(currentTab))
+        ? [currentTab]
+        : [];
+      const audibleTabs = await browser.tabs.query({ audible: true });
+      const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
 
-        goneUrls.forEach(url => {
-          const duration = audibleTimers[url]();
-          const title = audibleTitles[url];
-          delete audibleTimers[url];
-          delete audibleTitles[url];
-          db.logActivity(url, duration, { title: title });
-        });
-        stillUrls.forEach(url => {
-          const duration = audibleTimers[url]();
-          let title = _.find(tabs, tab => tab.url === url).title;
-          audibleTitles[url] = title;
-          db.logActivity(url, duration, { title: title });
-        });
-        newUrls.forEach(url => {
-          audibleTimers[url] = valueConstantTicker();
-          audibleTimers[url]();
-          audibleTitles[url] = _.find(tabs, tab => tab.url === url).title;
-        });
-      })
-      .catch(error => {
-        console.log(`Stethoscope audible: ${error}`);
+      const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
+      const goneUrls = _.difference(Object.keys(tabTimers), currentUrls);
+      const stillUrls = _.intersection(Object.keys(tabTimers), currentUrls);
+      const newUrls = _.difference(currentUrls, Object.keys(tabTimers));
+
+      goneUrls.forEach(url => {
+        const duration = tabTimers[url]();
+        const title = tabTitles[url];
+        delete tabTimers[url];
+        delete tabTitles[url];
+        db.logActivity(url, duration, { title: title });
       });
+      stillUrls.forEach(url => {
+        const duration = tabTimers[url]();
+        let title = _.find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
+        tabTitles[url] = title;
+        db.logActivity(url, duration, { title: title });
+      });
+      newUrls.forEach(url => {
+        tabTimers[url] = valueConstantTicker();
+        tabTimers[url]();
+        tabTitles[url] = _.find(
+          tabs,
+          tab => canonicalizeUrl(tab.url) === url
+        ).title;
+      });
+      await rescheduleAlarm();
+    } catch (error) {
+      console.log(`Stethoscope error: ${error}`);
+    }
   }
 
   function sendPageChange(tabId, changeInfo, tab) {
@@ -157,8 +125,15 @@ error: ${JSON.stringify(message)}`
   }
 
   browser.browserAction.onClicked.addListener(() => {
-    browser.tabs.create({
-      url: browser.runtime.getURL('dashboard/index.html'),
+    let dashboard_url = browser.runtime.getURL('dashboard/index.html');
+    browser.tabs.query({ currentWindow: true, url: dashboard_url }).then(e => {
+      if (e.length < 1) {
+        browser.tabs.create({
+          url: dashboard_url,
+        });
+      } else {
+        browser.tabs.update(e[0].id, { active: true });
+      }
     });
   });
 

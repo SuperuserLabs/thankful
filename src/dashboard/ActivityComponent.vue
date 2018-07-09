@@ -14,9 +14,6 @@ div
 </template>
 
 <script>
-import { formatSecs } from '../lib/time.js';
-import _ from 'lodash';
-
 export default {
   data: () => ({
     activities: [],

@@ -8,19 +8,9 @@ v-card(height='14rem', @click.native='$emit("click")', hover)
       v-flex.text-xs-center
           div.headline
             |  {{ name }}
-      //-b-input-group(prepend="ETH Address", size="sm")
-        //-b-form-input(placeholder="Address", v-model='address')
-      //-div.pt-3
-        //-v-btn(v-if='creator.edited', variant="danger", size="sm", v-on:click='$emit("remove")')
-          //-| #[font-awesome-icon(icon="trash")] Delete
-        //-v-btn(variant="success", size="sm", v-on:click='save()').float-right.mr-2
-          //-| #[font-awesome-icon(icon="save")] Save
-        //-v-btn(variant="danger", size="sm", v-on:click='cancel()').float-right.mr-2
-          //-| #[font-awesome-icon(icon="ban")] Cancel
 </template>
 
 <script>
-import _ from 'lodash';
 import { isOnDomain } from '../lib/url.js';
 
 export default {
@@ -42,10 +32,6 @@ export default {
     },
   },
   methods: {
-    isDomain(url, hostname) {
-      let reg = RegExp(`^.*://(www\.)?${hostname}/?`);
-      return reg.test(url);
-    },
     isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {

@@ -69,13 +69,11 @@ div
 </template>
 
 <script>
-import browser from 'webextension-polyfill';
 import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
-import { Activity, Creator, Donation } from '../lib/db.js';
-import BigNumber from 'bignumber.js';
+import { Creator } from '../lib/db.js';
 import _ from 'lodash';
 
 // TODO: Move to appropriate location

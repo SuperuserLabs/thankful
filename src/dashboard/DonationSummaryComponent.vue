@@ -13,7 +13,18 @@ div.pt-2
         td 
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
         td {{ props.item.address }}
-        td {{ props.item.funds }}
+        td
+          v-edit-dialog(:return-value.sync="props.item.funds", large, lazy, persistent, @open="editOpen", @close="editClose")
+            div {{ props.item.funds }}
+            div.mt-3.title(slot="input") 
+              | Update funds
+            v-text-field(
+              slot="input",
+              v-model="props.item.funds",
+              prefix="$",
+              single-line,
+              autofocus)
+            
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
       | Send your thanks! ({{ total.toFixed(2) }}$)
@@ -45,6 +56,7 @@ export default {
         { text: 'Address', value: 'address' },
         { text: 'Amount', value: 'funds' },
       ],
+      sortBy: 'funds',
       pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
     };
   },
@@ -62,6 +74,16 @@ export default {
     },
   },
   methods: {
+    editOpen() {
+      console.log('editOpen');
+      console.log(this.pagination);
+      this.sortBy = this.pagination.sortBy;
+      this.pagination.sortBy = '';
+    },
+    editClose() {
+      console.log('editClose');
+      this.pagination.sortBy = this.sortBy;
+    },
     distribute() {
       let settings = { totalAmount: this.totAmount };
       browser.storage.local

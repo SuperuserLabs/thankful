@@ -1,56 +1,71 @@
 <template lang="pug">
-div.container
+div
   a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
     font-awesome-icon(icon="exclamation-triangle", size='3x', style='cursor:pointer').text-warning
-  div.row
-    div.col-md-6
-      div
-        b-alert(show).border-0
-          div(v-if='netId === -1')
-            | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-          div(v-else)
-            | You are connected to the {{ netName }}
-        b-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
-          | {{ error }}
-    b-row(align-h='end').col-md-6.p-0
-      b-form(inline)
-        b-input-group(append="$").mb-2.mr-sm-2.mb-sm-0
-          b-form-input(v-model="monthlyDonation")
-        b-button(variant="success", @click="$refs.donationSummary.distribute(monthlyDonation)")
-          | Distribute
+  v-layout(row, wrap)
+    v-flex(xs6)
+      v-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
+        | {{ error }}
   div
-    div.d-flex.flex-row.justify-content-between
-      h3 Creators
-      div
-        b-button(v-if="editing < 0",variant="success", size="sm", v-on:click="addCreator()")
-          | #[font-awesome-icon(icon="user-plus")] Add creator
-    div(v-if="creators.length === 0")
-      | No creators to show
+    v-dialog(v-model="dialog", max-width='500px')
+      v-card
+        v-card-title
+          span.headline Editing
+          v-btn(color="secondary", flat, v-on:click='$emit("ignore")')
+            | #[font-awesome-icon(icon="eye-slash")] Ignore
+        v-card-text
+          v-layout(wrap)
+            v-flex(xs12)
+              v-text-field(v-model='editedCreator.name', label='Name')
+            v-flex(xs12)
+              v-text-field(v-model='editedCreator.url', label='Homepage')
+            v-flex(xs12)
+              v-text-field(v-model='editedCreator.address', label='ETH Address')
+          p(v-if="editedCreator.info").text-small
+            | {{ editedCreator.info }}
+          v-data-table(:headers="activityHeaders", :items="activities", :pagination.sync='pagination')
+            template(slot='items', slot-scope='props')
+              td
+                a(:href="props.item.url")
+                  | {{ props.item.title || props.item.url }}
+              td.text-right
+                | {{ props.item.duration | friendlyDuration }}
+    v-container(grid-list-md)
+      v-flex(xs12).mb-3
+        div.headline Your favorite creators
+      div(v-if="creators.length === 0")
+        | No creators to show
 
-    div.card-columns
-      creator-card(v-for="(creator, index) in creators",
-                   v-bind:creator="creator",
-                   v-bind:key="creator.url",
-                   v-bind:editing="index === editing",
-                   @address="creator.address = $event; creator.save();",
-                   @save="save(creator, $event)"
-                   @cancel="cancel(creator)"
-                   @edit="editing = index"
-                   @remove="remove(creator, index)"
-                   @ignore="ignore(creator, index)"
-                   )
+      v-layout(row, wrap)
+        v-flex(v-for="(creator, index) in creators", xs12, sm6, md3)
+          creator-card(v-bind:creator="creator",
+                       v-bind:key="creator.url",
+                       v-bind:editing="index === editing",
+                       @address="creator.address = $event; creator.save();",
+                       @save="save(creator, $event)"
+                       @cancel="cancel(creator)"
+                       @edit="editing = index"
+                       @remove="remove(creator, index)"
+                       @ignore="ignore(creator, index)"
+                       @click="edit(creator)"
+                       )
+        v-flex(xs12, sm6, md3)
+          v-card(hover)
+            v-card-title
+              v-container.text-xs-center
+                v-icon(x-large) add
 
-    donation-summary-component(:donate='donate', :creators="creators", :totAmount="parseFloat(monthlyDonation)", ref='donationSummary', @error="errfun('Donating failed')($event)")
+      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 
-  div.row
-    div.col-6
-      h3 Unattributed Activity
-      b-card.p-2.bt-0(no-body)
-        activity-component(:limit="10", :unattributed="true", to="/activity")
-    div.col-6
-      h3 Donation history
-      b-card.p-2.bt-0(no-body)
-        donation-history-component(:limit="10", ref="donationHistory", to="/donations")
+      v-layout(row)
+        v-flex(xs12,sm6)
+          h3 Unattributed Activity
+          v-card.p-2.bt-0(no-body)
+            activity-component(:limit="10", :unattributed="true", to="/activity")
+        v-flex(xs12,sm6)
+          h3 Donation history
+          v-card.p-2.bt-0(no-body)
+            donation-history-component(:limit="10", ref="donationHistory", to="/donations")
 </template>
 
 <script>
@@ -59,13 +74,11 @@ import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
-import Donate from '../lib/donate.js';
-import { Database, Activity, Creator, Donation } from '../lib/db.js';
+import { Activity, Creator, Donation } from '../lib/db.js';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 
 // TODO: Move to appropriate location
-const db = new Database();
 
 function initThankfulTeamCreator() {
   const creator = new Creator('https://getthankful.io', 'Thankful Team');
@@ -85,33 +98,31 @@ export default {
     'donation-history-component': DonationHistoryComponent,
     'donation-summary-component': DonationSummaryComponent,
   },
-  data: function() {
-    return {
-      creatorList: [],
-      donate: new Donate(),
-      monthlyDonation: 10,
-      editing: -1,
-      netId: -1,
-      errors: [],
-      dismissedErrors: 0,
-      thankfulShare: 0.2,
-    };
-  },
+  data: () => ({
+    creatorList: [],
+    editing: -1,
+    errors: [],
+    dismissedErrors: 0,
+    dialog: false,
+    editedCreator: { name: '' },
+    activities: [],
+    activityHeaders: [
+      { text: 'Page', value: 'title' },
+      { text: 'Duration', value: 'duration' },
+    ],
+    pagination: { sortBy: 'duration', descending: true },
+  }),
   computed: {
-    netName() {
-      let names = {
-        1: 'Main Ethereum Network',
-        3: 'Ropsten Test Network',
-        4: 'Rinkeby Test Network',
-        42: 'Kovan Test Network',
-      };
-      return names[this.netId];
-    },
     creators() {
       return _.take(this.creatorList, 12);
     },
   },
   methods: {
+    getActivities(creator) {
+      this.$db.getCreatorActivity(creator.url).then(activities => {
+        this.activities = activities;
+      });
+    },
     toTop() {
       document.body.scrollTop = 0; // For Safari
       document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -153,12 +164,18 @@ export default {
         this.editing = -1;
       });
     },
+    edit(creator) {
+      this.editedCreator = creator;
+      this.getActivities(creator);
+      this.dialog = true;
+    },
+
     refresh() {
-      db.getCreators().then(creators => {
+      this.$db.getCreators().then(creators => {
         // Find accumulated duration for creators
         let creatorsWithDuration = Promise.all(
           creators.filter(c => c.ignore !== true).map(c =>
-            db.getCreatorActivity(c.url).then(acts =>
+            this.$db.getCreatorActivity(c.url).then(acts =>
               Object.assign({ __proto__: c.__proto__ }, c, {
                 duration: _.sum(acts.map(act => act.duration)),
               })
@@ -177,10 +194,6 @@ export default {
 
         this.$refs.donationHistory.refresh();
         this.$refs.donationSummary.distribute();
-
-        this.donate.getId().then(id => {
-          this.netId = id;
-        });
       });
     },
   },
@@ -190,7 +203,7 @@ export default {
   beforeCreate() {
     // These below are async, might not have run in time
     initThankfulTeamCreator();
-    db.attributeGithubActivity();
+    this.$db.attributeGithubActivity();
   },
 };
 </script>

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
+import Vuetify from 'vuetify';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -17,6 +17,7 @@ import {
 import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { formatSecs } from '../lib/time.js';
+import colors from 'vuetify/es5/util/colors';
 
 library.add(
   faUserPlus,
@@ -33,17 +34,23 @@ library.add(
   faExternalLinkAlt
 );
 
+import Donate from '../lib/donate.js';
+import { Database } from '../lib/db.js';
+
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
-Vue.use(BootstrapVue);
+Vue.use(Vuetify, {
+  theme: {},
+});
 
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'vuetify/dist/vuetify.min.css';
 
 import router from './route.js';
 
 import App from './App.vue';
 
+Vue.prototype.$donate = new Donate();
+Vue.prototype.$db = new Database();
 Vue.filter('friendlyDuration', formatSecs);
 
 new Vue({

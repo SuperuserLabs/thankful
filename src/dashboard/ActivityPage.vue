@@ -1,7 +1,7 @@
 <template lang="pug">
 div.container
   h3 Unattributed Activity
-  b-card.p-2.bt-0(no-body)
+  v-card
     activity-component(:unattributed="true")
 </template>
 <script>

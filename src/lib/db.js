@@ -39,10 +39,9 @@ class Model {
 export class Activity extends Model {
   constructor(url, title, duration, creator) {
     super(_db.activity, 'url');
-    title = cleanTitle(title);
 
     this.url = canonicalizeUrl(url);
-    this.title = title;
+    this.title = cleanTitle(title);
     this.duration = duration;
     this.creator = creator;
   }
@@ -70,10 +69,10 @@ export class Donation {
 }
 
 export class Thank {
-  constructor(url, title, duration, creator) {
+  constructor(url, date, title, creator) {
     this.url = canonicalizeUrl(url);
+    this.date = new Date();
     this.title = cleanTitle(title);
-    this.duration = duration;
     this.creator = creator;
   }
 }
@@ -171,19 +170,18 @@ export class Database {
     // TODO: Use update instead of put if url exists
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
-    return this.db.activity
-      .get({ url: canonicalizeUrl(url) })
-      .then(activity => {
-        if (activity === undefined) {
-          activity = {
-            url: url,
-            duration: 0,
-          };
-        }
-        activity.duration += duration;
-        Object.assign(activity, options);
-        return this.db.activity.put(activity);
-      });
+    url = canonicalizeUrl(url);
+    return this.db.activity.get({ url: url }).then(activity => {
+      if (activity === undefined) {
+        activity = {
+          url: url,
+          duration: 0,
+        };
+      }
+      activity.duration += duration;
+      Object.assign(activity, options);
+      return this.db.activity.put(activity);
+    });
   }
 
   async connectActivityToCreator(url, creator) {
@@ -235,6 +233,10 @@ export class Database {
 
     await Promise.all(promises);
     return null;
+  }
+
+  async logThank() {
+    console.log('logging thank');
   }
 }
 

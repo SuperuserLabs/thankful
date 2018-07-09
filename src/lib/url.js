@@ -5,6 +5,9 @@ export function isOnDomain(url, domain) {
 }
 
 export function canonicalizeUrl(url_str) {
+  // TODO: When this function is updated to support more sites, we will have to
+  // run it on all old database entries to update them. Any way to do this
+  // without lots of database upgrades?
   let url = new URL(url_str);
   if (url.host == 'www.youtube.com' && url.pathname == '/watch') {
     // example: www.youtube.com/watch?v=videoid

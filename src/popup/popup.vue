@@ -18,6 +18,9 @@ div(style="width: 300px")
 
 <script>
 import browser from 'webextension-polyfill';
+import { Database } from '../lib/db.js';
+
+const db = new Database();
 
 export default {
   methods: {

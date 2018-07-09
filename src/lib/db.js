@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import Promise from 'bluebird';
 import _ from 'lodash';
-import { isOnDomain } from './url.js';
+import { isOnDomain, canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
 
 let _db = undefined;
@@ -39,13 +39,9 @@ class Model {
 export class Activity extends Model {
   constructor(url, title, duration, creator) {
     super(_db.activity, 'url');
-    // Clean title from leading ({number}) as common for
-    // notification counters on e.g. YouTube.
-    if (title !== undefined) {
-      title = title.replace(/^\([0-9]+\)\s*/, '');
-    }
+    title = cleanTitle(title);
 
-    this.url = url;
+    this.url = canonicalizeUrl(url);
     this.title = title;
     this.duration = duration;
     this.creator = creator;
@@ -73,6 +69,23 @@ export class Donation {
   }
 }
 
+export class Thank {
+  constructor(url, title, duration, creator) {
+    this.url = canonicalizeUrl(url);
+    this.title = cleanTitle(title);
+    this.duration = duration;
+    this.creator = creator;
+  }
+}
+
+function cleanTitle(title) {
+  // Clean title from leading ({number}) as common for
+  // notification counters on e.g. YouTube.
+  if (title !== undefined) {
+    return title.replace(/^\([0-9]+\)\s*/, '');
+  }
+}
+
 export class Database {
   constructor() {
     _db = new Dexie('Thankful');
@@ -83,15 +96,26 @@ export class Database {
     _db.version(2).stores({
       donations: '++id, date, url, weiAmount, usdAmount',
     });
+    _db
+      .version(4)
+      .stores({
+        thanks: '++id, url, date, title, creator',
+      })
+      .upgrade(trans => {
+        return trans.activity.toCollection().modify(act => {
+          act.url = canonicalizeUrl(act.url);
+        });
+      });
 
     _db.activity.mapToClass(Activity);
     _db.creator.mapToClass(Creator);
     _db.donations.mapToClass(Donation);
+    _db.thanks.mapToClass(Thank);
     this.db = _db;
   }
 
   async getActivity(url) {
-    return await this.db.activity.get({ url: url });
+    return await this.db.activity.get({ url: canonicalizeUrl(url) });
   }
 
   async getActivities({ limit = 1000, withCreators = null } = {}) {
@@ -147,21 +171,23 @@ export class Database {
     // TODO: Use update instead of put if url exists
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
-    return this.db.activity.get({ url: url }).then(activity => {
-      if (activity === undefined) {
-        activity = {
-          url: url,
-          duration: 0,
-        };
-      }
-      activity.duration += duration;
-      Object.assign(activity, options);
-      return this.db.activity.put(activity);
-    });
+    return this.db.activity
+      .get({ url: canonicalizeUrl(url) })
+      .then(activity => {
+        if (activity === undefined) {
+          activity = {
+            url: url,
+            duration: 0,
+          };
+        }
+        activity.duration += duration;
+        Object.assign(activity, options);
+        return this.db.activity.put(activity);
+      });
   }
 
   async connectActivityToCreator(url, creator) {
-    return this.logActivity(url, 0, { creator: creator });
+    return this.logActivity(canonicalizeUrl(url), 0, { creator: creator });
   }
 
   async logDonation(creatorUrl, weiAmount, usdAmount, hash) {

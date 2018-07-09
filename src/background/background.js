@@ -4,6 +4,7 @@ import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Creator } from '../lib/db.js';
+import { getCurrentTab } from '../lib/tabs.js';
 import _ from 'lodash';
 
 /**
@@ -27,13 +28,6 @@ async function rescheduleAlarm() {
   browser.alarms
     .clear('heartbeat')
     .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
-}
-
-function getCurrentTab() {
-  // Note: an identical version exists in aw-watcher-web
-  return browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(tabs => tabs[0]);
 }
 
 (function() {

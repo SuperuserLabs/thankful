@@ -19,13 +19,21 @@ div(style="width: 300px")
 <script>
 import browser from 'webextension-polyfill';
 import { Database } from '../lib/db.js';
+import { getCurrentTab } from '../lib/tabs.js';
 
 const db = new Database();
 
 export default {
   methods: {
     thank() {
-      console.log('Thanking the current page');
+      getCurrentTab()
+        .then(tab => {
+          console.log('thanking', tab)
+          return db.logThank(tab.url, tab.title);
+        })
+        .catch(err => {
+          throw "Couldn't log thanks: ";// + err;
+        });
     },
     openDashboard() {
       let dashboard_url = browser.runtime.getURL('dashboard/index.html');

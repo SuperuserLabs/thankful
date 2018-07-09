@@ -69,10 +69,11 @@ export class Donation {
 }
 
 export class Thank {
-  constructor(url, date, title, creator) {
+  constructor(url, title, creator) {
     this.url = canonicalizeUrl(url);
     this.date = new Date();
     this.title = cleanTitle(title);
+    // TODO: Actually assign this somewhere
     this.creator = creator;
   }
 }
@@ -96,7 +97,7 @@ export class Database {
       donations: '++id, date, url, weiAmount, usdAmount',
     });
     _db
-      .version(4)
+      .version(3)
       .stores({
         thanks: '++id, url, date, title, creator',
       })
@@ -235,8 +236,16 @@ export class Database {
     return null;
   }
 
-  async logThank() {
-    console.log('logging thank');
+  async logThank(url, title, creator_url) {
+    console.log('logging thank', url, title);
+    return this.db.thanks
+      .add(new Thank(url, title, creator_url))
+      .then(() => {
+        console.log('logged thank');
+      })
+      .catch(err => {
+        throw 'Logging thank failed: ' + err;
+      });
   }
 }
 

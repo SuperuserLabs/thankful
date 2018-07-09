@@ -8,10 +8,6 @@ div.pt-2
         v-text-field(v-model="totAmount", type='number', append-icon='attach_money', single-line, hide-details)
       v-btn(color="primary", flat, @click="distribute(totAmount)")
         | Distribute
-      v-btn(v-if="editMode", v-on:click='editMode = false')
-        | #[font-awesome-icon(icon="save")] Save
-      v-btn(v-else, v-on:click='editMode = true', )
-        | #[font-awesome-icon(icon="edit")] Edit
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td 

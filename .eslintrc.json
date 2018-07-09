@@ -1,12 +1,18 @@
 {
-  "plugins": ["prettier", "vue"],
-  "extends": ["eslint:recommended", "prettier", "plugin:vue/essential"],
+  "plugins": ["prettier", "vue", "jest"],
+  "extends": [
+    "eslint:recommended",
+    "prettier",
+    "plugin:vue/essential",
+    "plugin:jest/recommended"
+  ],
   "rules": {
     "prettier/prettier": "warn",
     "no-shadow": [
       "error",
       {
-        "builtinGlobals": true
+        "builtinGlobals": true,
+        "allow": ["name"]
       }
     ],
     "no-console": ["off"]

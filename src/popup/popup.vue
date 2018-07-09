@@ -9,28 +9,30 @@ div(style="width: 300px")
 
   hr
 
-  button(type="button", onclick="openDashboard") Open dashboard
+  button(type="button", v-on:click="openDashboard()") Open dashboard
 </template>
 
 
 <script>
 import browser from 'webextension-polyfill';
 
-function openDashboard() {
-  console.log('Opening dashboard')
-  let dashboard_url = browser.runtime.getURL('dashboard/index.html');
-  browser.tabs
-    .query({ currentWindow: true, url: dashboard_url })
-    .then(e => {
-      if (e.length < 1) {
-        browser.tabs.create({
-          url: dashboard_url,
+export default {
+  methods: {
+    openDashboard() {
+      console.log('Opening dashboard');
+      let dashboard_url = browser.runtime.getURL('dashboard/index.html');
+      browser.tabs
+        .query({ currentWindow: true, url: dashboard_url })
+        .then(e => {
+          if (e.length < 1) {
+            browser.tabs.create({
+              url: dashboard_url,
+            });
+          } else {
+            browser.tabs.update(e[0].id, { active: true });
+          }
         });
-      } else {
-        browser.tabs.update(e[0].id, { active: true });
-      }
-    });
-}
-
-export default {}
+    },
+  },
+};
 </script>

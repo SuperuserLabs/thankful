@@ -42,7 +42,7 @@ div
         | No creators to show
 
       v-layout(row, wrap)
-        v-flex(v-for="(creator, index) in creators", :key='creator.url', xs13, sm6, md3)
+        v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
                        @click="edit(creator, index)"
@@ -57,13 +57,15 @@ div
 
       v-layout(row)
         v-flex(xs12,sm6)
-          h3 Unattributed Activity
           v-card.p-2.bt-0(no-body)
-            activity-component(:limit="10", :unattributed="true", to="/activity")
+            v-toolbar(flat, color='white')
+              v-toolbar-title Unattributed activity
+            activity-component(:limit="10", :unattributed="true", toAll="/activity")
         v-flex(xs12,sm6)
-          h3 Donation history
           v-card.p-2.bt-0(no-body)
-            donation-history-component(:limit="10", ref="donationHistory", to="/donations")
+            v-toolbar(flat, color='white')
+              v-toolbar-title Donation history
+            donation-history-component(:limit="10", ref="donationHistory", toAll="/donations")
 </template>
 
 <script>

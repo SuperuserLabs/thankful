@@ -2,7 +2,7 @@
 div.pt-2
   v-card
     v-toolbar(flat, color='white')
-      v-toolbar-title Donation Summary
+      v-toolbar-title Donation summary
       v-spacer
       v-flex(xs2, md1)
         v-text-field(v-model="totAmount", type='number', append-icon='attach_money', single-line, hide-details)
@@ -17,7 +17,6 @@ div.pt-2
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
       | Send your thanks! ({{ total.toFixed(2) }}$)
-  hr
 </template>
 
 <script>

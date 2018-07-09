@@ -1,18 +1,17 @@
 <template lang="pug">
 div
-  v-card
-    v-data-table(:headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
-      template(slot='items', slot-scope='props')
-        td
-          a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
-              | {{props.item.date.toLocaleDateString()}}
-        td
-          a(:href="props.item.url" target="_blank")
-            | {{props.item.creator}}
-        td.text-xs-right
-          | {{props.item.usdAmount}} $
+  v-data-table(:headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
+    template(slot='items', slot-scope='props')
+      td
+        a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
+            | {{props.item.date.toLocaleDateString()}}
+      td
+        a(:href="props.item.url" target="_blank")
+          | {{props.item.creator}}
+      td.text-xs-right
+        | {{props.item.usdAmount}} $
   div.text-xs-center.pt-2
-    v-btn(v-if="to", size="sm", :to="to")
+    v-btn(v-if="toAll", size="sm", :to="toAll")
       | Show all
 </template>
 <script>
@@ -27,7 +26,7 @@ export default {
     pagination: { sortBy: 'date', descending: 'false', rowsPerPage: 5 },
   }),
   props: {
-    to: { default: null, type: String },
+    toAll: { default: null, type: String },
   },
   methods: {
     refresh() {

@@ -1,35 +1,8 @@
 html
-  head
-    meta(charset="UTF-8")
-    title Thankful
-    script.
-      import browser from 'webextension-polyfill';
+    head
+        meta(charset="UTF-8")
+        title Thankful
 
-      function openDashboard() {
-        console.log('Opening dashboard')
-        let dashboard_url = browser.runtime.getURL('dashboard/index.html');
-        browser.tabs
-          .query({ currentWindow: true, url: dashboard_url })
-          .then(e => {
-            if (e.length < 1) {
-              browser.tabs.create({
-                url: dashboard_url,
-              });
-            } else {
-              browser.tabs.update(e[0].id, { active: true });
-            }
-          });
-      }
-
-  body
-    div(style="width: 300px")
-      h1 Test
-
-      hr
-
-      p
-      | Here's some text
-
-      hr
-
-      button(type="button", onclick="openDashboard") Open dashboard
+    body
+        div#popup
+        script(src="./index.js")

@@ -12,7 +12,7 @@ div
         td.text-xs-right
           | {{props.item.usdAmount}} $
   div.text-xs-center.pt-2
-    v-btn(v-if="to", variant="outline-secondary", size="sm", :to="to")
+    v-btn(v-if="to", size="sm", :to="to")
       | Show all
 </template>
 <script>

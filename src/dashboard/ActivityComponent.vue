@@ -4,12 +4,12 @@ div
     v-data-table(:headers="headers", :items="activities", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td
-          a(:href="props.item.url")
+          a(:href="props.item.url", target="_blank")
             | {{ props.item.title || props.item.url }}
         td.text-right
           | {{ props.item.duration | friendlyDuration }}
   div.text-xs-center.pt-2
-    v-btn(v-if="to", variant="outline-secondary", size="sm", :to="to")
+    v-btn(v-if="to", size="sm", :to="to")
       | Show all
 </template>
 

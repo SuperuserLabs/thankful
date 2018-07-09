@@ -4,7 +4,7 @@ div
     v-icon(color='warning', x-large) warning
   v-layout(row, wrap)
     v-flex(xs6)
-      v-alert(v-for="error in errors", show, dismissible, variant='warning', @dismissed='dismissedErrors++')
+      v-alert(v-for="(error, index) in errors", :key='index', show, dismissible, variant='warning', @dismissed='dismissedErrors++')
         | {{ error }}
   div
     v-dialog(v-model="dialog", max-width='500px')
@@ -42,7 +42,7 @@ div
         | No creators to show
 
       v-layout(row, wrap)
-        v-flex(v-for="(creator, index) in creators", xs12, sm6, md3)
+        v-flex(v-for="(creator, index) in creators", :key='creator.url', xs13, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
                        @click="edit(creator, index)"

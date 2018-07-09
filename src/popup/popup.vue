@@ -1,11 +1,14 @@
 <template lang="pug">
 div(style="width: 300px")
-  h1 Test
+  h1 Thankful
 
   hr
 
-  p
-  | Here some text
+  p Thanks for trying Thankful!
+
+  hr
+
+  button(type="button", v-on:click="thank()") Thank this page 💛
 
   hr
 
@@ -18,8 +21,10 @@ import browser from 'webextension-polyfill';
 
 export default {
   methods: {
+    thank() {
+      console.log('Thanking the current page');
+    },
     openDashboard() {
-      console.log('Opening dashboard');
       let dashboard_url = browser.runtime.getURL('dashboard/index.html');
       browser.tabs
         .query({ currentWindow: true, url: dashboard_url })

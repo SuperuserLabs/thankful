@@ -22,6 +22,7 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
+import browser from 'webextension-polyfill';
 
 function getAddressAmountMapping(creators) {
   return _.fromPairs(
@@ -62,6 +63,11 @@ export default {
   },
   methods: {
     distribute() {
+      let settings = { totalAmount: this.totAmount };
+      browser.storage.local
+        .set({ settings })
+        .then(() => console.log('saved settings'));
+
       let scoring = c => Math.sqrt(c.duration);
       let totScore = _.sum(this.creators.map(scoring));
       let factor = 1 - _.sum(this.creators.map(c => c.share));
@@ -88,7 +94,12 @@ export default {
         .catch(e => this.$emit('error', e));
     },
   },
-  created() {},
+  created() {
+    // set totAmount to value saved in localstorage
+    browser.storage.local
+      .get('settings')
+      .then(settings => (this.totAmount = settings.settings.totalAmount));
+  },
   watch: {
     creators() {
       this.distribute();

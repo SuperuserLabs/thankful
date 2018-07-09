@@ -1,11 +1,11 @@
 {
   "name": "thankful",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Thankful",
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
-    "lint": "eslint --ignore-path=.gitignore --ext .vue .",
+    "lint": "eslint --ignore-path=.gitignore --ext .vue --ext .js .",
     "build": "webpack",
     "dev": "webpack --watch",
     "precommit": "lint-staged"
@@ -70,6 +70,7 @@
   },
   "dependencies": {
     "bignumber.js": "^7.2.1",
+    "eslint-plugin-jest": "^21.17.0",
     "idempotent-babel-polyfill": "^6.26.0",
     "metamask-crx": "github:MetaMask/metamask-extension",
     "web3": "^1.0.0-beta.34"

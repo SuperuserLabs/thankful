@@ -1,5 +1,5 @@
 <template lang="pug">
-div(style="width: 300px")
+div(style="width: 300px; padding: 20px")
   h1 Thankful
 
   hr
@@ -8,27 +8,26 @@ div(style="width: 300px")
 
   hr
 
-  button(type="button", v-on:click="thank()") Thank this page 💛
+  v-btn(color="info", v-on:click="thank()")
+    | Thank this page 💛
 
   hr
 
-  button(type="button", v-on:click="openDashboard()") Open dashboard
+  v-btn(color="info", v-on:click="openDashboard()")
+    | Open dashboard
 </template>
 
 
 <script>
 import browser from 'webextension-polyfill';
-import { Database } from '../lib/db.js';
 import { getCurrentTab } from '../lib/tabs.js';
-
-const db = new Database();
 
 export default {
   methods: {
     thank() {
       getCurrentTab()
         .then(tab => {
-          return db.logThank(tab.url, tab.title);
+          return this.$db.logThank(tab.url, tab.title);
         })
         .catch(err => {
           throw "Couldn't log thanks: " + err;

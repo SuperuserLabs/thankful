@@ -50,7 +50,7 @@ describe('Activity', () => {
 
   it('get activity filtered by (un)known creators', async () => {
     await db.logActivity(url, 13.37);
-    await db.connectActivityToCreator(url, 'https://creatorurl.com');
+    await db.connectLogToCreator(url, 'https://creatorurl.com');
     await db.logActivity(url + 'qwe', 13.37);
     await db.logActivity(url + 'asd', 13.37);
 
@@ -108,7 +108,7 @@ describe('Creator', () => {
 
     let activity = new Activity(a_url, a_title, 10);
     await activity.save();
-    await db.connectActivityToCreator(activity.url, c_url);
+    await db.connectLogToCreator(activity.url, c_url);
 
     let creatorActivity = await db.getCreatorActivity(c_url);
     expect(creatorActivity).toHaveLength(1);

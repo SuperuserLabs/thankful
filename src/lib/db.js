@@ -188,7 +188,7 @@ export class Database {
     });
   }
 
-  async connectActivityToCreator(url, creator) {
+  async connectLogToCreator(url, creator) {
     return this.logActivity(canonicalizeUrl(url), 0, { creator: creator });
   }
 
@@ -230,7 +230,7 @@ export class Database {
       if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
         let creator_url = `https://github.com/${user_or_org}`;
         await new Creator(creator_url, user_or_org).save();
-        await this.connectActivityToCreator(a.url, creator_url);
+        await this.connectLogToCreator(a.url, creator_url);
       }
     });
 

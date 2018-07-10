@@ -73,7 +73,6 @@ export class Thank {
     this.url = canonicalizeUrl(url);
     this.date = new Date();
     this.title = cleanTitle(title);
-    // TODO: Actually assign this somewhere
     this.creator = creator;
   }
 }

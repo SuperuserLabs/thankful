@@ -14,13 +14,18 @@ lint:
 	npm run lint
 
 lint-fix:
-	npm run lint -- --fix
+	npm run precommit
 
 test:
 	npm run test
 
 typecheck:
 	mypy scripts/
+
+precommit:
+	make typecheck
+	make lint-fix
+	make test
 
 clean:
 	git clean -n dist

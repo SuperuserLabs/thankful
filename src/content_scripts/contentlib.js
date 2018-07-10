@@ -10,7 +10,7 @@ async function queryElement(query, node) {
 }
 
 function wait(ms) {
-  return new Promise((resolve, reject) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function waitForElement(

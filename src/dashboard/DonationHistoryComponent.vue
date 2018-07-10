@@ -1,45 +1,37 @@
 <template lang="pug">
-div(v-if="donationList.length === 0")
-  | No donations made so far
-div(v-else).d-flex.flex-column
-  table.table.table-sm(style="overflow: hidden; table-layout: fixed").mb-0
-    tr
-      th(style="width: 25%; border-top: 0") Date
-      th(style="border-top: 0") Creator
-      th.text-right(style="width: 20%; border-top: 0") Amount
-    tr(v-for="donation in donationList")
-      td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-        // TODO: Adjust this to also work on mainnet when we have a DEBUG variable
-        a(:href="'https://ropsten.etherscan.io/tx/' + donation.transaction" target="_blank")
-          | {{donation.date.toLocaleDateString()}}
-      td(style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;")
-        a(:href="donation.url" target="_blank")
-          | {{donation.creator}}
-      td.text-right
-        | {{donation.usdAmount}} $
-  b-button(v-if="to && donationList.length > limit", variant="outline-secondary", size="sm", :to="to")
-    | Show all
+div
+  v-data-table(:headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
+    template(slot='items', slot-scope='props')
+      td
+        a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
+            | {{props.item.date.toLocaleDateString()}}
+      td
+        a(:href="props.item.url" target="_blank")
+          | {{props.item.creator}}
+      td.text-xs-right
+        | {{props.item.usdAmount}} $
+  div.text-xs-center.pt-2
+    v-btn(v-if="toAll", size="sm", :to="toAll")
+      | Show all
 </template>
 <script>
-import { Database } from '../lib/db.js';
-import _ from 'lodash';
-
-const db = new Database();
-
 export default {
-  data: () => ({ donations: [] }),
+  data: () => ({
+    donations: [],
+    headers: [
+      { text: 'Date', value: 'date' },
+      { text: 'Creator', value: 'creator' },
+      { text: 'Amount', value: 'usdAmount' },
+    ],
+    pagination: { sortBy: 'date', descending: 'false', rowsPerPage: 5 },
+  }),
   props: {
-    limit: { default: Infinity, type: Number },
-    to: { default: null, type: String },
-  },
-  computed: {
-    donationList() {
-      return _.take(this.donations, this.limit);
-    },
+    toAll: { default: null, type: String },
   },
   methods: {
     refresh() {
-      db.getDonations()
+      this.$db
+        .getDonations()
         .then(ds => {
           this.donations = ds;
         })

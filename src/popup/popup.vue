@@ -1,20 +1,16 @@
 <template lang="pug">
-div(style="width: 300px; padding: 20px")
-  h1 Thankful
+v-app
+  div(style="width: 300px; padding: 20px")
+    div.text-xs-center
+      h1 Thankful
 
-  hr
+      p Thanks for trying Thankful!
 
-  p Thanks for trying Thankful!
+      v-btn(color="info", v-on:click="thank()")
+        | Thank this page 💛
 
-  hr
-
-  v-btn(color="info", v-on:click="thank()")
-    | Thank this page 💛
-
-  hr
-
-  v-btn(color="info", v-on:click="openDashboard()")
-    | Open dashboard
+      v-btn(color="info", flat, v-on:click="openDashboard()")
+        | Open dashboard
 </template>
 
 

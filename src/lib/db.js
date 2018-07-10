@@ -243,6 +243,17 @@ export class Database {
       throw 'Logging thank failed: ' + err;
     });
   }
+
+  async getUrlThanksAmount(url) {
+    url = canonicalizeUrl(url);
+    return this.db.thanks
+      .where('url')
+      .equals(url)
+      .count()
+      .catch(err => {
+        throw 'Could not count url thanks: ' + err;
+      });
+  }
 }
 
 // FIXME: Hax, needed to be able to do operations on models before

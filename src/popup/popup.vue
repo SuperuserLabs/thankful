@@ -9,6 +9,9 @@ v-app
       v-btn(color="success", v-on:click="thank()")
         | Thank this page 💛
 
+      p.text-xs-center
+        | Thanks for this page: {{ this.thanksAmount }}
+
       v-btn(color="info", v-on:click="openDashboard()")
         | Open dashboard
 </template>
@@ -19,14 +22,34 @@ import browser from 'webextension-polyfill';
 import { getCurrentTab } from '../lib/tabs.js';
 
 export default {
+  data: function() {
+    return {
+      thanksAmount: 0,
+    };
+  },
   methods: {
     thank() {
       getCurrentTab()
         .then(tab => {
           return this.$db.logThank(tab.url, tab.title);
         })
+        .then(() => {
+          this.refresh();
+        })
         .catch(err => {
           throw "Couldn't log thanks: " + err;
+        });
+    },
+    refreshThanksCount() {
+      getCurrentTab()
+        .then(tab => {
+          return this.$db.getUrlThanksAmount(tab.url);
+        })
+        .then(amount => {
+          this.thanksAmount = amount;
+        })
+        .catch(err => {
+          throw "Couldn't get thanks count for page: " + err;
         });
     },
     openDashboard() {
@@ -43,6 +66,12 @@ export default {
           }
         });
     },
+    refresh() {
+      this.refreshThanksCount();
+    }
   },
+  created() {
+    this.refresh();
+  }
 };
 </script>

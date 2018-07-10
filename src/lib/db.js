@@ -189,7 +189,13 @@ export class Database {
   }
 
   async connectLogToCreator(url, creator) {
-    return this.logActivity(canonicalizeUrl(url), 0, { creator: creator });
+    url = canonicalizeUrl(url);
+    console.log('connecting activity:', url, creator);
+    await this.db.thanks
+      .where('url')
+      .equals(url)
+      .modify({ creator: creator });
+    return this.logActivity(url, 0, { creator: creator });
   }
 
   async logDonation(creatorUrl, weiAmount, usdAmount, hash) {
@@ -219,12 +225,14 @@ export class Database {
   async attributeGithubActivity() {
     // If getActivities() takes a long time to run, consider using:
     //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
-    let activities = await this.getActivities({ withCreators: false });
-    activities = _.filter(activities, a => {
+    const logs = _.concat(
+      await this.getActivities({ withCreators: false }),
+      await this.db.thanks.filter(t => t.creator === undefined).toArray()
+    ).filter(a => {
       return a.url.includes('https://github.com/');
     });
 
-    let promises = _.map(activities, async a => {
+    let promises = _.map(logs, async a => {
       let u = new URL(a.url);
       let user_or_org = u.pathname.split('/')[1];
       if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {

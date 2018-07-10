@@ -2,7 +2,7 @@
 div.pt-2
   v-card
     v-toolbar(flat, color='white')
-      v-toolbar-title Donation Summary
+      v-toolbar-title Donation summary
       v-spacer
       v-flex(xs2, md1)
         v-text-field(v-model="totAmount", type='number', prefix="$", single-line, hide-details)
@@ -14,14 +14,14 @@ div.pt-2
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
         td {{ props.item.address }}
         td
-          v-edit-dialog(:return-value.sync="props.item.funds", large, lazy, persistent, @open="editOpen", @close="editClose", @save="editSave", item-key="props.item.url")
+          v-edit-dialog(large, lazy, @open="editOpen", @close="editClose", @save="editSave")
             div {{ props.item.funds }}
             div.mt-3.title(slot="input") 
               | Update funds
             v-text-field(
               slot="input",
               type="number",
-              v-model="props.item.funds",
+              :value="props.item.funds", 
               prefix="$",
               single-line,
               autofocus)
@@ -29,7 +29,6 @@ div.pt-2
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ totAmount }})
-  hr
 </template>
 
 <script>
@@ -63,7 +62,6 @@ export default {
   },
   props: {
     creators: Array,
-    donate: Object,
   },
   computed: {
     totalAllocated() {
@@ -110,7 +108,8 @@ export default {
       });
     },
     donateAll() {
-      this.donate
+      console.log(this.$donate);
+      this.$donate
         .donateAll(this.donations, this.refresh)
         .catch(e => this.$emit('error', e));
     },

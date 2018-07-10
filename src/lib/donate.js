@@ -4,7 +4,7 @@ import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
 import BigNumber from 'bignumber.js';
-import { Database, Donation } from './db';
+import { Database } from './db';
 
 const addrs = {};
 // All on Ropsten
@@ -39,6 +39,7 @@ export default class Donate {
         // 3:  Ropsten testnet
         // 4:  Rinkeby testnet
         // 42: Kovan testnet
+        console.log(`Net ID: ${netId}`);
       })
       .catch(err => {
         throw err;

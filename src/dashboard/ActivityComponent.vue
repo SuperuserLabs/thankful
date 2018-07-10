@@ -1,15 +1,14 @@
 <template lang="pug">
 div
-  v-card
-    v-data-table(:headers="headers", :items="activities", :pagination.sync='pagination', hide-actions)
-      template(slot='items', slot-scope='props')
-        td
-          a(:href="props.item.url")
-            | {{ props.item.title || props.item.url }}
-        td.text-right
-          | {{ props.item.duration | friendlyDuration }}
+  v-data-table(:headers="headers", :items="activities", :pagination.sync='pagination', hide-actions)
+    template(slot='items', slot-scope='props')
+      td
+        a(:href="props.item.url", target="_blank")
+          | {{ props.item.title || props.item.url }}
+      td.text-right
+        | {{ props.item.duration | friendlyDuration }}
   div.text-xs-center.pt-2
-    v-btn(v-if="to", variant="outline-secondary", size="sm", :to="to")
+    v-btn(v-if="toAll", size="sm", :to="toAll")
       | Show all
 </template>
 
@@ -26,7 +25,7 @@ export default {
   props: {
     limit: { default: Infinity, type: Number },
     unattributed: { default: false, type: Boolean },
-    to: { default: null, type: String },
+    toAll: { default: null, type: String },
   },
   computed: {},
   methods: {

@@ -1,6 +1,7 @@
 <template lang="pug">
 div.container
-  h3 Unattributed Activity
+  v-toolbar(flat, color='white')
+    v-toolbar-title Unattributed activity
   v-card
     activity-component(:unattributed="true")
 </template>

@@ -1,7 +1,5 @@
 import Dexie from 'dexie';
-import Promise from 'bluebird';
 import _ from 'lodash';
-import { isOnDomain } from './url.js';
 import isReserved from 'github-reserved-names';
 
 let _db = undefined;
@@ -21,7 +19,7 @@ class Model {
     let keyname = modelAttrs[this.constructor].key;
     let key = this[keyname];
     let table = modelAttrs[this.constructor].table;
-    return table.add(this).catch(err => table.update(key, this));
+    return table.add(this).catch(() => table.update(key, this));
   }
 
   put() {
@@ -53,13 +51,14 @@ export class Activity extends Model {
 }
 
 export class Creator extends Model {
-  constructor(url, name) {
+  constructor(url, name, ignore = false) {
     super(_db.creator, 'url');
     if (typeof url !== 'string') {
       throw 'url was invalid type';
     }
     this.url = url;
     this.name = name;
+    this.ignore = ignore;
   }
 }
 
@@ -82,6 +81,9 @@ export class Database {
     });
     _db.version(2).stores({
       donations: '++id, date, url, weiAmount, usdAmount',
+    });
+    _db.version(3).stores({
+      creator: '&url, name, ignore',
     });
 
     _db.activity.mapToClass(Activity);
@@ -198,7 +200,6 @@ export class Database {
 
     let promises = _.map(activities, async a => {
       let u = new URL(a.url);
-      let path = u.pathname;
       let user_or_org = u.pathname.split('/')[1];
       if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
         let creator_url = `https://github.com/${user_or_org}`;

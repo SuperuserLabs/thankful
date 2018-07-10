@@ -239,15 +239,9 @@ export class Database {
   }
 
   async logThank(url, title, creator_url) {
-    console.log('logging thank', url, title);
-    return this.db.thanks
-      .add(new Thank(url, title, creator_url))
-      .then(() => {
-        console.log('logged thank');
-      })
-      .catch(err => {
-        throw 'Logging thank failed: ' + err;
-      });
+    return this.db.thanks.add(new Thank(url, title, creator_url)).catch(err => {
+      throw 'Logging thank failed: ' + err;
+    });
   }
 }
 

@@ -12,23 +12,36 @@ div.pt-2
       template(slot='items', slot-scope='props')
         td 
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
-        td {{ props.item.address }}
         td
-          v-edit-dialog(large, lazy, @open="editOpen", @close="editClose", @save="editSave")
+          v-edit-dialog(large,
+                        lazy,
+                        @open="currentAddressValue = props.item.address",
+                        @save="props.item.address = currentAddressValue")
+            div {{ props.item.address }}
+            div.mt-3.title(slot="input") 
+              | Change address
+            v-text-field(slot="input",
+                        v-model="currentAddressValue"
+                        single-line,
+                        autofocus)
+        td
+          v-edit-dialog(large,
+                        lazy,
+                        @open="currentFundsValue = props.item.funds"
+                        @save="props.item.funds = parseFloat(currentFundsValue)")
             div {{ props.item.funds }}
             div.mt-3.title(slot="input") 
-              | Update funds
-            v-text-field(
-              slot="input",
-              type="number",
-              :value="props.item.funds", 
-              prefix="$",
-              single-line,
-              autofocus)
+              | Change donation
+            v-text-field(slot="input",
+                        type="number",
+                        v-model="currentFundsValue"
+                        prefix="$",
+                        single-line,
+                        autofocus)
             
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
-      | Send your thanks! (${{ totAmount }})
+      | Send your thanks! (${{ total.toFixed(2) }})
 </template>
 
 <script>
@@ -58,29 +71,23 @@ export default {
       ],
       sortBy: 'funds',
       pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
+      currentFundsValue: 0,
+      currentAddressValue: '',
     };
   },
   props: {
     creators: Array,
   },
   computed: {
+    total() {
+      return _.sumBy(this.distribution, 'funds');
+    },
     totalAllocated() {
       let addressAmounts = getAddressAmountMapping(this.donations);
       return _.sum(_.values(addressAmounts));
     },
   },
   methods: {
-    editOpen() {
-      delete this.pagination.sortBy;
-    },
-    editClose() {
-      this.pagination.sortBy = 'funds';
-    },
-    editSave(lol) {
-      this.totAmount = _.sumBy(
-        this.distribution.map(d => parseFloat(d.funds))
-      ).toFixed(2);
-    },
     distribute() {
       let settings = { totalAmount: this.totAmount };
       browser.storage.local

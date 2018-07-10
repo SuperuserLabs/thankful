@@ -1,37 +1,27 @@
 <template lang="pug">
-div.row
-  div.col
-    h3 Donation Summary
-  div.col(style="text-align: right")
-    b-button(v-if="editMode", v-on:click='editMode = false', variant='outline-secondary', size='sm').mr-1
-      | #[font-awesome-icon(icon="save")] Save
-    b-button(v-else, v-on:click='editMode = true', variant='outline-secondary', size='sm').mr-1
-      | #[font-awesome-icon(icon="edit")] Edit
-  table.table.table-sm(style="overflow: hidden; table-layout: fixed")
-    tr
-      th Creator
-      th Adress
-      th.text-right(style="width: 20%") Amount $
-    tr(v-for="d in donations", style="height: 40px")
-      td 
-        a(target="_blank", :href="d.url") {{ d.name }}&nbsp
-          sup.text-secondary
-            font-awesome-icon(icon="external-link-alt", size="xs")
-      td
-        input(v-if='editMode', type="text", style="width: 100%", v-model="d.address", @input='$emit("address", [d, $event])')
-        input(v-else, disabled, type="text", style="width: 100%; ", v-model="d.address")
-      td
-        input(v-if="editMode", type="number", v-model="d.funds", style="text-align: right; width: 100%")
-        input(v-else, disabled, type="text", style="text-align: right; width: 100%", v-model="d.funds")
-
-  b-button(variant="success", size="lg", v-on:click="donateAll()")
-    | Donate {{ total.toFixed(2) }}$
-  hr
-
+div.pt-2
+  v-card
+    v-toolbar(flat, color='white')
+      v-toolbar-title Donation summary
+      v-spacer
+      v-flex(xs2, md1)
+        v-text-field(v-model="totAmount", type='number', append-icon='attach_money', single-line, hide-details)
+      v-btn(color="primary", flat, @click="distribute(totAmount)")
+        | Distribute
+    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
+      template(slot='items', slot-scope='props')
+        td 
+          a(target="_blank", :href="props.item.url") {{ props.item.name }}
+        td {{ props.item.address }}
+        td {{ props.item.funds }}
+  div.text-xs-center.pt-2.pb-3
+    v-btn(color='primary', v-on:click="donateAll()")
+      | Send your thanks! ({{ total.toFixed(2) }}$)
 </template>
 
 <script>
 import _ from 'lodash';
+import browser from 'webextension-polyfill';
 
 function getAddressAmountMapping(creators) {
   return _.fromPairs(
@@ -48,27 +38,34 @@ export default {
     return {
       editMode: false,
       distribution: [],
+      totAmount: 10,
+      headers: [
+        { text: 'Creator', value: 'name' },
+        { text: 'Address', value: 'address' },
+        { text: 'Amount', value: 'funds' },
+      ],
+      pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
     };
   },
   props: {
     creators: Array,
-    totAmount: Number,
-    donate: Object,
   },
   computed: {
     total() {
-      return _.sumBy(this.donations, 'funds');
+      return _.sumBy(this.distribution, 'funds');
     },
     totalAllocated() {
       let addressAmounts = getAddressAmountMapping(this.donations);
       return _.sum(_.values(addressAmounts));
     },
-    donations() {
-      return _.orderBy(this.distribution, 'funds', 'desc');
-    },
   },
   methods: {
     distribute() {
+      let settings = { totalAmount: this.totAmount };
+      browser.storage.local
+        .set({ settings })
+        .then(() => console.log('saved settings'));
+
       let scoring = c => Math.sqrt(c.duration);
       let totScore = _.sum(this.creators.map(scoring));
       let factor = 1 - _.sum(this.creators.map(c => c.share));
@@ -90,13 +87,18 @@ export default {
       });
     },
     donateAll() {
-      const donations = this.donations;
-      this.donate
-        .donateAll(donations, this.refresh)
+      console.log(this.$donate);
+      this.$donate
+        .donateAll(this.donations, this.refresh)
         .catch(e => this.$emit('error', e));
     },
   },
-  created() {},
+  created() {
+    // set totAmount to value saved in localstorage
+    browser.storage.local
+      .get('settings')
+      .then(settings => (this.totAmount = settings.settings.totalAmount));
+  },
   watch: {
     creators() {
       this.distribute();

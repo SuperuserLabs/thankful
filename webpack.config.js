@@ -1,3 +1,5 @@
+/*eslint-env node*/
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
@@ -39,6 +41,14 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(eot|ttf|woff2?)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
+        use: [
+          {
+            loader: 'url-loader',
+          },
+        ],
       },
     ],
   },

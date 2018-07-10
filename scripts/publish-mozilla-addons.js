@@ -1,3 +1,5 @@
+/*eslint-env node*/
+
 var fs = require('fs');
 var deploy = require('firefox-extension-deploy');
 

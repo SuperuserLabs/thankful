@@ -118,7 +118,7 @@ describe('Creator', () => {
   it('gets duration of all activity by creator', async () => {
     let c_key = await new Creator(c_url, c_name).save();
     let duration = 10;
-    let a_key = await new Activity(a_url, a_title, duration, c_key).save();
+    await new Activity(a_url, a_title, duration, c_key).save();
 
     let result = await db.getTimeForCreators();
     expect(result[0].duration).toBeCloseTo(duration);

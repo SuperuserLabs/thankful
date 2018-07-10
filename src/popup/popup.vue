@@ -2,14 +2,14 @@
 v-app
   div(style="width: 300px; padding: 20px")
     div.text-xs-center
-      h1 Thankful
+      h1.text-xs-center Thankful
 
-      p Thanks for trying Thankful!
+      p.text-xs-center Thanks for trying Thankful!
 
-      v-btn(color="info", v-on:click="thank()")
+      v-btn(color="success", v-on:click="thank()")
         | Thank this page 💛
 
-      v-btn(color="info", flat, v-on:click="openDashboard()")
+      v-btn(color="info", v-on:click="openDashboard()")
         | Open dashboard
 </template>
 

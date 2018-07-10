@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
-import { isOnDomain, canonicalizeUrl } from './url.js';
+import { canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
 
 let _db = undefined;

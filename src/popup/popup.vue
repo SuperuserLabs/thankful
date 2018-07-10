@@ -28,11 +28,10 @@ export default {
     thank() {
       getCurrentTab()
         .then(tab => {
-          console.log('thanking', tab)
           return db.logThank(tab.url, tab.title);
         })
         .catch(err => {
-          throw "Couldn't log thanks: ";// + err;
+          throw "Couldn't log thanks: " + err;
         });
     },
     openDashboard() {

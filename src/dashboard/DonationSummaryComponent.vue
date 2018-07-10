@@ -14,12 +14,13 @@ div.pt-2
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
         td {{ props.item.address }}
         td
-          v-edit-dialog(:return-value.sync="props.item.funds", large, lazy, persistent, @open="editOpen", @close="editClose")
+          v-edit-dialog(:return-value.sync="props.item.funds", large, lazy, persistent, @open="editOpen", @close="editClose", @save="editSave", item-key="props.item.url")
             div {{ props.item.funds }}
             div.mt-3.title(slot="input") 
               | Update funds
             v-text-field(
               slot="input",
+              type="number",
               v-model="props.item.funds",
               prefix="$",
               single-line,
@@ -27,7 +28,7 @@ div.pt-2
             
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
-      | Send your thanks! (${{ total.toFixed(2) }})
+      | Send your thanks! (${{ totAmount }})
   hr
 </template>
 
@@ -65,9 +66,6 @@ export default {
     donate: Object,
   },
   computed: {
-    total() {
-      return _.sumBy(this.distribution, 'funds');
-    },
     totalAllocated() {
       let addressAmounts = getAddressAmountMapping(this.donations);
       return _.sum(_.values(addressAmounts));
@@ -75,14 +73,15 @@ export default {
   },
   methods: {
     editOpen() {
-      console.log('editOpen');
-      console.log(this.pagination);
-      this.sortBy = this.pagination.sortBy;
-      this.pagination.sortBy = '';
+      delete this.pagination.sortBy;
     },
     editClose() {
-      console.log('editClose');
-      this.pagination.sortBy = this.sortBy;
+      this.pagination.sortBy = 'funds';
+    },
+    editSave(lol) {
+      this.totAmount = _.sumBy(
+        this.distribution.map(d => parseFloat(d.funds))
+      ).toFixed(2);
     },
     distribute() {
       let settings = { totalAmount: this.totAmount };
@@ -118,9 +117,10 @@ export default {
   },
   created() {
     // set totAmount to value saved in localstorage
-    browser.storage.local
-      .get('settings')
-      .then(settings => (this.totAmount = settings.settings.totalAmount));
+    browser.storage.local.get('settings').then(settings => {
+      this.totAmount = settings.settings.totalAmount;
+      this.total = this.totAmount;
+    });
   },
   watch: {
     creators() {

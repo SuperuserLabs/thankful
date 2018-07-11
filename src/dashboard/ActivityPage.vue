@@ -3,7 +3,7 @@ div.container
   v-toolbar(flat, color='white')
     v-toolbar-title Unattributed activity
   v-card
-    activity-component(:unattributed="true")
+    activity-component(:unattributed="true", :showAll="true")
 </template>
 <script>
 import ActivityComponent from './ActivityComponent.vue';

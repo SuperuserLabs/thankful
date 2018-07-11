@@ -2,7 +2,7 @@
 div(v-if="activities.length === 0")
   | No activity logged
 div(v-else)
-  v-data-table(:headers="headers", :items="orderedActivities", style="width:100%", hide-actions="showAll")
+  v-data-table(:headers="headers", :items="orderedActivities", style="width:100%", :hide-actions="!showAll")
     template(slot='items', slot-scope='props', style="width:100%")
       td(style="text-overflow: ellipsis;")
         a(:href="props.item.url", target="_blank")
@@ -10,7 +10,7 @@ div(v-else)
       td.text-right
         | {{ props.item.duration | friendlyDuration }}
   div.text-xs-center.pt-2
-    v-btn(v-if="!showAll", size="sm", :to="toAll")
+    v-btn(v-if="!showAll", size="sm", to="/activity")
       | Show all
 </template>
 

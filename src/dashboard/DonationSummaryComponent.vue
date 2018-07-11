@@ -10,13 +10,13 @@ div.pt-2
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
-        td 
+        td.subheading
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
-        td {{ props.item.address }}
-        td {{ props.item.funds }}
+        td.subheading {{ props.item.address }}
+        td.subheading.text-xs-right {{ props.item.funds | fixed(2) }}
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
-      | Send your thanks! ({{ total.toFixed(2) }}$)
+      | Send your thanks! (${{ total | fixed(2) }})
 </template>
 
 <script>
@@ -42,7 +42,7 @@ export default {
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
-        { text: 'Amount', value: 'funds' },
+        { text: 'Amount', value: 'funds', align: 'right' },
       ],
       pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
     };

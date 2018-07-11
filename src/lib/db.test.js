@@ -16,6 +16,7 @@ async function clearDB(db) {
   await db.db.creator.clear();
   await db.db.activity.clear();
   await db.db.donations.clear();
+  await db.db.thanks.clear();
 }
 
 describe('Activity', () => {
@@ -164,5 +165,30 @@ describe('GitHub activity', () => {
     await db.attributeGithubActivity();
     let activity = await db.getActivity(url);
     expect(activity.creator).toBeUndefined();
+  });
+});
+
+describe('Thanks', () => {
+  const db = new Database();
+  const thxUrl = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
+  const thxUrlNotCanon = thxUrl + '&t=123';
+  const thxTitle = 'Elder Scrolls 6 Trailer';
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('Thanks a url', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.logThank(thxUrl, thxTitle);
+
+    expect(await db.getUrlThanksAmount(thxUrl)).toEqual(2);
+  });
+
+  it('Thanks a not canon url', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.logThank(thxUrlNotCanon, thxTitle);
+
+    expect(await db.getUrlThanksAmount(thxUrlNotCanon)).toEqual(2);
   });
 });

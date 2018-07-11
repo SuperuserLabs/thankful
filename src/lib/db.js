@@ -2,6 +2,7 @@ import Dexie from 'dexie';
 import _ from 'lodash';
 import { canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
+import Promise from 'bluebird';
 
 let _db = undefined;
 
@@ -60,7 +61,7 @@ export class Creator extends Model {
 
 export class Donation {
   constructor(creatorUrl, weiAmount, usdAmount, transaction) {
-    this.date = new Date();
+    this.date = new Date().toISOString();
     this.url = creatorUrl;
     this.weiAmount = weiAmount;
     this.usdAmount = usdAmount;
@@ -71,7 +72,7 @@ export class Donation {
 export class Thank {
   constructor(url, title, creator) {
     this.url = canonicalizeUrl(url);
-    this.date = new Date();
+    this.date = new Date().toISOString();
     this.title = cleanTitle(title);
     this.creator = creator;
   }
@@ -174,17 +175,22 @@ export class Database {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     url = canonicalizeUrl(url);
-    return this.db.activity.get({ url: url }).then(activity => {
-      if (activity === undefined) {
-        activity = {
-          url: url,
-          duration: 0,
-        };
-      }
-      activity.duration += duration;
-      Object.assign(activity, options);
-      return this.db.activity.put(activity);
-    });
+    return this.db.activity
+      .get({ url: url })
+      .then(activity => {
+        if (activity === undefined) {
+          activity = {
+            url: url,
+            duration: 0,
+          };
+        }
+        activity.duration += duration;
+        Object.assign(activity, options);
+        return this.db.activity.put(activity);
+      })
+      .catch(err => {
+        throw 'Could not log activity, ' + err;
+      });
   }
 
   async connectThanksToCreator(url, creator) {
@@ -192,7 +198,10 @@ export class Database {
     await this.db.thanks
       .where('url')
       .equals(url)
-      .modify({ creator: creator });
+      .modify({ creator: creator })
+      .catch(err => {
+        throw 'Could not connect Thanks to creator, ' + err;
+      });
   }
 
   async connectActivityToCreator(url, creator) {
@@ -201,11 +210,15 @@ export class Database {
   }
 
   async connectUrlToCreator(url, creator) {
-    url = canonicalizeUrl(url);
-    return (await Promise.all(
-      this.connectThanksToCreator(url, creator),
-      this.connectActivityToCreator(url, creator)
-    ))[1];
+    try {
+      url = canonicalizeUrl(url);
+      return (await Promise.all([
+        this.connectThanksToCreator(url, creator),
+        this.connectActivityToCreator(url, creator),
+      ]))[1];
+    } catch (err) {
+      throw 'Could not connect URL to creator, ' + err;
+    }
   }
 
   async logDonation(creatorUrl, weiAmount, usdAmount, hash) {
@@ -233,27 +246,31 @@ export class Database {
   }
 
   async attributeGithubActivity() {
-    // If getActivities() takes a long time to run, consider using:
-    //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
-    const logs = _.concat(
-      await this.getActivities({ withCreators: false }),
-      await this.db.thanks.filter(t => t.creator === undefined).toArray()
-    ).filter(a => {
-      return a.url.includes('https://github.com/');
-    });
+    try {
+      // If getActivities() takes a long time to run, consider using:
+      //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
+      const logs = _.concat(
+        await this.getActivities({ withCreators: false }),
+        await this.db.thanks.filter(t => t.creator === undefined).toArray()
+      ).filter(a => {
+        return a.url.includes('https://github.com/');
+      });
 
-    let promises = _.map(logs, async a => {
-      let u = new URL(a.url);
-      let user_or_org = u.pathname.split('/')[1];
-      if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
-        let creator_url = `https://github.com/${user_or_org}`;
-        await new Creator(creator_url, user_or_org).save();
-        await this.connectUrlToCreator(a.url, creator_url);
-      }
-    });
+      let promises = _.map(logs, async a => {
+        let u = new URL(a.url);
+        let user_or_org = u.pathname.split('/')[1];
+        if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
+          let creator_url = `https://github.com/${user_or_org}`;
+          await new Creator(creator_url, user_or_org).save();
+          await this.connectUrlToCreator(a.url, creator_url);
+        }
+      });
 
-    await Promise.all(promises);
-    return null;
+      await Promise.all(promises);
+      return null;
+    } catch (err) {
+      throw 'Could not attribute Github activity, ' + err;
+    }
   }
 
   async logThank(url, title, creator_url) {

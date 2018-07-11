@@ -11,6 +11,9 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
+    "*.{js,vue}": [
+      "eslint"
+    ],
     "*.{js,json,css,md}": [
       "prettier --write",
       "git add"

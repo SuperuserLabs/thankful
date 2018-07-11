@@ -27,6 +27,7 @@ import App from './App.vue';
 Vue.prototype.$donate = new Donate();
 Vue.prototype.$db = new Database();
 Vue.filter('friendlyDuration', formatSecs);
+Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
 new Vue({
   el: '#dashboard',

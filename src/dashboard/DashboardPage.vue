@@ -83,7 +83,7 @@ function initThankfulTeamCreator() {
   // Erik's address
   // TODO: Change to a multisig wallet
   creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-  creator.info = 'Be thankful for Thankful and donate to the Thankful team!';
+  creator.info = 'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
   creator.share = 0.2;
   return creator.save();

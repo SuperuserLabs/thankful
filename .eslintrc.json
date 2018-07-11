@@ -12,7 +12,7 @@
       "error",
       {
         "builtinGlobals": true,
-        "allow": ["name"]
+        "allow": ["name", "Promise"]
       }
     ],
     "no-console": ["off"]

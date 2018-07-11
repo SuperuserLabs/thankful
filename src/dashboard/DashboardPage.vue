@@ -78,8 +78,6 @@ import DonationSummaryComponent from './DonationSummaryComponent.vue';
 import { Creator } from '../lib/db.js';
 import _ from 'lodash';
 
-// TODO: Move to appropriate location
-
 function initThankfulTeamCreator() {
   const creator = new Creator('https://getthankful.io', 'Thankful Team');
   // Erik's address

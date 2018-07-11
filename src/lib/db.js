@@ -187,14 +187,25 @@ export class Database {
     });
   }
 
-  async connectLogToCreator(url, creator) {
+  async connectThanksToCreator(url, creator) {
     url = canonicalizeUrl(url);
-    console.log('connecting activity:', url, creator);
     await this.db.thanks
       .where('url')
       .equals(url)
       .modify({ creator: creator });
+  }
+
+  async connectActivityToCreator(url, creator) {
+    url = canonicalizeUrl(url);
     return this.logActivity(url, 0, { creator: creator });
+  }
+
+  async connectUrlToCreator(url, creator) {
+    url = canonicalizeUrl(url);
+    return (await Promise.all(
+      this.connectThanksToCreator(url, creator),
+      this.connectActivityToCreator(url, creator)
+    ))[1];
   }
 
   async logDonation(creatorUrl, weiAmount, usdAmount, hash) {
@@ -237,7 +248,7 @@ export class Database {
       if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
         let creator_url = `https://github.com/${user_or_org}`;
         await new Creator(creator_url, user_or_org).save();
-        await this.connectLogToCreator(a.url, creator_url);
+        await this.connectUrlToCreator(a.url, creator_url);
       }
     });
 

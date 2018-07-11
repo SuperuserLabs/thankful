@@ -5,18 +5,47 @@ div.pt-2
       v-toolbar-title Donation summary
       v-spacer
       v-flex(xs2, md1)
-        v-text-field(v-model="totAmount", type='number', append-icon='attach_money', single-line, hide-details)
+        v-text-field(v-model="totAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
       v-btn(color="primary", flat, @click="distribute(totAmount)")
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td.subheading
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
-        td.subheading {{ props.item.address }}
-        td.subheading.text-xs-right {{ props.item.funds | fixed(2) }}
+        td.subheading
+          v-edit-dialog(large,
+                        lazy,
+                        @open="currentAddressValue = props.item.address",
+                        @save="props.item.address = currentAddressValue")
+            div {{ props.item.address }}
+            div.mt-3.title(slot="input") 
+              | Change address
+            v-text-field(slot="input",
+                        :rules="rules.addressInput",
+                        v-model="currentAddressValue",
+                        single-line,
+                        autofocus)
+        td.subheading.text-xs-right
+          v-edit-dialog(large,
+                        lazy,
+                        @open="currentFundsValue = props.item.funds"
+                        @save="props.item.funds = parseFloat(currentFundsValue)")
+            div {{ props.item.funds | fixed(2) }}
+            div.mt-3.title(slot="input") 
+              | Change donation
+            v-text-field(slot="input",
+                        type="number",
+                        step="0.1",
+                        min="0",
+                        :rules="rules.fundsInput",
+                        v-model="currentFundsValue",
+                        prefix="$",
+                        single-line,
+                        autofocus)
+            
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
-      | Send your thanks! (${{ total | fixed(2) }})
+      | Send your thanks! (${{ total.toFixed(2) }})
 </template>
 
 <script>
@@ -45,6 +74,14 @@ export default {
         { text: 'Amount', value: 'funds', align: 'right' },
       ],
       pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
+      currentFundsValue: 0,
+      currentAddressValue: '',
+      rules: {
+        fundsInput: [v => parseFloat(v) >= 0 || 'Negative donation!'],
+        addressInput: [
+          v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+        ],
+      },
     };
   },
   props: {
@@ -95,9 +132,10 @@ export default {
   },
   created() {
     // set totAmount to value saved in localstorage
-    browser.storage.local
-      .get('settings')
-      .then(settings => (this.totAmount = settings.settings.totalAmount));
+    browser.storage.local.get('settings').then(settings => {
+      this.totAmount = settings.settings.totalAmount;
+      this.distribute();
+    });
   },
   watch: {
     creators() {

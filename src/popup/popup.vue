@@ -68,10 +68,10 @@ export default {
     },
     refresh() {
       this.refreshThanksCount();
-    }
+    },
   },
   created() {
     this.refresh();
-  }
+  },
 };
 </script>

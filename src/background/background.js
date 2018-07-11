@@ -45,16 +45,10 @@ async function rescheduleAlarm() {
     }
     // FIXME: Doing a creator.save() overwrites a preexisting creator object
     await new Creator(msg.creator.url, msg.creator.name).save();
-    let result = await db.connectUrlToCreator(
+    await db.connectUrlToCreator(
       canonicalizeUrl(msg.activity.url),
       msg.creator.url
     );
-    if (result === 0) {
-      console.log('Failed connecting activity to creator');
-    } else {
-      console.log('Successfully connected activity to creator');
-    }
-    await db.getActivity(canonicalizeUrl(msg.activity.url));
   }
 
   async function stethoscope() {

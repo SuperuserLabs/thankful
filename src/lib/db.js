@@ -206,16 +206,22 @@ export class Database {
 
   async connectActivityToCreator(url, creator) {
     url = canonicalizeUrl(url);
-    return this.logActivity(url, 0, { creator: creator });
+    await this.db.activity
+      .where('url')
+      .equals(url)
+      .modify({ creator: creator })
+      .catch(err => {
+        throw 'Could not connect Activity to creator, ' + err;
+      });
   }
 
   async connectUrlToCreator(url, creator) {
     try {
       url = canonicalizeUrl(url);
-      return (await Promise.all([
+      await Promise.all([
         this.connectThanksToCreator(url, creator),
         this.connectActivityToCreator(url, creator),
-      ]))[1];
+      ]);
     } catch (err) {
       throw 'Could not connect URL to creator, ' + err;
     }

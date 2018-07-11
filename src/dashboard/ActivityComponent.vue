@@ -2,10 +2,10 @@
 div
   v-data-table(:headers="headers", :items="activities", :pagination.sync='pagination', hide-actions)
     template(slot='items', slot-scope='props')
-      td
+      td.subheading
         a(:href="props.item.url", target="_blank")
           | {{ props.item.title || props.item.url }}
-      td.text-right
+      td.text-right.subheading
         | {{ props.item.duration | friendlyDuration }}
   div.text-xs-center.pt-2
     v-btn(v-if="toAll", size="sm", :to="toAll")
@@ -18,7 +18,7 @@ export default {
     activities: [],
     headers: [
       { text: 'Page', value: 'title' },
-      { text: 'Duration', value: 'duration' },
+      { text: 'Duration', value: 'duration', width: '150px' },
     ],
     pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
   }),

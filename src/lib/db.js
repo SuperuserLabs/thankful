@@ -12,9 +12,7 @@ let _db = undefined;
 let modelAttrs = {};
 
 class Model {
-  constructor(table, key) {
-    modelAttrs[this.constructor] = { table: table, key: key };
-  }
+  constructor() {}
 
   async save() {
     // Does an update if the row already exists, otherwise does a put.
@@ -38,8 +36,7 @@ class Model {
 
 export class Activity extends Model {
   constructor(url, title, duration, creator) {
-    super(_db.activity, 'url');
-
+    super();
     this.url = canonicalizeUrl(url);
     this.title = cleanTitle(title);
     this.duration = duration;
@@ -49,7 +46,7 @@ export class Activity extends Model {
 
 export class Creator extends Model {
   constructor(url, name, ignore = false) {
-    super(_db.creator, 'url');
+    super();
     if (typeof url !== 'string') {
       throw 'url was invalid type';
     }
@@ -111,9 +108,25 @@ export class Database {
       });
 
     _db.activity.mapToClass(Activity);
+    modelAttrs[Activity.prototype.constructor] = {
+      table: _db.activity,
+      key: 'url',
+    };
     _db.creator.mapToClass(Creator);
+    modelAttrs[Creator.prototype.constructor] = {
+      table: _db.creator,
+      key: 'url',
+    };
     _db.donations.mapToClass(Donation);
+    modelAttrs[Donation.prototype.constructor] = {
+      table: _db.donations,
+      key: 'id',
+    };
     _db.thanks.mapToClass(Thank);
+    modelAttrs[Thank.prototype.constructor] = {
+      table: _db.thanks,
+      key: 'id',
+    };
     this.db = _db;
   }
 
@@ -296,7 +309,3 @@ export class Database {
       });
   }
 }
-
-// FIXME: Hax, needed to be able to do operations on models before
-//        another Database object has been instantiated.
-new Database();

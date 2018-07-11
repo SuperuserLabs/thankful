@@ -2,14 +2,14 @@
 div
   v-data-table(:headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
     template(slot='items', slot-scope='props')
-      td
+      td.subheading
         a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
             | {{props.item.date.toLocaleDateString()}}
-      td
+      td.subheading
         a(:href="props.item.url" target="_blank")
           | {{props.item.creator}}
-      td.text-xs-right
-        | {{props.item.usdAmount}} $
+      td.subheading.text-xs-right 
+        | ${{props.item.usdAmount | fixed(2)}}
   div.text-xs-center.pt-2
     v-btn(v-if="toAll", size="sm", :to="toAll")
       | Show all
@@ -21,7 +21,7 @@ export default {
     headers: [
       { text: 'Date', value: 'date' },
       { text: 'Creator', value: 'creator' },
-      { text: 'Amount', value: 'usdAmount' },
+      { text: 'Amount', value: 'usdAmount', align: 'right' },
     ],
     pagination: { sortBy: 'date', descending: 'false', rowsPerPage: 5 },
   }),

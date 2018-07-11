@@ -11,21 +11,23 @@ div
       v-card
         v-card-title
           span.headline Editing
-          v-btn(color="secondary", flat, @click='ignore(editing);')
-            | #[v-icon visibility_off] Ignore
+          div(v-if='!editedCreator.new')
+            v-btn(color="secondary", flat, @click='ignore(editing);')
+              | #[v-icon visibility_off] Ignore
         v-card-text
           v-layout(wrap)
-            v-flex(xs12)
-              v-text-field(v-model='editedCreator.name', label='Name')
-            v-flex(xs12)
-              v-text-field(v-model='editedCreator.url', label='Homepage')
-            v-flex(xs12)
-              v-text-field(v-model='editedCreator.address', label='ETH Address')
+            v-form(v-model='valid')
+              v-flex(xs12)
+                v-text-field(v-model='editedCreator.name', :rules='[v => !!v || "Name is required"]', label='Name')
+              v-flex(xs12)
+                v-text-field(v-model='editedCreator.url', :rules='[v => !!v || "URL is required"]', label='Homepage')
+              v-flex(xs12)
+                v-text-field(v-model='editedCreator.address', :rules='ethAddressRules', label='ETH Address')
           p(v-if="editedCreator.info")
             | {{ editedCreator.info }}
           v-layout(row)
             v-spacer
-            v-btn(color="primary", flat, @click='save(`Saved creator ${editedCreator.name}`)') Save
+            v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
           v-data-table(:headers="activityHeaders", :items="activities", :pagination.sync='pagination')
             template(slot='items', slot-scope='props')
               td
@@ -48,7 +50,7 @@ div
                        @click="edit(creator, index)"
                        )
         v-flex(xs12, sm6, md3)
-          v-card(hover)
+          v-card(hover, @click.native="addCreator()")
             v-card-title
               v-container.text-xs-center
                 v-icon(x-large) add
@@ -81,7 +83,7 @@ function initThankfulTeamCreator() {
   // Erik's address
   // TODO: Change to a multisig wallet
   creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-  creator.info = 'Be thankful for Thankful and donate to the Thankful team!';
+  creator.info = 'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
   creator.share = 0.2;
   return creator.save();
@@ -95,6 +97,7 @@ export default {
     'donation-summary-component': DonationSummaryComponent,
   },
   data: () => ({
+    valid: true,
     creatorList: [],
     editing: -1,
     errors: [],
@@ -109,6 +112,9 @@ export default {
     ],
     pagination: { sortBy: 'duration', descending: true },
     snackMessage: '',
+    ethAddressRules: [
+      v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+    ],
   }),
   computed: {
     creators() {
@@ -131,12 +137,10 @@ export default {
       };
     },
     addCreator() {
-      if (this.editing < 0) {
-        let c = new Creator('', '');
-        c.priority = 2;
-        this.creatorList.unshift(c);
-        this.editing = 0;
-      }
+      let c = new Creator('', '');
+      c.priority = 2;
+      c.new = true;
+      this.edit(c, -1);
     },
     remove(creator, index) {
       Object.assign(this.editedCreator, creator);
@@ -180,7 +184,6 @@ export default {
       this.getActivities(creator);
       this.dialog = true;
     },
-
     refresh() {
       this.$db.getCreators().then(creators => {
         // Find accumulated duration for creators

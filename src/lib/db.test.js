@@ -70,6 +70,19 @@ describe('Activity', () => {
     });
     expect(acts_without_creators).toHaveLength(2);
   });
+
+  it('Attaches creator to an activity with connectUrl', async () => {
+    const c_url = 'https://creatorurl.com';
+    await db.logActivity(url, 12.5);
+    await db.connectUrlToCreator(url, c_url);
+
+    expect(
+      (await db.db.activity
+        .where('url')
+        .equals(url)
+        .toArray())[0].creator
+    ).toEqual(c_url);
+  });
 });
 
 describe('Creator', () => {
@@ -217,5 +230,4 @@ describe('Thanks', () => {
         .toArray())[0].creator
     ).toEqual(thxCreatorUrl);
   });
-  // TODO: another test for connectUrl
 });

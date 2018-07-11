@@ -205,5 +205,17 @@ describe('Thanks', () => {
         .toArray())[0].creator
     ).toEqual(thxCreatorUrl);
   });
+
+  it('Attaches creator to a thank with connectUrl', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
+
+    expect(
+      (await db.db.thanks
+        .where('url')
+        .equals(thxUrl)
+        .toArray())[0].creator
+    ).toEqual(thxCreatorUrl);
+  });
   // TODO: another test for connectUrl
 });

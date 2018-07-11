@@ -53,7 +53,7 @@ div
               v-container.text-xs-center
                 v-icon(x-large) add
 
-      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
+      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)", @addressUpdate="lolol")
 
       v-layout(row)
         v-flex(xs12,sm6)
@@ -118,6 +118,10 @@ export default {
     },
   },
   methods: {
+    lolol(x) {
+      console.log('lolol');
+      console.log(x);
+    },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
         this.activities = activities;

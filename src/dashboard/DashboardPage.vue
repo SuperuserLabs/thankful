@@ -168,12 +168,11 @@ export default {
           this.editedCreator = tmp;
           this.dialog = false;
           this.snackMessage = message;
+          this.refresh();
         });
     },
     undo() {
-      this.save().then(() => {
-        this.refresh();
-      });
+      this.save();
     },
     edit(creator, index) {
       this.currentCreator = creator;

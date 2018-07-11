@@ -173,22 +173,37 @@ describe('Thanks', () => {
   const thxUrl = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
   const thxUrlNotCanon = thxUrl + '&t=123';
   const thxTitle = 'Elder Scrolls 6 Trailer';
+  const thxCreatorUrl =
+    'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
 
   beforeEach(async () => {
     await clearDB(db);
   });
 
-  it('Thanks a url', async () => {
+  it('Thanks a url and count', async () => {
     await db.logThank(thxUrl, thxTitle);
     await db.logThank(thxUrl, thxTitle);
 
     expect(await db.getUrlThanksAmount(thxUrl)).toEqual(2);
   });
 
-  it('Thanks a not canon url', async () => {
+  it('Thanks a not canon url and count', async () => {
     await db.logThank(thxUrl, thxTitle);
     await db.logThank(thxUrlNotCanon, thxTitle);
 
     expect(await db.getUrlThanksAmount(thxUrlNotCanon)).toEqual(2);
   });
+
+  it('Attaches a creator to a thank', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.connectThanksToCreator(thxUrlNotCanon, thxCreatorUrl);
+
+    expect(
+      (await db.db.thanks
+        .where('url')
+        .equals(thxUrl)
+        .toArray())[0].creator
+    ).toEqual(thxCreatorUrl);
+  });
+  // TODO: another test for connectUrl
 });

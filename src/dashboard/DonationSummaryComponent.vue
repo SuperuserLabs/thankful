@@ -21,7 +21,8 @@ div.pt-2
             div.mt-3.title(slot="input") 
               | Change address
             v-text-field(slot="input",
-                        v-model="currentAddressValue"
+                        :rules="rules.addressInput",
+                        v-model="currentAddressValue",
                         single-line,
                         autofocus)
         td
@@ -34,7 +35,10 @@ div.pt-2
               | Change donation
             v-text-field(slot="input",
                         type="number",
-                        v-model="currentFundsValue"
+                        step="0.1",
+                        min="0",
+                        :rules="rules.fundsInput",
+                        v-model="currentFundsValue",
                         prefix="$",
                         single-line,
                         autofocus)
@@ -69,10 +73,15 @@ export default {
         { text: 'Address', value: 'address' },
         { text: 'Amount', value: 'funds' },
       ],
-      sortBy: 'funds',
       pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
       currentFundsValue: 0,
       currentAddressValue: '',
+      rules: {
+        fundsInput: [v => parseFloat(v) >= 0 || 'Negative donation!'],
+        addressInput: [
+          v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+        ],
+      },
     };
   },
   props: {
@@ -125,7 +134,7 @@ export default {
     // set totAmount to value saved in localstorage
     browser.storage.local.get('settings').then(settings => {
       this.totAmount = settings.settings.totalAmount;
-      this.total = this.totAmount;
+      this.distribute();
     });
   },
   watch: {

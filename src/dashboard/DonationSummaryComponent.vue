@@ -5,7 +5,7 @@ div.pt-2
       v-toolbar-title Donation summary
       v-spacer
       v-flex(xs2, md1)
-        v-text-field(v-model="totAmount", type='number', prefix="$", single-line, hide-details)
+        v-text-field(v-model="totAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
       v-btn(color="primary", flat, @click="distribute(totAmount)")
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)

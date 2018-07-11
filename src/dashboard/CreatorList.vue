@@ -22,7 +22,7 @@ div
 </template>
 
 <script>
-import { Creator } from '../lib/db.js';
+import _ from 'lodash';
 
 export default {
   data: () => ({

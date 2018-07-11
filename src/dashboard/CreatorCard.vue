@@ -1,13 +1,13 @@
 <template lang="pug">
 v-card(height='14rem', @click.native='$emit("click")', hover)
   v-container
-    v-flex.text-xs-center
-      font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="4x", color='red')
-      font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="4x", color='black')
     v-card-title(primary-title)
       v-flex.text-xs-center
           div.headline
             |  {{ name }}
+    v-flex.text-xs-center
+      font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="4x", color='red')
+      font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="4x", color='black')
 </template>
 
 <script>

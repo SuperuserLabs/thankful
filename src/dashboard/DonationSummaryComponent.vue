@@ -10,9 +10,9 @@ div.pt-2
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
-        td 
+        td.subheading
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
-        td
+        td.subheading
           v-edit-dialog(large,
                         lazy,
                         @open="currentAddressValue = props.item.address",
@@ -25,12 +25,12 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
-        td
+        td.subheading.text-xs-right
           v-edit-dialog(large,
                         lazy,
                         @open="currentFundsValue = props.item.funds"
                         @save="props.item.funds = parseFloat(currentFundsValue)")
-            div {{ props.item.funds }}
+            div {{ props.item.funds | fixed(2) }}
             div.mt-3.title(slot="input") 
               | Change donation
             v-text-field(slot="input",
@@ -71,7 +71,7 @@ export default {
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
-        { text: 'Amount', value: 'funds' },
+        { text: 'Amount', value: 'funds', align: 'right' },
       ],
       pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
       currentFundsValue: 0,

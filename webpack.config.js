@@ -69,7 +69,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'popup/index.html',
       template: 'src/popup/popup.pug',
-      inject: true,
+      inject: false,
     }),
     new HtmlWebpackPlugin({
       filename: 'dashboard/index.html',

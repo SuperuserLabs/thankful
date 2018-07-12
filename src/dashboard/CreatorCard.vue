@@ -1,13 +1,30 @@
 <template lang="pug">
-v-card(height='14rem', @click.native='$emit("click")', hover)
-  v-container
-    v-card-title(primary-title)
-      v-flex.text-xs-center
-          div.headline
-            |  {{ name }}
-    v-flex.text-xs-center
-      font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", size="4x", color='red')
-      font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", size="4x", color='black')
+v-card()
+  //v-card-title
+  v-flex.text-xs-center
+    a(:href="creator.url" target="_blank" style="text-decoration: none !important").headline
+      v-btn(flat large block style="text-transform: none")
+        div(style="font-size: 1.5em; padding-right: 0.5em")
+          font-awesome-icon(v-if='url.includes("getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
+          font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", color='red')
+          font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", color='black')
+        | {{ name }}
+  v-card-actions
+    div(v-if="timespent" style="padding-left: 0.5em").subheading
+      | {{ timespent | fixed(0) | friendlyDuration }}
+    v-spacer
+    v-menu(bottom left)
+      v-btn(slot="activator" icon)
+        v-icon more_vert
+
+      v-list(hover)
+        v-list-tile(@click='$emit("click")')
+          v-list-tile-action
+            v-icon edit
+          v-list-tile-content
+            v-list-tile-title
+              | Edit
+        // TODO: Add ignore
 </template>
 
 <script>
@@ -32,6 +49,7 @@ export default {
         address: this.creator.address || '',
         name: this.creator.name,
         url: this.creator.url,
+        timespent: this.creator.timespent,
       });
     },
     save() {

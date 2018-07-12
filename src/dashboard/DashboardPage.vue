@@ -8,11 +8,13 @@ div
         | {{ error }}
   div
     v-dialog(v-model="dialog", max-width='500px')
-      v-card
-        v-card-title
-          span.headline Editing
-          div(v-if='!editedCreator.new')
-            v-btn(color="secondary", flat, @click='ignore(editing);')
+      v-card(tile)
+        v-toolbar(card dark color="primary")
+          v-toolbar-title
+            | Editing
+          v-spacer
+          v-toolbar-items
+            v-btn(v-if='!editedCreator.new' dark flat @click='ignore(editing);')
               | #[v-icon visibility_off] Ignore
         v-card-text
           v-layout(wrap)
@@ -47,13 +49,13 @@ div
         v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
-                       @click="edit(creator, index)"
-                       )
+                       @click="edit(creator, index)")
         v-flex(xs12, sm6, md3)
           v-card(hover, @click.native="addCreator()")
-            v-card-title
-              v-container.text-xs-center
-                v-icon(x-large) add
+            v-container.text-xs-center
+              v-icon(x-large) add
+              div.title(style="color: #666")
+                | Add creator
 
       donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 
@@ -185,7 +187,7 @@ export default {
       this.dialog = true;
     },
     refresh() {
-      this.$db.getCreators().then(creators => {
+      this.$db.getCreators({ withTimespent: true }).then(creators => {
         // Find accumulated duration for creators
         let creatorsWithDuration = Promise.all(
           creators.filter(c => c.ignore !== true).map(c =>

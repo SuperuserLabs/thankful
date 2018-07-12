@@ -102,8 +102,14 @@ export class Database {
         thanks: '++id, url, date, title, creator',
       })
       .upgrade(trans => {
-        return trans.activity.toCollection().modify(act => {
-          act.url = canonicalizeUrl(act.url);
+        return trans.activity.toArray().then(activities => {
+          trans.activity.clear();
+          activities.forEach(a => {
+            this.logActivity(a.url, a.duration, {
+              title: a.title,
+              creator: a.creator,
+            });
+          });
         });
       });
 

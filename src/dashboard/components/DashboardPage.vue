@@ -35,18 +35,14 @@ div
                   | {{ props.item.title || props.item.url }}
               td.text-right
                 | {{ props.item.duration | friendlyDuration }}
-    v-snackbar(v-model='snackMessage.length > 0', top) {{ snackMessage }}
-      v-btn(color="pink", flat, @click="undo();") Undo
+    v-snackbar(v-model='showSnackbar', top) {{ snackMessage }}
+      v-btn(color="pink", flat, @click="undo()") Undo
     v-container(grid-list-md)
-      v-btn(@click='lolcat')
-        | hahaha 
       v-flex(xs12).mb-3
         div.headline Your favorite creators
-      div(v-if="creators.length === 0")
-        | No creators to show
 
       v-layout(row, wrap)
-        v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
+        v-flex(v-for="(creator, index) in state.creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
                        @click="edit(creator, index)"
@@ -57,7 +53,7 @@ div
               v-container.text-xs-center
                 v-icon(x-large) add
 
-      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
+      donation-summary-component(:creators="state.creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 
       v-layout(row)
         v-flex(xs12,sm6)
@@ -117,6 +113,7 @@ export default {
     ],
     pagination: { sortBy: 'duration', descending: true },
     snackMessage: '',
+    showSnackbar: false,
     ethAddressRules: [
       v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
     ],
@@ -125,14 +122,11 @@ export default {
     state() {
       return this.$store.state.dashboard;
     },
-
-    creators() {
-      return _.take(this.creatorList, 12);
-    },
   },
   methods: {
     lolcat() {
-      console.log(this.state);
+      console.log(this.state.creators);
+      console.log(this.creators);
     },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
@@ -168,22 +162,23 @@ export default {
       this.creatorList.splice(index, 1);
     },
     save(message = '') {
-      const alternate = this.editedCreator;
-      const current = this.currentCreator;
-      const tmp = Object.assign({}, current);
-      return current
-        .delete()
-        .then(() => {
-          Object.assign(current, alternate);
-          return current.save();
-        })
-        .then(() => {
-          this.editing = -1;
-          this.editedCreator = tmp;
-          this.dialog = false;
-          this.snackMessage = message;
-          this.refresh();
-        });
+      // Save creator to be able to undo changes
+      let creatorBeforeEdit = Object.assign({}, this.currentCreator);
+      Object.assign(this.currentCreator, this.editedCreator);
+
+      // Save creator to db
+      this.currentCreator.save();
+
+      // Update creators in vuex store
+      this.$store.commit('dashboard/setCreators', this.state.creators);
+
+      // Dismiss editing popup and show snackBar
+      this.editing = -1;
+      this.editedCreator = creatorBeforeEdit;
+      this.dialog = false;
+      this.snackMessage = message;
+      this.showSnackbar = message.length > 0;
+      this.refresh();
     },
     undo() {
       this.save();
@@ -196,6 +191,7 @@ export default {
       this.dialog = true;
     },
     refresh() {
+      /*
       this.$db.getCreators().then(creators => {
         // Find accumulated duration for creators
         let creatorsWithDuration = Promise.all(
@@ -220,12 +216,40 @@ export default {
         this.$refs.donationHistory.refresh();
         this.$refs.donationSummary.distribute();
       });
+      */
     },
   },
   created() {
     this.refresh();
   },
   beforeCreate() {
+    // Get creators from db and commit mutation to vuex store
+    this.$db.getCreators().then(creators => {
+      console.log(creators);
+      Promise.all(
+        creators.filter(c => c.ignore !== true).map(c =>
+          this.$db.getCreatorActivity(c.url).then(acts =>
+            Object.assign({ __proto__: c.__proto__ }, c, {
+              duration: _.sum(acts.map(act => act.duration)),
+            })
+          )
+        )
+      ).then(creators => {
+        this.$store.commit('dashboard/setCreators', creators);
+      });
+
+      // Sort creators by duration
+      /*
+      creatorsWithDuration.then(x => {
+        this.creatorList = _.orderBy(
+          x,
+          ['priority', 'duration'],
+          ['asc', 'desc']
+        );
+      });
+      */
+    });
+
     // These below are async, might not have run in time
     initThankfulTeamCreator();
     this.$db.attributeGithubActivity();

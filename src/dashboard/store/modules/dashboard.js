@@ -2,17 +2,19 @@ import { Database } from '../../../lib/db.js';
 
 let db = new Database();
 
-const state = {};
-
-db.getCreators().then(creators => {
-  state.creators = creators;
-});
+const state = {
+  creators: [],
+};
 
 const getters = {};
 
 const actions = {};
 
-const mutations = {};
+const mutations = {
+  setCreators: (state, creators) => {
+    state.creators = creators;
+  },
+};
 
 export default {
   namespaced: true,

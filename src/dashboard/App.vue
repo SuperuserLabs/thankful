@@ -3,6 +3,7 @@ v-app
   v-navigation-drawer(app v-model="drawer" :mini-variant="mini")
     v-list.pa-1
       // TODO: Fill this list with reasonable stuff
+      // https://vuetifyjs.com/en/components/navigation-drawers
       v-list-tile(v-if="mini" @click.stop="mini = !mini")
         v-list-tile-action
           v-icon chevron_right
@@ -22,9 +23,9 @@ v-app
     v-btn(icon @click="drawer = !drawer")
       v-icon menu
     v-toolbar-title
-      h1 #[router-link(to="/" style="color: #FFF; text-decoration: none") Thankful dashboard]
+      h1 #[router-link(to="/" style="color: #FFF; text-decoration: none") Thankful]
     v-toolbar-items
-      div.pl-3.pt-3
+      div.pl-4.pt-3
         h3 We're in alpha
         div
           | We're still figuring things out.

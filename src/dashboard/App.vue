@@ -2,22 +2,31 @@
 v-app
   v-navigation-drawer(app v-model="drawer" :mini-variant="mini")
     v-list.pa-1
-      // TODO: Fill this list with reasonable stuff
       // https://vuetifyjs.com/en/components/navigation-drawers
       v-list-tile(v-if="mini" @click.stop="mini = !mini")
         v-list-tile-action
           v-icon chevron_right
 
-      v-list-tile(avatar tag="div" v-for="i in [1,2,3,4,5,6,7,8,9,10]")
+      v-list-tile(tag="div" to="/")
         v-list-tile-avatar
-          img(:src="'https://randomuser.me/api/portraits/women/' + Math.round(Math.random() * 100) + '.jpg'")
-
+          v-icon home
         v-list-tile-content
-          v-list-tile-title John Leider
-
-        v-list-tile-action
+          | Dashboard
+        v-list-tile-action(v-if="!mini")
           v-btn(icon @click.stop="mini = !mini")
             v-icon chevron_left
+
+      v-list-tile(avatar tag="div" to="/activity")
+        v-list-tile-avatar
+          v-icon history
+        v-list-tile-content
+          v-list-tile-title Activity
+
+      v-list-tile(avatar tag="div" to="/donations")
+        v-list-tile-avatar
+          v-icon favorite
+        v-list-tile-content
+          v-list-tile-title Donations
 
   v-toolbar(app dark color="primary")
     v-btn(icon @click="drawer = !drawer")

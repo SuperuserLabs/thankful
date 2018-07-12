@@ -38,6 +38,8 @@ div
     v-snackbar(v-model='snackMessage.length > 0', top) {{ snackMessage }}
       v-btn(color="pink", flat, @click="undo();") Undo
     v-container(grid-list-md)
+      v-btn(@click='lolcat')
+        | hahaha 
       v-flex(xs12).mb-3
         div.headline Your favorite creators
       div(v-if="creators.length === 0")
@@ -55,7 +57,7 @@ div
               v-container.text-xs-center
                 v-icon(x-large) add
 
-      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)", @addressUpdate="lolol")
+      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 
       v-layout(row)
         v-flex(xs12,sm6)
@@ -75,15 +77,18 @@ import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
-import { Creator } from '../lib/db.js';
+import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
+
+import { mapState } from 'vuex';
 
 function initThankfulTeamCreator() {
   const creator = new Creator('https://getthankful.io', 'Thankful Team');
   // Erik's address
   // TODO: Change to a multisig wallet
   creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-  creator.info = 'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
+  creator.info =
+    'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
   creator.share = 0.2;
   return creator.save();
@@ -117,14 +122,17 @@ export default {
     ],
   }),
   computed: {
+    state() {
+      return this.$store.state.dashboard;
+    },
+
     creators() {
       return _.take(this.creatorList, 12);
     },
   },
   methods: {
-    lolol(x) {
-      console.log('lolol');
-      console.log(x);
+    lolcat() {
+      console.log(this.state);
     },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
@@ -225,5 +233,5 @@ export default {
 };
 </script>
 
-<style src="./dashboard.css">
+<style src="../dashboard.css">
 </style>

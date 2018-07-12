@@ -11,7 +11,7 @@ v-card(height='14rem', @click.native='$emit("click")', hover)
 </template>
 
 <script>
-import { isOnDomain } from '../lib/url.js';
+import { isOnDomain } from '../../lib/url.js';
 
 export default {
   data() {

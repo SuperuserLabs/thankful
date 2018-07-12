@@ -80,8 +80,6 @@ import DonationSummaryComponent from './DonationSummaryComponent.vue';
 import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
 
-import { mapState } from 'vuex';
-
 function initThankfulTeamCreator() {
   const creator = new Creator('https://getthankful.io', 'Thankful Team');
   // Erik's address

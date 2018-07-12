@@ -8,7 +8,7 @@ div.pt-2
         v-text-field(v-model="totAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
       v-btn(color="primary", flat, @click="distribute(totAmount)")
         | Distribute
-    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
+    v-data-table(:headers="headers", :items="creatorsWithFunds", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td.subheading
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
@@ -94,6 +94,27 @@ export default {
     totalAllocated() {
       let addressAmounts = getAddressAmountMapping(this.donations);
       return _.sum(_.values(addressAmounts));
+    },
+    creatorsWithFunds() {
+      let scoring = c => Math.sqrt(c.duration);
+      let totScore = _.sum(this.creators.map(scoring));
+      let factor = 1 - _.sum(this.creators.map(c => c.share));
+
+      return this.creators.map(c => {
+        let funds;
+        if (c.share > 0) {
+          funds = c.share * this.totAmount;
+        } else {
+          funds = this.totAmount * (scoring(c) / totScore) * factor;
+        }
+        return {
+          name: c.name,
+          duration: c.duration,
+          url: c.url,
+          address: c.address,
+          funds: parseFloat(funds.toFixed(2)),
+        };
+      });
     },
   },
   methods: {

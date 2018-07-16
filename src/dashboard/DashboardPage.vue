@@ -113,7 +113,7 @@ export default {
     pagination: { sortBy: 'duration', descending: true },
     snackMessage: '',
     ethAddressRules: [
-      v => this.$donate.isAddress(v) || 'Not a valid ETH address',
+      v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
     ],
   }),
   computed: {

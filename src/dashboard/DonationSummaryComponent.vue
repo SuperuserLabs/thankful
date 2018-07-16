@@ -52,16 +52,6 @@ div.pt-2
 import _ from 'lodash';
 import browser from 'webextension-polyfill';
 
-function getAddressAmountMapping(creators) {
-  return _.fromPairs(
-    _.map(creators, k => {
-      return [k.address, Number(k.allocatedFunds)];
-    }).filter(d => {
-      return _.every(d);
-    })
-  );
-}
-
 export default {
   data: function() {
     return {
@@ -80,7 +70,7 @@ export default {
         // TODO: Don't allow saving invalid inputs
         fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
-          v => this.$donate.isAddress(v) || 'Not a valid ETH address',
+          v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
         ],
       },
     };
@@ -91,10 +81,6 @@ export default {
   computed: {
     total() {
       return _.sumBy(this.distribution, 'funds');
-    },
-    totalAllocated() {
-      let addressAmounts = getAddressAmountMapping(this.donations);
-      return _.sum(_.values(addressAmounts));
     },
   },
   methods: {

@@ -1,14 +1,8 @@
 /*eslint no-undef: 0*/
 
 let browser;
-try {
-  if (chrome) {
-    browser = require('webextension-polyfill');
-  }
-} catch (e) {
-  if (e.name !== 'ReferenceError') {
-    throw e;
-  }
+if (typeof chrome !== 'undefined') {
+  browser = require('webextension-polyfill');
 }
 
 export function isNode() {

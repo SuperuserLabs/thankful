@@ -94,23 +94,21 @@ export default {
       let totScore = _.sum(this.creators.map(scoring));
       let factor = 1 - _.sum(this.creators.map(c => c.share));
 
-      this.distribution = this.creators
-        .filter(c => undefined !== c.address)
-        .map(c => {
-          let funds;
-          if (c.share > 0) {
-            funds = c.share * this.totAmount;
-          } else {
-            funds = this.totAmount * (scoring(c) / totScore) * factor;
-          }
-          return {
-            name: c.name,
-            duration: c.duration,
-            url: c.url,
-            address: c.address,
-            funds: parseFloat(funds.toFixed(2)),
-          };
-        });
+      this.distribution = this.creators.map(c => {
+        let funds;
+        if (c.share > 0) {
+          funds = c.share * this.totAmount;
+        } else {
+          funds = this.totAmount * (scoring(c) / totScore) * factor;
+        }
+        return {
+          name: c.name,
+          duration: c.duration,
+          url: c.url,
+          address: c.address,
+          funds: parseFloat(funds.toFixed(2)),
+        };
+      });
     },
     donateAll() {
       this.$donate

@@ -53,12 +53,7 @@ export default class Donate {
     const donationPromises = donations
       .filter(d => undefined !== d.address)
       .map(async d =>
-        this._donateOne(
-          d.address,
-          BigNumber(d.allocatedFunds),
-          d.url,
-          refreshCallback
-        )
+        this._donateOne(d.address, BigNumber(d.funds), d.url, refreshCallback)
       );
     return Promise.all(donationPromises);
   }

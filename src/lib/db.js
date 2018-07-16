@@ -186,17 +186,14 @@ export class Database {
       .limit(limit)
       .toArray()
       .then(donations =>
-        Promise.all(donations.map(d => this.getCreator(d.url))).then(names => {
-          return _.zip(donations, names)
-            .map(p => {
-              p[0].creator = p[1].name;
-              return p[0];
-            })
-            .map(d => {
-              d.date = new Date(d.date);
-              return d;
-            });
-        })
+        Promise.all(
+          donations.map(async d =>
+            _.assign(
+              await this.getCreator(d.url),
+              _.update(d, 'date', date => new Date(date))
+            )
+          )
+        )
       )
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);

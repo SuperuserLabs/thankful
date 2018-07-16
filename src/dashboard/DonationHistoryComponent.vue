@@ -7,7 +7,7 @@ div
             | {{props.item.date.toLocaleDateString()}}
       td.subheading
         a(:href="props.item.url" target="_blank")
-          | {{props.item.creator}}
+          | {{props.item.name}}
       td.subheading.text-xs-right 
         | ${{props.item.usdAmount | fixed(2)}}
   div.text-xs-center.pt-2
@@ -20,7 +20,7 @@ export default {
     donations: [],
     headers: [
       { text: 'Date', value: 'date' },
-      { text: 'Creator', value: 'creator' },
+      { text: 'Creator', value: 'name' },
       { text: 'Amount', value: 'usdAmount', align: 'right' },
     ],
     pagination: { sortBy: 'date', descending: 'false', rowsPerPage: 5 },

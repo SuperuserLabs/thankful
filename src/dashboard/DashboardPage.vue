@@ -85,7 +85,8 @@ function initThankfulTeamCreator() {
   // Erik's address
   // TODO: Change to a multisig wallet
   creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-  creator.info = 'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
+  creator.info =
+    'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
   creator.share = 0.2;
   return creator.save();
@@ -187,30 +188,23 @@ export default {
       this.dialog = true;
     },
     refresh() {
-      this.$db.getCreators({ withTimespent: true }).then(creators => {
-        // Find accumulated duration for creators
-        let creatorsWithDuration = Promise.all(
-          creators.filter(c => c.ignore !== true).map(c =>
-            this.$db.getCreatorActivity(c.url).then(acts =>
-              Object.assign({ __proto__: c.__proto__ }, c, {
-                duration: _.sum(acts.map(act => act.duration)),
-              })
-            )
-          )
-        );
-
-        // Sort creators by duration
-        creatorsWithDuration.then(x => {
-          this.creatorList = _.orderBy(
-            x,
-            ['priority', 'duration'],
-            ['asc', 'desc']
-          );
+      this.$db
+        .getCreators({ withTimespent: true })
+        .then(
+          // Filter ignored creators
+          _.partialRight(_.filter, c => c.ignore !== true)
+        )
+        .then(
+          // Order the creators
+          _.partialRight(_.orderBy, ['priority', 'timespent'], ['asc', 'desc'])
+        )
+        .then(c => {
+          this.creatorList = c;
+        })
+        .then(() => {
+          this.$refs.donationHistory.refresh;
+          this.$refs.donationSummary.distribute;
         });
-
-        this.$refs.donationHistory.refresh();
-        this.$refs.donationSummary.distribute();
-      });
     },
   },
   created() {

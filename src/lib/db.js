@@ -156,7 +156,7 @@ export class Database {
       await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);
-          c.timespent = _.sum(_.map(activities, a => a.duration));
+          c.timespent = _.sumBy(activities, 'duration');
           return c;
         })
       );

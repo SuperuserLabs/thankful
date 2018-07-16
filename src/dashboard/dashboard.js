@@ -2,14 +2,16 @@ import Vue from 'vue';
 import Vuetify from 'vuetify';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faYoutube, faGithub);
+library.add(faStar, faYoutube, faGithub);
 
 import { formatSecs } from '../lib/time.js';
 import Donate from '../lib/donate.js';
 import { Database } from '../lib/db.js';
 
+import 'typeface-roboto';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);

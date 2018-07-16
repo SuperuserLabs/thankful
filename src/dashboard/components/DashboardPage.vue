@@ -38,8 +38,6 @@ div
     v-snackbar(v-model='snackMessage.length > 0', top) {{ snackMessage }}
       v-btn(color="pink", flat, @click="undo();") Undo
     v-container(grid-list-md)
-      v-btn(@click='lolcat')
-        | hahaha 
       v-flex(xs12).mb-3
         div.headline Your favorite creators
       div(v-if="creators.length === 0")
@@ -129,9 +127,6 @@ export default {
     },
   },
   methods: {
-    lolcat() {
-      console.log(this.state);
-    },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
         this.activities = activities;

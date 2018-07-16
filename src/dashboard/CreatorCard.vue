@@ -10,8 +10,8 @@ v-card()
           font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", color='black')
         | {{ name }}
   v-card-actions
-    div(v-if="timespent" style="padding-left: 0.5em").subheading
-      | {{ timespent | fixed(0) | friendlyDuration }}
+    div(v-if="duration" style="padding-left: 0.5em").subheading
+      | {{ duration | fixed(0) | friendlyDuration }}
     v-spacer
     v-menu(bottom left)
       v-btn(slot="activator" icon)
@@ -49,7 +49,7 @@ export default {
         address: this.creator.address || '',
         name: this.creator.name,
         url: this.creator.url,
-        timespent: this.creator.timespent,
+        duration: this.creator.duration,
       });
     },
     save() {

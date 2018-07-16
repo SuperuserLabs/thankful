@@ -196,7 +196,7 @@ export default {
         )
         .then(
           // Order the creators
-          _.partialRight(_.orderBy, ['priority', 'timespent'], ['asc', 'desc'])
+          _.partialRight(_.orderBy, ['priority', 'duration'], ['asc', 'desc'])
         )
         .then(c => {
           this.creatorList = c;

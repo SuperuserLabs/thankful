@@ -111,9 +111,8 @@ export default {
       });
     },
     donateAll() {
-      console.log(this.$donate);
       this.$donate
-        .donateAll(this.donations, this.refresh)
+        .donateAll(this.distribution, this.refresh)
         .catch(e => this.$emit('error', e));
     },
   },

@@ -79,6 +79,7 @@
     "metamask-crx": "github:MetaMask/metamask-extension",
     "typeface-roboto": "0.0.54",
     "vuetify": "^1.1.1",
+    "vuex": "^3.0.1",
     "web3": "^1.0.0-beta.34"
   }
 }

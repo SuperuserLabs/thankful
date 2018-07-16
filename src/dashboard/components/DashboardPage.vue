@@ -77,7 +77,7 @@ import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
-import { Creator } from '../lib/db.js';
+import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
 
 function initThankfulTeamCreator() {
@@ -120,6 +120,10 @@ export default {
     ],
   }),
   computed: {
+    state() {
+      return this.$store.state.dashboard;
+    },
+
     creators() {
       return _.take(this.creatorList, 12);
     },
@@ -174,12 +178,11 @@ export default {
           this.editedCreator = tmp;
           this.dialog = false;
           this.snackMessage = message;
+          this.refresh();
         });
     },
     undo() {
-      this.save().then(() => {
-        this.refresh();
-      });
+      this.save();
     },
     edit(creator, index) {
       this.currentCreator = creator;
@@ -219,5 +222,5 @@ export default {
 };
 </script>
 
-<style src="./dashboard.css">
+<style src="../dashboard.css">
 </style>

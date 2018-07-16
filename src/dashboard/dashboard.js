@@ -24,7 +24,9 @@ import 'vuetify/dist/vuetify.min.css';
 
 import router from './route.js';
 
-import App from './App.vue';
+import App from './components/App.vue';
+
+import store from './store';
 
 Vue.prototype.$donate = new Donate();
 Vue.prototype.$db = new Database();
@@ -33,6 +35,7 @@ Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
 new Vue({
   el: '#dashboard',
-  router: router,
+  store,
+  router,
   render: h => h(App),
 });

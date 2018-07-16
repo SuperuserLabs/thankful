@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import DashboardPage from './DashboardPage.vue';
-import ActivityPage from './ActivityPage.vue';
-import DonationHistoryPage from './DonationHistoryPage.vue';
-import CreatorList from './CreatorList.vue';
+import DashboardPage from './components/DashboardPage.vue';
+import ActivityPage from './components/ActivityPage.vue';
+import DonationHistoryPage from './components/DonationHistoryPage.vue';
+import CreatorList from './components/CreatorList.vue';
 
 Vue.use(VueRouter);
 

@@ -16,7 +16,7 @@ div.pt-2
           v-edit-dialog(large,
                         lazy,
                         @open="currentAddressValue = props.item.address",
-                        @save="props.item.address = currentAddressValue")
+                        @save="props.item.address = currentAddressValue ; updateAddress(props.item)")
             div {{ props.item.address }}
             div.mt-3.title(slot="input") 
               | Change address
@@ -84,6 +84,9 @@ export default {
     },
   },
   methods: {
+    updateAddress(x) {
+      this.$emit('addressUpdate', x);
+    },
     distribute() {
       let settings = { totalAmount: this.totAmount };
       browser.storage.local

@@ -133,6 +133,7 @@ export default {
     },
     errfun(title, sink = this.errors) {
       return message => {
+        console.error(`${title}: ${message}`);
         sink.push(`${title}: ${message}`);
       };
     },

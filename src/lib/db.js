@@ -74,8 +74,18 @@ export class Database {
     return this.db.creator.get({ url: url });
   }
 
-  async getCreators(limit) {
-    return this.db.creator.limit(limit || 100).toArray();
+  async getCreators({ limit = 100, withTimespent = false } = {}) {
+    let creators = await this.db.creator.limit(limit).toArray();
+    if (withTimespent) {
+      await Promise.all(
+        _.map(creators, async c => {
+          let activities = await this.getCreatorActivity(c.url);
+          c.duration = _.sumBy(activities, 'duration');
+          return c;
+        })
+      );
+    }
+    return creators;
   }
 
   async getCreatorActivity(c_url) {

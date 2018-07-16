@@ -77,6 +77,7 @@
     "idempotent-babel-polyfill": "^6.26.0",
     "material-design-icons-iconfont": "^3.0.3",
     "metamask-crx": "github:MetaMask/metamask-extension",
+    "typeface-roboto": "0.0.54",
     "vuetify": "^1.1.1",
     "web3": "^1.0.0-beta.34"
   }

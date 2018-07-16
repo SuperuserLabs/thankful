@@ -112,7 +112,9 @@ export default {
     },
     donateAll() {
       this.$donate
-        .donateAll(this.distribution, this.refresh)
+        .donateAll(this.distribution, () =>
+          console.log('Please f5 to see new donation history.')
+        )
         .catch(e => this.$emit('error', e));
     },
   },

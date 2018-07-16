@@ -77,9 +77,10 @@ export default {
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {
+        // TODO: Don't allow saving invalid inputs
         fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
-          v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+          v => this.$donate.isAddress(v) || 'Not a valid ETH address',
         ],
       },
     };

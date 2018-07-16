@@ -77,7 +77,7 @@ export default {
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {
-        fundsInput: [v => parseFloat(v) >= 0 || 'Negative donation!'],
+        fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
           v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
         ],

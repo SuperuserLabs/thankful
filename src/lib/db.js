@@ -5,7 +5,7 @@ import isReserved from 'github-reserved-names';
 import Promise from 'bluebird';
 import { Activity, Creator, Donation, Thank, registerModel } from './models.js';
 
-export { Activity, Creator, Donation, Thank };
+export { Activity, Creator };
 
 let _db = undefined;
 

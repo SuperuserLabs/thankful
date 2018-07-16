@@ -259,10 +259,15 @@ export class Database {
       .toArray()
       .then(donations =>
         Promise.all(donations.map(d => this.getCreator(d.url))).then(names => {
-          return _.zip(donations, names).map(p => {
-            p[0].creator = p[1].name;
-            return p[0];
-          });
+          return _.zip(donations, names)
+            .map(p => {
+              p[0].creator = p[1].name;
+              return p[0];
+            })
+            .map(d => {
+              d.date = new Date(d.date);
+              return d;
+            });
         })
       )
       .catch(err => {

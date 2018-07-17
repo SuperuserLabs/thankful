@@ -39,11 +39,3 @@ new Vue({
   router,
   render: h => h(App),
 });
-
-(() => {
-  let a = { a: 1 };
-  let b = { b: 2 };
-  console.log({ ...a, ...b });
-  let { ...z } = { a, ...b };
-  console.log(z);
-})();

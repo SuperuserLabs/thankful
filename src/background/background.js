@@ -35,6 +35,8 @@ async function rescheduleAlarm() {
 
   const db = new Database();
   let noContentScript = {};
+
+  const pollTimer = valueConstantTicker(); // tracks time since last poll
   const tabTimers = {};
   const tabTitles = {};
 
@@ -59,6 +61,15 @@ async function rescheduleAlarm() {
         : [];
       const audibleTabs = await browser.tabs.query({ audible: true });
       const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
+
+      const timeSinceLastPoll = pollTimer();
+      if (timeSinceLastPoll > 70) {
+        // If significantly more than 60s, reset timers.
+        // This is usually indicative of computer being suspended.
+        // See: https://github.com/SuperuserLabs/thankful/issues/61
+        console.log('suspend detected, resetting timers');
+        _.each(tabTimers, tabTimer => tabTimer());
+      }
 
       const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
       const goneUrls = _.difference(Object.keys(tabTimers), currentUrls);

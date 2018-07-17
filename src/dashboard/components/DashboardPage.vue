@@ -65,7 +65,7 @@ import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
-import { Creator } from '../lib/db.js';
+import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
 
 function initThankfulTeamCreator() {
@@ -104,10 +104,14 @@ export default {
     pagination: { sortBy: 'duration', descending: true },
     snackMessage: '',
     ethAddressRules: [
-      v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+      v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
     ],
   }),
   computed: {
+    state() {
+      return this.$store.state.dashboard;
+    },
+
     creators() {
       return _.take(this.creatorList, 12);
     },
@@ -124,6 +128,7 @@ export default {
     },
     errfun(title, sink = this.errors) {
       return message => {
+        console.error(`${title}: ${message}`);
         sink.push(`${title}: ${message}`);
       };
     },
@@ -161,12 +166,11 @@ export default {
           this.editedCreator = tmp;
           this.dialog = false;
           this.snackMessage = message;
+          this.refresh();
         });
     },
     undo() {
-      this.save().then(() => {
-        this.refresh();
-      });
+      this.save();
     },
     edit(creator, index) {
       this.currentCreator = creator;

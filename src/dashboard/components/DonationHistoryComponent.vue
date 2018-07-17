@@ -7,7 +7,7 @@ div
             | {{props.item.date.toLocaleDateString()}}
       td
         a(:href="props.item.url" target="_blank")
-          | {{props.item.creator}}
+          | {{props.item.name}}
       td.text-xs-right 
         | ${{props.item.usdAmount | fixed(2)}}
 </template>
@@ -17,7 +17,7 @@ export default {
     donations: [],
     headers: [
       { text: 'Date', value: 'date' },
-      { text: 'Creator', value: 'creator' },
+      { text: 'Creator', value: 'name' },
       { text: 'Amount', value: 'usdAmount', align: 'right' },
     ],
     pagination: {

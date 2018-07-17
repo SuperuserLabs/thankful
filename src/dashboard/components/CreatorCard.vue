@@ -28,7 +28,7 @@ v-card(height='116px')
 </template>
 
 <script>
-import { isOnDomain } from '../lib/url.js';
+import { isOnDomain } from '../../lib/url.js';
 
 export default {
   data() {

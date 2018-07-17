@@ -16,7 +16,7 @@ div.pt-2
           v-edit-dialog(large,
                         lazy,
                         @open="currentAddressValue = props.item.address",
-                        @save="props.item.address = currentAddressValue")
+                        @save="props.item.address = currentAddressValue ; updateAddress(props.item)")
             div {{ props.item.address }}
             div.mt-3.title(slot="input") 
               | Change address
@@ -52,16 +52,6 @@ div.pt-2
 import _ from 'lodash';
 import browser from 'webextension-polyfill';
 
-function getAddressAmountMapping(creators) {
-  return _.fromPairs(
-    _.map(creators, k => {
-      return [k.address, Number(k.allocatedFunds)];
-    }).filter(d => {
-      return _.every(d);
-    })
-  );
-}
-
 export default {
   data: function() {
     return {
@@ -77,9 +67,10 @@ export default {
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {
-        fundsInput: [v => parseFloat(v) >= 0 || 'Negative donation!'],
+        // TODO: Don't allow saving invalid inputs
+        fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
-          v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+          v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
         ],
       },
     };
@@ -91,12 +82,11 @@ export default {
     total() {
       return _.sumBy(this.distribution, 'funds');
     },
-    totalAllocated() {
-      let addressAmounts = getAddressAmountMapping(this.donations);
-      return _.sum(_.values(addressAmounts));
-    },
   },
   methods: {
+    updateAddress(x) {
+      this.$emit('addressUpdate', x);
+    },
     distribute() {
       let settings = { totalAmount: this.totAmount };
       browser.storage.local
@@ -124,9 +114,10 @@ export default {
       });
     },
     donateAll() {
-      console.log(this.$donate);
       this.$donate
-        .donateAll(this.donations, this.refresh)
+        .donateAll(this.distribution, () =>
+          console.log('Please f5 to see new donation history.')
+        )
         .catch(e => this.$emit('error', e));
     },
   },

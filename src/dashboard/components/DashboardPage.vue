@@ -8,11 +8,13 @@ div
         | {{ error }}
   div
     v-dialog(v-model="dialog", max-width='500px')
-      v-card
-        v-card-title
-          span.headline Editing
-          div(v-if='!editedCreator.new')
-            v-btn(color="secondary", flat, @click='ignore(editing);')
+      v-card(tile)
+        v-toolbar(card dark color="primary")
+          v-toolbar-title
+            | Editing
+          v-spacer
+          v-toolbar-items
+            v-btn(v-if='!editedCreator.new' dark flat @click='ignore(editing);')
               | #[v-icon visibility_off] Ignore
         v-card-text
           v-layout(wrap)
@@ -45,13 +47,13 @@ div
         v-flex(v-for="(creator, index) in state.creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
-                       @click="edit(creator, index)"
-                       )
+                       @click="edit(creator, index)")
         v-flex(xs12, sm6, md3)
           v-card(hover, @click.native="addCreator()")
-            v-card-title
-              v-container.text-xs-center
-                v-icon(x-large) add
+            v-container.text-xs-center
+              v-icon(x-large) add
+              div.title(style="color: #666")
+                | Add creator
 
       donation-summary-component(:creators="state.creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 
@@ -76,8 +78,6 @@ import DonationSummaryComponent from './DonationSummaryComponent.vue';
 import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
 
-import { mapState } from 'vuex';
-
 function initThankfulTeamCreator() {
   const creator = new Creator('https://getthankful.io', 'Thankful Team');
   // Erik's address
@@ -99,7 +99,6 @@ export default {
   },
   data: () => ({
     valid: true,
-    creatorList: [],
     editing: -1,
     errors: [],
     dismissedErrors: 0,
@@ -115,7 +114,7 @@ export default {
     snackMessage: '',
     showSnackbar: false,
     ethAddressRules: [
-      v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+      v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
     ],
   }),
   computed: {
@@ -124,10 +123,6 @@ export default {
     },
   },
   methods: {
-    lolcat() {
-      console.log(this.state.creators);
-      console.log(this.creators);
-    },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
         this.activities = activities;
@@ -139,6 +134,7 @@ export default {
     },
     errfun(title, sink = this.errors) {
       return message => {
+        console.error(`${title}: ${message}`);
         sink.push(`${title}: ${message}`);
       };
     },
@@ -148,18 +144,10 @@ export default {
       c.new = true;
       this.edit(c, -1);
     },
-    remove(creator, index) {
-      Object.assign(this.editedCreator, creator);
-      creator.delete();
-      this.creatorList.splice(index, 1);
-      this.editing = -1;
-      this.dialog = false;
-    },
     ignore(index) {
       this.currentCreator.ignore = false;
       this.editedCreator.ignore = true;
       this.save(`Ignored ${this.editedCreator.name}.`);
-      this.creatorList.splice(index, 1);
     },
     save(message = '') {
       // Save creator to be able to undo changes
@@ -191,32 +179,8 @@ export default {
       this.dialog = true;
     },
     refresh() {
-      /*
-      this.$db.getCreators().then(creators => {
-        // Find accumulated duration for creators
-        let creatorsWithDuration = Promise.all(
-          creators.filter(c => c.ignore !== true).map(c =>
-            this.$db.getCreatorActivity(c.url).then(acts =>
-              Object.assign({ __proto__: c.__proto__ }, c, {
-                duration: _.sum(acts.map(act => act.duration)),
-              })
-            )
-          )
-        );
-
-        // Sort creators by duration
-        creatorsWithDuration.then(x => {
-          this.creatorList = _.orderBy(
-            x,
-            ['priority', 'duration'],
-            ['asc', 'desc']
-          );
-        });
-
-        this.$refs.donationHistory.refresh();
-        this.$refs.donationSummary.distribute();
-      });
-      */
+      this.$refs.donationHistory.refresh();
+      this.$refs.donationSummary.distribute();
     },
   },
   created() {
@@ -224,31 +188,19 @@ export default {
   },
   beforeCreate() {
     // Get creators from db and commit mutation to vuex store
-    this.$db.getCreators().then(creators => {
-      console.log(creators);
-      Promise.all(
-        creators.filter(c => c.ignore !== true).map(c =>
-          this.$db.getCreatorActivity(c.url).then(acts =>
-            Object.assign({ __proto__: c.__proto__ }, c, {
-              duration: _.sum(acts.map(act => act.duration)),
-            })
-          )
-        )
-      ).then(creators => {
+    this.$db
+      .getCreators({ withTimespent: true })
+      .then(
+        // Filter ignored creators
+        _.partialRight(_.filter, c => c.ignore !== true)
+      )
+      .then(
+        // Order the creators
+        _.partialRight(_.orderBy, ['priority', 'duration'], ['asc', 'desc'])
+      )
+      .then(creators => {
         this.$store.commit('dashboard/setCreators', creators);
       });
-
-      // Sort creators by duration
-      /*
-      creatorsWithDuration.then(x => {
-        this.creatorList = _.orderBy(
-          x,
-          ['priority', 'duration'],
-          ['asc', 'desc']
-        );
-      });
-      */
-    });
 
     // These below are async, might not have run in time
     initThankfulTeamCreator();

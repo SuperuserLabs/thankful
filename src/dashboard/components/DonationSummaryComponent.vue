@@ -8,7 +8,7 @@ div.pt-2
         v-text-field(v-model="totAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
       v-btn(color="primary", flat, @click="distribute(totAmount)")
         | Distribute
-    v-data-table(:headers="headers", :items="creatorsWithFunds", :pagination.sync='pagination', hide-actions)
+    v-data-table(:headers="headers", :items="distribute", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td.subheading
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
@@ -18,7 +18,7 @@ div.pt-2
                         @open="currentAddressValue = props.item.address",
                         @save="props.item.address = currentAddressValue ; updateAddress(props.item)")
             div {{ props.item.address }}
-            div.mt-3.title(slot="input") 
+            div.mt-3.title(slot="input")
               | Change address
             v-text-field(slot="input",
                         :rules="rules.addressInput",
@@ -31,7 +31,7 @@ div.pt-2
                         @open="currentFundsValue = props.item.funds"
                         @save="props.item.funds = parseFloat(currentFundsValue)")
             div {{ props.item.funds | fixed(2) }}
-            div.mt-3.title(slot="input") 
+            div.mt-3.title(slot="input")
               | Change donation
             v-text-field(slot="input",
                         type="number",
@@ -42,7 +42,7 @@ div.pt-2
                         prefix="$",
                         single-line,
                         autofocus)
-            
+
   div.text-xs-center.pt-2.pb-3
     v-btn(color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ total.toFixed(2) }})
@@ -51,16 +51,6 @@ div.pt-2
 <script>
 import _ from 'lodash';
 import browser from 'webextension-polyfill';
-
-function getAddressAmountMapping(creators) {
-  return _.fromPairs(
-    _.map(creators, k => {
-      return [k.address, Number(k.allocatedFunds)];
-    }).filter(d => {
-      return _.every(d);
-    })
-  );
-}
 
 export default {
   data: function() {
@@ -77,9 +67,10 @@ export default {
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {
-        fundsInput: [v => parseFloat(v) >= 0 || 'Negative donation!'],
+        // TODO: Don't allow saving invalid inputs
+        fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
-          v => !v || /^0x[0-9A-F]{40}$/i.test(v) || 'Not a valid ETH address',
+          v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
         ],
       },
     };
@@ -91,37 +82,13 @@ export default {
     total() {
       return _.sumBy(this.distribution, 'funds');
     },
-    totalAllocated() {
-      let addressAmounts = getAddressAmountMapping(this.donations);
-      return _.sum(_.values(addressAmounts));
-    },
-    creatorsWithFunds() {
-      let scoring = c => Math.sqrt(c.duration);
-      let totScore = _.sum(this.creators.map(scoring));
-      let factor = 1 - _.sum(this.creators.map(c => c.share));
-
-      return this.creators.map(c => {
-        let funds;
-        if (c.share > 0) {
-          funds = c.share * this.totAmount;
-        } else {
-          funds = this.totAmount * (scoring(c) / totScore) * factor;
-        }
-        return {
-          name: c.name,
-          duration: c.duration,
-          url: c.url,
-          address: c.address,
-          funds: parseFloat(funds.toFixed(2)),
-        };
-      });
-    },
   },
   methods: {
     updateAddress(x) {
       this.$emit('addressUpdate', x);
     },
     distribute() {
+      // TODO: Set totAmount in watcher
       let settings = { totalAmount: this.totAmount };
       browser.storage.local
         .set({ settings })
@@ -148,9 +115,10 @@ export default {
       });
     },
     donateAll() {
-      console.log(this.$donate);
       this.$donate
-        .donateAll(this.donations, this.refresh)
+        .donateAll(this.distribution, () =>
+          console.log('Please f5 to see new donation history.')
+        )
         .catch(e => this.$emit('error', e));
     },
   },

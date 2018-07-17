@@ -3,131 +3,55 @@ import _ from 'lodash';
 import { canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
 import Promise from 'bluebird';
+import { Activity, Creator, Donation, Thank, registerModel } from './models.js';
+
+export { Activity, Creator };
 
 let _db = undefined;
 
-// In the future, use private fields instead:
-//   https://github.com/tc39/proposal-class-fields
-// I thought I could use symbols, but that didn't work out.
-let modelAttrs = {};
-
-class Model {
-  constructor() {}
-
-  async save() {
-    // Does an update if the row already exists, otherwise does a put.
-    let keyname = modelAttrs[this.constructor].key;
-    let key = this[keyname];
-    let table = modelAttrs[this.constructor].table;
-    return table.add(this).catch(() => table.update(key, this));
+function dbinit() {
+  if (_db !== undefined) {
+    return _db;
   }
+  let db = new Dexie('Thankful');
+  db.version(1).stores({
+    activity: '&url, title, duration, creator',
+    creator: '&url, name',
+  });
+  db.version(2).stores({
+    donations: '++id, date, url, weiAmount, usdAmount',
+  });
+  db.version(3).stores({
+    creator: '&url, name, ignore',
+  });
+  db.version(4)
+    .stores({
+      thanks: '++id, url, date, title, creator',
+    })
+    .upgrade(trans => {
+      return trans.activity.toArray().then(activities => {
+        trans.activity.clear();
+        activities.forEach(a => {
+          this.logActivity(a.url, a.duration, {
+            title: a.title,
+            creator: a.creator,
+          });
+        });
+      });
+    });
 
-  put() {
-    let table = modelAttrs[this.constructor].table;
-    return table.put(this);
-  }
+  registerModel(db, Activity, db.activity, 'url');
+  registerModel(db, Creator, db.creator, 'url');
+  registerModel(db, Donation, db.donations, 'id');
+  registerModel(db, Thank, db.thanks, 'id');
 
-  delete() {
-    let key = this[modelAttrs[this.constructor].key];
-    let table = modelAttrs[this.constructor].table;
-    return table.delete(key);
-  }
-}
-
-export class Activity extends Model {
-  constructor(url, title, duration, creator) {
-    super();
-    this.url = canonicalizeUrl(url);
-    this.title = cleanTitle(title);
-    this.duration = duration;
-    this.creator = creator;
-  }
-}
-
-export class Creator extends Model {
-  constructor(url, name, ignore = false) {
-    super();
-    if (typeof url !== 'string') {
-      throw 'url was invalid type';
-    }
-    this.url = url;
-    this.name = name;
-    this.ignore = ignore;
-  }
-}
-
-export class Donation {
-  constructor(creatorUrl, weiAmount, usdAmount, transaction) {
-    this.date = new Date().toISOString();
-    this.url = creatorUrl;
-    this.weiAmount = weiAmount;
-    this.usdAmount = usdAmount;
-    this.transaction = transaction;
-  }
-}
-
-export class Thank {
-  constructor(url, title, creator) {
-    this.url = canonicalizeUrl(url);
-    this.date = new Date().toISOString();
-    this.title = cleanTitle(title);
-    this.creator = creator;
-  }
-}
-
-function cleanTitle(title) {
-  // Clean title from leading ({number}) as common for
-  // notification counters on e.g. YouTube.
-  if (title !== undefined) {
-    return title.replace(/^\([0-9]+\)\s*/, '');
-  }
+  _db = db;
+  return db;
 }
 
 export class Database {
   constructor() {
-    _db = new Dexie('Thankful');
-    _db.version(1).stores({
-      activity: '&url, title, duration, creator',
-      creator: '&url, name',
-    });
-    _db.version(2).stores({
-      donations: '++id, date, url, weiAmount, usdAmount',
-    });
-    _db.version(3).stores({
-      creator: '&url, name, ignore',
-    });
-    _db
-      .version(4)
-      .stores({
-        thanks: '++id, url, date, title, creator',
-      })
-      .upgrade(trans => {
-        return trans.activity.toCollection().modify(act => {
-          act.url = canonicalizeUrl(act.url);
-        });
-      });
-
-    _db.activity.mapToClass(Activity);
-    modelAttrs[Activity.prototype.constructor] = {
-      table: _db.activity,
-      key: 'url',
-    };
-    _db.creator.mapToClass(Creator);
-    modelAttrs[Creator.prototype.constructor] = {
-      table: _db.creator,
-      key: 'url',
-    };
-    _db.donations.mapToClass(Donation);
-    modelAttrs[Donation.prototype.constructor] = {
-      table: _db.donations,
-      key: 'id',
-    };
-    _db.thanks.mapToClass(Thank);
-    modelAttrs[Thank.prototype.constructor] = {
-      table: _db.thanks,
-      key: 'id',
-    };
-    this.db = _db;
+    this.db = dbinit();
   }
 
   async getActivity(url) {
@@ -150,8 +74,18 @@ export class Database {
     return this.db.creator.get({ url: url });
   }
 
-  async getCreators(limit) {
-    return this.db.creator.limit(limit || 100).toArray();
+  async getCreators({ limit = 100, withTimespent = false } = {}) {
+    let creators = await this.db.creator.limit(limit).toArray();
+    if (withTimespent) {
+      await Promise.all(
+        _.map(creators, async c => {
+          let activities = await this.getCreatorActivity(c.url);
+          c.duration = _.sumBy(activities, 'duration');
+          return c;
+        })
+      );
+    }
+    return creators;
   }
 
   async getCreatorActivity(c_url) {
@@ -252,12 +186,14 @@ export class Database {
       .limit(limit)
       .toArray()
       .then(donations =>
-        Promise.all(donations.map(d => this.getCreator(d.url))).then(names => {
-          return _.zip(donations, names).map(p => {
-            p[0].creator = p[1].name;
-            return p[0];
-          });
-        })
+        Promise.all(
+          donations.map(async d =>
+            _.assign(
+              await this.getCreator(d.url),
+              _.update(d, 'date', date => new Date(date))
+            )
+          )
+        )
       )
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);

@@ -46,7 +46,7 @@ div
         | No creators to show
 
       v-layout(row, wrap)
-        v-flex(v-for="(creator, index) in state.creators", :key='creator.url', xs12, sm6, md3)
+        v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
                        @click="edit(creator, index)")
@@ -59,7 +59,7 @@ div
 
       v-layout(row)
         v-flex(xs12)
-          donation-summary-component(:creators="state.creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
+          donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 </template>
 
 <script>
@@ -112,6 +112,9 @@ export default {
   computed: {
     state() {
       return this.$store.state.dashboard;
+    },
+    creators() {
+      return this.$store.getters['dashboard/creatorsNotIgnored'];
     },
   },
   methods: {
@@ -170,13 +173,6 @@ export default {
       this.getActivities(creator);
       this.dialog = true;
     },
-    refresh() {
-      this.$refs.donationHistory.refresh();
-      this.$refs.donationSummary.distribute();
-    },
-  },
-  mounted() {
-    this.refresh();
   },
   beforeCreate() {
     // These below are async, might not have run in time

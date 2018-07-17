@@ -3,11 +3,14 @@ v-chip(:color='netColor', text-color='white')
   div(v-if='netId === -1')
     | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
   div(v-else)
-    | You are connected to the {{ netName }}
+    | You are connected to the {{ netName }}, acc: {{ myAddress }}
 </template>
 <script>
 export default {
-  data: () => ({ netId: -1 }),
+  data: () => ({
+    netId: -1,
+    myAddress: -1,
+  }),
   computed: {
     netName() {
       let names = {
@@ -31,9 +34,24 @@ export default {
   },
   methods: {
     update() {
-      this.$donate.getId().then(id => {
-        this.netId = id;
-      });
+      this.$donate
+        .getId()
+        .then(id => {
+          this.netId = id;
+          return this.$donate.getMyAddress();
+        })
+        .then(addr => {
+          if (addr !== undefined) {
+            this.myAddress = addr;
+          } else {
+            this.myAddress = -1;
+          }
+        })
+        .catch(err => {
+          console.error('Failed to update metamask status:', err);
+          this.netId = -1;
+          this.myAddress = -1;
+        });
     },
   },
   created() {

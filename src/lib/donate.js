@@ -92,7 +92,7 @@ export default class Donate {
       //  throw 'Address looks inactive (0 balance)';
       //}
       const weiAmount = await this._usdToWei(usdAmount);
-      const myAcc = await this._myAcc();
+      const myAcc = await this.getMyAddress();
       if (!myAcc) {
         throw 'You are not logged in to metamask, please install the extension and/or log in';
       }
@@ -116,7 +116,7 @@ export default class Donate {
     }
   }
 
-  _myAcc() {
+  async getMyAddress() {
     return web3.eth.getAccounts().then(accounts => {
       return accounts[0];
     });

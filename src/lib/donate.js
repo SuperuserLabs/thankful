@@ -13,7 +13,7 @@ addrs.erik = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
 //addrs.patrik = '0xbcEf85708670FA0127C484Ac649724B8028Ea08b';
 addrs.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
 addrs.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
-// TODO: Add johannes
+addrs.johannes = '0x4D69bbD5417aB826F9DAbc7BBb6ddE60C5c5EF26';
 
 let web3;
 let db;

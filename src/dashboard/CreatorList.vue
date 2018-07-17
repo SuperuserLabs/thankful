@@ -2,19 +2,19 @@
 div
   v-data-table(:headers="headers", :items="creatorList", :pagination.sync='pagination')
     template(slot='items', slot-scope='props')
-      td.subheading
+      td
         a(:href="props.item.url", target="_blank")
           | {{ props.item.name || props.item.url }}
-      td.subheading
+      td
         | {{ props.item.duration | friendlyDuration }}
-      td.subheading
+      td
         v-btn(icon, @click='ignore(props.item)')
           v-icon(v-show='!props.item.ignore') visibility
           v-icon(v-show='props.item.ignore') visibility_off
-      td.subheading
+      td
         v-icon(v-show='props.item.priority == 2') star
         v-icon(v-show='props.item.priority == 1') heart
-      td.subheading
+      td
         v-btn(color='warning', @click='remove(props.item)') Delete
   div.text-xs-center.pt-2
     v-btn(v-if="toAll", size="sm", :to="toAll")

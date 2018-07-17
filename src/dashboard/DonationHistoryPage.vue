@@ -15,5 +15,3 @@ export default {
   data: () => ({}),
 };
 </script>
-<style src="./dashboard.css">
-</style>

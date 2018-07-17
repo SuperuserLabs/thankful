@@ -1,5 +1,5 @@
 <template lang="pug">
-v-card()
+v-card(height='116px')
   //v-card-title
   v-flex.text-xs-center
     a(:href="creator.url" target="_blank" style="text-decoration: none !important").headline
@@ -10,7 +10,7 @@ v-card()
           font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", color='black')
         | {{ name }}
   v-card-actions
-    div(v-if="duration" style="padding-left: 0.5em").subheading
+    div(v-if="duration" style="padding-left: 0.5em").subheading.text--secondary
       | {{ duration | fixed(0) | friendlyDuration }}
     v-spacer
     v-menu(bottom left)

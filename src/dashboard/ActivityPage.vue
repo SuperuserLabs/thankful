@@ -1,9 +1,12 @@
 <template lang="pug">
-div.container
-  v-toolbar(flat, color='white')
-    v-toolbar-title Unattributed activity
-  v-card
-    activity-component(:unattributed="true")
+v-container
+    v-card
+      v-toolbar(flat, color='white')
+        v-toolbar-title.display-1 Logged activity
+        v-spacer
+        v-toolbar-items
+          v-switch(label="Only show unattributed", v-model="unattributed")
+      activity-component(:unattributed='unattributed', ref='activity')
 </template>
 <script>
 import ActivityComponent from './ActivityComponent.vue';
@@ -12,8 +15,7 @@ export default {
   components: {
     'activity-component': ActivityComponent,
   },
-  data: () => ({}),
+  data: () => ({ unattributed: true }),
+  watch: {},
 };
 </script>
-<style src="./dashboard.css">
-</style>

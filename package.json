@@ -30,13 +30,14 @@
   },
   "homepage": "https://github.com/SuperuserLabs/thankful#readme",
   "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.54",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
     "@fortawesome/fontawesome-svg-core": "^1.2.0",
     "@fortawesome/free-brands-svg-icons": "^5.1.0",
     "@fortawesome/free-solid-svg-icons": "^5.1.0",
     "@fortawesome/vue-fontawesome": "^0.1.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.4",
-    "babel-preset-env": "^1.7.0",
     "bluebird": "^3.5.1",
     "chrome-webstore-upload-cli": "^1.1.1",
     "css-loader": "^0.28.11",
@@ -72,6 +73,8 @@
     "websocket": "^1.0.26"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.0.0-beta.54",
+    "babel-loader": "^8.0.0-beta.4",
     "bignumber.js": "^7.2.1",
     "eslint-plugin-jest": "^21.17.0",
     "idempotent-babel-polyfill": "^6.26.0",

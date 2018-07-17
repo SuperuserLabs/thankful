@@ -2,17 +2,17 @@
 div.pt-2
   v-card
     v-toolbar(flat, color='white')
-      v-toolbar-title Donation summary
+      v-toolbar-title.display-1 Donation summary
       v-spacer
       v-flex(xs2, md1)
         v-text-field(v-model="totAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
-      v-btn(color="primary", flat, @click="distribute(totAmount)")
+      v-btn(large, outline, color="primary", @click="distribute(totAmount)")
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
-        td.subheading
+        td
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
-        td.subheading
+        td
           v-edit-dialog(large,
                         lazy,
                         @open="currentAddressValue = props.item.address",
@@ -25,7 +25,7 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
-        td.subheading.text-xs-right
+        td.text-xs-right
           v-edit-dialog(large,
                         lazy,
                         @open="currentFundsValue = props.item.funds"
@@ -44,7 +44,7 @@ div.pt-2
                         autofocus)
             
   div.text-xs-center.pt-2.pb-3
-    v-btn(color='primary', v-on:click="donateAll()")
+    v-btn(large, outline, color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ total.toFixed(2) }})
 </template>
 
@@ -135,6 +135,3 @@ export default {
   },
 };
 </script>
-
-<style>
-</style>

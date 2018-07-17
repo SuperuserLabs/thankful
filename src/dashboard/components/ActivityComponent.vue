@@ -1,44 +1,42 @@
 <template lang="pug">
-div
-  v-data-table(:headers="headers", :items="activities", :pagination.sync='pagination', hide-actions)
-    template(slot='items', slot-scope='props')
-      td.subheading
-        a(:href="props.item.url", target="_blank")
-          | {{ props.item.title || props.item.url }}
-      td.text-right.subheading
-        | {{ props.item.duration | friendlyDuration }}
-  div.text-xs-center.pt-2
-    v-btn(v-if="toAll", size="sm", :to="toAll")
-      | Show all
+v-data-table(:headers="headers", :items="items", :pagination.sync='pagination', hide-actions)
+  template(slot='items', slot-scope='props')
+    td(style="text-overflow:ellipsis; max-width: 0; overflow: hidden; white-space: nowrap;")
+      a(:href="props.item.url", target="_blank")
+        | {{ props.item.title || props.item.url }}
+    td.text-right
+      | {{ props.item.duration | friendlyDuration }}
 </template>
 
 <script>
+import _ from 'lodash';
+
 export default {
   data: () => ({
     activities: [],
     headers: [
-      { text: 'Page', value: 'title' },
-      { text: 'Duration', value: 'duration', width: '150px' },
+      { text: 'Page', value: 'title', width: '80%' },
+      { text: 'Duration', value: 'duration', width: '20%' },
     ],
-    pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
+    pagination: { sortBy: 'duration', descending: true, rowsPerPage: -1 },
   }),
-  props: {
-    limit: { default: Infinity, type: Number },
-    unattributed: { default: false, type: Boolean },
-    toAll: { default: null, type: String },
+  computed: {
+    items() {
+      if (this.unattributed) {
+        return _.filter(this.activities, a => !a.creator);
+      } else {
+        return this.activities;
+      }
+    },
   },
-  computed: {},
+  props: {
+    unattributed: { default: false, type: Boolean },
+  },
   methods: {
     refresh() {
-      if (this.unattributed) {
-        this.$db.getActivities({ withCreators: false }).then(acts => {
-          this.activities = acts;
-        });
-      } else {
-        this.$db.getActivities().then(acts => {
-          this.activities = acts;
-        });
-      }
+      this.$db.getActivities().then(acts => {
+        this.activities = acts;
+      });
     },
   },
   created() {

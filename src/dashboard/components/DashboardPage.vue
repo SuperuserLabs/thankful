@@ -41,7 +41,7 @@ div
       v-btn(color="pink", flat, @click="undo();") Undo
     v-container(grid-list-md)
       v-flex(xs12).mb-3
-        div.headline Your favorite creators
+        div.display-1 Your favorite creators
       div(v-if="creators.length === 0")
         | No creators to show
 
@@ -51,25 +51,15 @@ div
                        v-bind:key="creator.url",
                        @click="edit(creator, index)")
         v-flex(xs12, sm6, md3)
-          v-card(hover, @click.native="addCreator()")
+          v-card(hover, @click.native="addCreator()", height='116px')
             v-container.text-xs-center
               v-icon(x-large) add
               div.title(style="color: #666")
                 | Add creator
 
-      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
-
       v-layout(row)
-        v-flex(xs12,sm6)
-          v-card.p-2.bt-0(no-body)
-            v-toolbar(flat, color='white')
-              v-toolbar-title Unattributed activity
-            activity-component(:limit="10", :unattributed="true", toAll="/activity")
-        v-flex(xs12,sm6)
-          v-card.p-2.bt-0(no-body)
-            v-toolbar(flat, color='white')
-              v-toolbar-title Donation history
-            donation-history-component(:limit="10", ref="donationHistory", toAll="/donations")
+        v-flex(xs12)
+          donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 </template>
 
 <script>
@@ -221,6 +211,3 @@ export default {
   },
 };
 </script>
-
-<style src="../dashboard.css">
-</style>

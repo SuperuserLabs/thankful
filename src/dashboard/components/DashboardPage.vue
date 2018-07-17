@@ -187,22 +187,8 @@ export default {
     this.refresh();
   },
   beforeCreate() {
-    // Get creators from db and commit mutation to vuex store
-    this.$db
-      .getCreators({ withTimespent: true })
-      .then(
-        // Filter ignored creators
-        _.partialRight(_.filter, c => c.ignore !== true)
-      )
-      .then(
-        // Order the creators
-        _.partialRight(_.orderBy, ['priority', 'duration'], ['asc', 'desc'])
-      )
-      .then(creators => {
-        this.$store.commit('dashboard/setCreators', creators);
-      });
-
     // These below are async, might not have run in time
+    this.$store.dispatch('dashboard/loadCreators');
     initThankfulTeamCreator();
     this.$db.attributeGithubActivity();
   },

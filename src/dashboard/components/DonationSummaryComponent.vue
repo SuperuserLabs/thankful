@@ -5,10 +5,10 @@ div.pt-2
       v-toolbar-title Donation summary
       v-spacer
       v-flex(xs2, md1)
-        v-text-field(v-model="totAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
-      v-btn(color="primary", flat, @click="distribute(totAmount)")
+        v-text-field(v-model="totalAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
+      v-btn(color="primary", flat, @click="distribute(totalAmount)")
         | Distribute
-    v-data-table(:headers="headers", :items="distribute", :pagination.sync='pagination', hide-actions)
+    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td.subheading
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
@@ -50,14 +50,12 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
-import browser from 'webextension-polyfill';
 
 export default {
   data: function() {
     return {
       editMode: false,
       distribution: [],
-      totAmount: 10,
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
@@ -82,18 +80,21 @@ export default {
     total() {
       return _.sumBy(this.distribution, 'funds');
     },
+    totalAmount: {
+      get() {
+        return this.$store.state.settings.totalAmount;
+      },
+      set(value) {
+        this.$store.commit('settings/updateSettings', { totalAmount: value });
+        console.log('saved settings');
+      },
+    },
   },
   methods: {
     updateAddress(x) {
       this.$emit('addressUpdate', x);
     },
     distribute() {
-      // TODO: Set totAmount in watcher
-      let settings = { totalAmount: this.totAmount };
-      browser.storage.local
-        .set({ settings })
-        .then(() => console.log('saved settings'));
-
       let scoring = c => Math.sqrt(c.duration);
       let totScore = _.sum(this.creators.map(scoring));
       let factor = 1 - _.sum(this.creators.map(c => c.share));
@@ -101,9 +102,9 @@ export default {
       this.distribution = this.creators.map(c => {
         let funds;
         if (c.share > 0) {
-          funds = c.share * this.totAmount;
+          funds = c.share * this.totalAmount;
         } else {
-          funds = this.totAmount * (scoring(c) / totScore) * factor;
+          funds = this.totalAmount * (scoring(c) / totScore) * factor;
         }
         return {
           name: c.name,
@@ -123,11 +124,7 @@ export default {
     },
   },
   created() {
-    // set totAmount to value saved in localstorage
-    browser.storage.local.get('settings').then(settings => {
-      this.totAmount = settings.settings.totalAmount;
-      this.distribute();
-    });
+    this.distribute();
   },
   watch: {
     creators() {

@@ -14,7 +14,7 @@ div
             | Editing
           v-spacer
           v-toolbar-items
-            v-btn(v-if='!editedCreator.new' dark flat @click='ignore(editing);')
+            v-btn(v-if='!editedCreator.new' dark flat @click='ignore();')
               | #[v-icon visibility_off] Ignore
         v-card-text
           v-layout(wrap)
@@ -144,7 +144,7 @@ export default {
       c.new = true;
       this.edit(c, -1);
     },
-    ignore(index) {
+    ignore() {
       this.currentCreator.ignore = false;
       this.editedCreator.ignore = true;
       this.save(`Ignored ${this.editedCreator.name}.`);
@@ -183,7 +183,7 @@ export default {
       this.$refs.donationSummary.distribute();
     },
   },
-  created() {
+  mounted() {
     this.refresh();
   },
   beforeCreate() {

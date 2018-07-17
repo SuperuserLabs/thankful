@@ -84,9 +84,11 @@ export default class Donate {
       if (!this.isAddress(addr)) {
         throw `Not an address: ${addr}`;
       }
-      if (!(await this.hasBalance(addr))) {
-        throw 'Address looks inactive (0 balance)';
-      }
+      // TODO: Re-enable this when we have some better way of telling the user
+      // than by completely stopping them from donating
+      //if (!(await this.hasBalance(addr))) {
+      //  throw 'Address looks inactive (0 balance)';
+      //}
       const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this._myAcc();
       if (!myAcc) {

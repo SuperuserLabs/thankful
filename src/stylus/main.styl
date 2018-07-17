@@ -1,13 +1,38 @@
 @import '~vuetify/src/stylus/settings/_colors'
 $font-size-table := 18px
 
+$grid-breakpoints := {
+  xs: 0
+  sm: 600px
+  md: 960px
+  lg: (1280px - 16px) // Desktop gets a 16dp reduction
+  xl: (1920px - 16px) // https://material.io/guidelines/layout/responsive-ui.ht
+}
+
+$grid-gutter := 8px
+$grid-columns := 12
+
+$grid-gutters := {
+  xs: ($grid-gutter / 4)
+  sm: ($grid-gutter / 2)
+  md: $grid-gutter
+  lg: ($grid-gutter * 2)
+  xl: ($grid-gutter * 3)
+}
+
+$container-max-widths := {
+  md: $grid-breakpoints.md
+  lg: $grid-breakpoints.lg
+  xl: ($grid-breakpoints.xl + $grid-breakpoints.xl)/2 //Changed
+}
+
 $material-light := {
   status-bar: {
     regular: #E0E0E0,
     lights-out: rgba(#fff, .7)
   },
   app-bar: #F5F5F5,
-  background: $grey.lighten-3,
+  background: $grey.lighten-3, // Changed
   cards: #FFFFFF,
   chips: {
     background: $grey.lighten-2,

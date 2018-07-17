@@ -57,7 +57,9 @@ div
               div.title(style="color: #666")
                 | Add creator
 
-      donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
+      v-layout(row)
+        v-flex(xs12)
+          donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
 </template>
 
 <script>

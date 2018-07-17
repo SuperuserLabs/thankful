@@ -10,17 +10,16 @@ library.add(faStar, faYoutube, faGithub);
 import { formatSecs } from '../lib/time.js';
 import Donate from '../lib/donate.js';
 import { Database } from '../lib/db.js';
-
 import 'typeface-roboto';
+import '../stylus/main.styl';
+
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.use(Vuetify, {
-  theme: {},
+  theme: { primary: '#00695C' },
 });
-
-import 'vuetify/dist/vuetify.min.css';
 
 import router from './route.js';
 

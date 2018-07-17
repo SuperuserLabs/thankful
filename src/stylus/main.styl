@@ -1,0 +1,138 @@
+@import '~vuetify/src/stylus/settings/_colors'
+$font-size-table := 18px
+
+$grid-breakpoints := {
+  xs: 0
+  sm: 600px
+  md: 960px
+  lg: (1280px - 16px) // Desktop gets a 16dp reduction
+  xl: (1920px - 16px) // https://material.io/guidelines/layout/responsive-ui.ht
+}
+
+$grid-gutter := 8px
+$grid-columns := 12
+
+$grid-gutters := {
+  xs: ($grid-gutter / 4)
+  sm: ($grid-gutter / 2)
+  md: $grid-gutter
+  lg: ($grid-gutter * 2)
+  xl: ($grid-gutter * 3)
+}
+
+$container-max-widths := {
+  md: $grid-breakpoints.md
+  lg: $grid-breakpoints.lg
+  xl: ($grid-breakpoints.xl + $grid-breakpoints.xl)/2 //Changed
+}
+
+$material-light := {
+  status-bar: {
+    regular: #E0E0E0,
+    lights-out: rgba(#fff, .7)
+  },
+  app-bar: #F5F5F5,
+  background: $grey.lighten-3, // Changed
+  cards: #FFFFFF,
+  chips: {
+    background: $grey.lighten-2,
+    color: rgba(#000, .87)
+  },
+  dividers: rgba(#000, .12),
+  text: {
+    theme: #fff,
+    primary: rgba(#000, .87),
+    secondary: rgba(#000, .54),
+    disabled: rgba(#000, .38),
+    link: $blue.darken-2,
+    link-hover: $grey.darken-3
+  },
+  icons: {
+    active: rgba(#000, .54),
+    inactive: rgba(#000, .38)
+  },
+  inputs: {
+    box: rgba(#000, .04),
+    solo-inverted: rgba(#000, .16),
+    solo-inverted-focused: #424242,
+    solo-inverted-focused-text: #fff
+  },
+  buttons: {
+    disabled: rgba(#000, .26),
+    focused: rgba(#000, .12),
+    focused-alt: rgba(#fff, .6),
+    pressed: rgba(#999, .4)
+  },
+  expansion-panels: {
+    focus: #EEEEEE
+  },
+  list-tile: {
+    hover: rgba(#000, .04)
+  },
+  selection-controls: {
+    thumb: {
+      inactive: $grey.lighten-5,
+      disabled: $grey.lighten-1
+    },
+    track: {
+      inactive: rgba(#000, .38),
+      disabled: rgba(#000, .12)
+    }
+  },
+  slider: {
+    active: rgba(#000, .38),
+    inactive: rgba(#000, .26),
+    disabled: rgba(#000, .26),
+    discrete: #000
+  },
+  tabs: {
+    active: rgba(#000, .87)
+  },
+  text-fields: {
+    box: rgba(#000, .06),
+    box-hover: rgba(#000, .12)
+  },
+  input-bottom-line: rgba(#000, .42),
+  stepper: {
+    active: rgba(#fff, 1),
+    completed: rgba(#000, 0.87),
+    hover: rgba(#000, 0.54)
+  },
+  table: {
+    active: $grey.lighten-4
+    hover: $grey.lighten-3
+  },
+  picker: {
+    body: #fff,
+    clock: $grey.lighten-2,
+    indeterminateTime: $grey.lighten-1,
+    title: $grey.lighten-2
+  },
+  bg-color: #fff
+  fg-color: #000
+  text-color: #000
+  primary-text-percent: .87
+  secondary-text-percent: .54
+  disabledORhints-text-percent: .38
+  divider-percent: .12
+  active-icon-percent: .54
+  inactive-icon-percent: .38
+}
+
+@import '~vuetify/src/stylus/main'
+
+body a {
+  color: $teal.base
+  text-decoration: none
+  &:hover {
+    color: $teal.lighten-2
+    text-decoration: none
+  }
+}
+
+td, th
+  font-size: $font-size-table !important
+
+th
+  i
+    font-size: $font-size-table !important

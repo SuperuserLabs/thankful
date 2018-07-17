@@ -78,7 +78,7 @@
     "eslint-plugin-jest": "^21.17.0",
     "idempotent-babel-polyfill": "^6.26.0",
     "material-design-icons-iconfont": "^3.0.3",
-    "metamask-crx": "github:MetaMask/metamask-extension",
+    "metamask-crx": "github:MetaMask/metamask-extension#v4.8.0",
     "typeface-roboto": "0.0.54",
     "vuetify": "^1.1.1",
     "vuex": "^3.0.1",

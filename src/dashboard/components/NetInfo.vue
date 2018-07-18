@@ -1,8 +1,8 @@
 <template lang="pug">
 v-chip(:color='netColor', text-color='white')
-  div(v-if='netId === -1')
+  div(v-if="netId === -1")
     | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-  div(v-else-if='myAddress === -1')
+  div(v-else-if="myAddress === -1")
     | You are connected to the {{ netName }} but not logged in. Please open
     | MetaMask and log in.
   div(v-else)
@@ -49,6 +49,7 @@ export default {
           } else {
             this.myAddress = -1;
           }
+          this.$store.commit('dashboard/setDonateButtonError', 'asdf');
         })
         .catch(err => {
           console.error('Failed to update metamask status:', err);

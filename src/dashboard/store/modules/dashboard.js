@@ -3,7 +3,7 @@ import { Database } from '../../../lib/db.js';
 let db = new Database();
 
 const state = {
-  donateButtonError: null,
+  metamaskStatusError: null,
 };
 
 db.getCreators().then(creators => {
@@ -16,8 +16,8 @@ const actions = {};
 
 const mutations = {
   // eslint-disable-next-line no-shadow
-  setDonateButtonError: (state, error) => {
-    state.donateButtonError = error;
+  setMetamaskStatusError: (state, error) => {
+    state.metamaskStatusError = error;
   },
 };
 

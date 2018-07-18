@@ -85,7 +85,7 @@ export default {
       return _.sumBy(this.distribution, 'funds');
     },
     buttonError() {
-      return this.$store.state.dashboard.donateButtonError;
+      return this.$store.state.dashboard.metamaskStatusError;
     },
   },
   methods: {

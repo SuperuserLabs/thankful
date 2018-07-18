@@ -49,7 +49,7 @@ export default {
           } else {
             this.myAddress = -1;
           }
-          this.$store.commit('dashboard/setDonateButtonError', 'asdf');
+          this.$store.commit('dashboard/setMetamaskStatusError', 'asdf');
         })
         .catch(err => {
           console.error('Failed to update metamask status:', err);

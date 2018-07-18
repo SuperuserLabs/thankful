@@ -2,7 +2,7 @@
 v-chip(:color='netColor', text-color='white')
   div(v-if="netId === -1")
     | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-  div(v-else-if="myAddress === -1")
+  div(v-else-if="!myAddress")
     | You are connected to the {{ netName }} but not logged in. Please open
     | MetaMask and log in.
   div(v-else)
@@ -12,7 +12,7 @@ v-chip(:color='netColor', text-color='white')
 export default {
   data: () => ({
     netId: -1,
-    myAddress: -1,
+    myAddress: null,
   }),
   computed: {
     netName() {
@@ -48,7 +48,7 @@ export default {
             this.myAddress = addr;
             this.$store.commit('dashboard/setMetamaskStatusError', null);
           } else {
-            this.myAddress = -1;
+            this.myAddress = null;
             this.$store.commit(
               'dashboard/setMetamaskStatusError',
               'Please log in to MetaMask to be able to donate'

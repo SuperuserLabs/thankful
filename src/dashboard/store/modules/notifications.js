@@ -5,13 +5,18 @@ export default {
 
   state: {
     messages: [
-      { text: 'Just testing...', type: 'info', active: true },
-      {
-        title: 'A test',
-        text: 'Just testing errors',
-        type: 'error',
-        active: true,
-      },
+      //{
+      //  title: 'A test',
+      //  text: 'Just testing...',
+      //  type: 'info',
+      //  active: true,
+      //},
+      //{
+      //  title: 'Another test',
+      //  text: 'Just testing errors',
+      //  type: 'error',
+      //  active: true,
+      //},
     ],
   },
 

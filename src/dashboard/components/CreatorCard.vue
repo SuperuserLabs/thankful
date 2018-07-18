@@ -30,6 +30,12 @@ v-card(height='116px')
           v-list-tile-content
             v-list-tile-title
               | Ignore (no impl.)
+        v-list-tile(@click='console.warn("Not implemented")')
+          v-list-tile-action
+            v-icon history
+          v-list-tile-content
+            v-list-tile-title
+              | Show activity (no impl.)
 </template>
 
 <script>

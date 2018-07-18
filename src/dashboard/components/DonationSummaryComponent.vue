@@ -44,12 +44,10 @@ div.pt-2
                         autofocus)
             
   div.text-xs-center.pt-2.pb-3
-    div(v-if="buttonError === -1")
-      v-btn(large, outline, color='primary', v-on:click="donateAll()")
-        | Send your thanks! (${{ total.toFixed(2) }})
-    div(v-else)
-      v-btn(disabled, large, outline, color='primary', v-on:click="donateAll()")
-        | {{ buttonError }}
+    v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
+      | Send your thanks! (${{ total.toFixed(2) }})
+    v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
+      | {{ buttonError }}
 </template>
 
 <script>

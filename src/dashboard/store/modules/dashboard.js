@@ -3,7 +3,7 @@ import { Database } from '../../../lib/db.js';
 let db = new Database();
 
 const state = {
-  donateButtonError: -1,
+  donateButtonError: null,
 };
 
 db.getCreators().then(creators => {
@@ -18,7 +18,6 @@ const mutations = {
   // eslint-disable-next-line no-shadow
   setDonateButtonError: (state, error) => {
     state.donateButtonError = error;
-    console.log('buttonErrror:', state.donateButtonError);
   },
 };
 

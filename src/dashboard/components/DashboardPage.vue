@@ -1,12 +1,12 @@
 <template lang="pug">
 div
-  a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
+  a(v-on:click='toTop()', v-if='notifications', style='position:fixed;bottom:20px;right:100px;z-index:100')
     v-icon(color='warning', x-large) warning
-  v-layout(row, wrap)
-    v-flex(xs6)
-      v-alert(v-for="(error, index) in errors", :key='index', show, dismissible, variant='warning', @dismissed='dismissedErrors++')
-        | {{ error }}
   div
+    v-alert(v-for="(msg, index) in notifications", :key='index', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.index)')
+      b(v-if="msg.title")
+        | {{ msg.title }}:&nbsp;
+      | {{ msg.text }}
     v-dialog(v-model="dialog", max-width='500px')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -92,8 +92,6 @@ export default {
   data: () => ({
     valid: true,
     editing: -1,
-    errors: [],
-    dismissedErrors: 0,
     dialog: false,
     currentCreator: {},
     editedCreator: { name: '', url: '', address: '' },
@@ -116,8 +114,14 @@ export default {
     creators() {
       return this.$store.getters['dashboard/creatorsNotIgnored'];
     },
+    notifications() {
+      return this.$store.getters['notifications/active'];
+    },
   },
   methods: {
+    hideNotification(index) {
+      this.$store.commit('notifications/hide', index);
+    },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
         this.activities = activities;
@@ -127,10 +131,14 @@ export default {
       document.body.scrollTop = 0; // For Safari
       document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
     },
-    errfun(title, sink = this.errors) {
+    errfun(title) {
       return message => {
         console.error(`${title}: ${message}`);
-        sink.push(`${title}: ${message}`);
+        this.$store.commit('notifications/insert', {
+          title,
+          text: message,
+          type: 'error',
+        });
       };
     },
     addCreator() {

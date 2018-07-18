@@ -46,13 +46,21 @@ export default {
         .then(addr => {
           if (addr !== undefined) {
             this.myAddress = addr;
+            this.$store.commit('dashboard/setMetamaskStatusError', null);
           } else {
             this.myAddress = -1;
+            this.$store.commit(
+              'dashboard/setMetamaskStatusError',
+              'Please log in to MetaMask to be able to donate'
+            );
           }
-          this.$store.commit('dashboard/setMetamaskStatusError', 'asdf');
         })
         .catch(err => {
           console.error('Failed to update metamask status:', err);
+          this.$store.commit(
+            'dashboard/setMetamaskStatusError',
+            'MetaMask error, unable to donate'
+          );
           this.netId = -1;
           this.myAddress = -1;
         });

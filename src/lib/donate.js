@@ -34,14 +34,13 @@ export default class Donate {
 
         return web3.eth.net.getId();
       })
-      .then(netId => {
+      .then(() => {
         // Networks:
         // 1:  Mainnet
         // 2:  Deprecated Morden testnet
         // 3:  Ropsten testnet
         // 4:  Rinkeby testnet
         // 42: Kovan testnet
-        console.log(`Net ID: ${netId}`);
       })
       .catch(err => {
         throw err;

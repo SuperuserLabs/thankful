@@ -3,7 +3,7 @@ import { Database } from '../../../lib/db.js';
 let db = new Database();
 
 const state = {
-  metamaskStatusError: null,
+  metamaskStatusError: 'Please install MetaMask to be able to donate',
 };
 
 db.getCreators().then(creators => {

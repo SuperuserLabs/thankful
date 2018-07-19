@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 
 manifest_file = Path(sys.argv.pop())
-print(manifest_file.absolute())
+print("Setting version in file: " + str(manifest_file))
 
 version = os.environ["TRAVIS_TAG"].strip("v")
 
-with open(manifest_file, "r") as f:
+with manifest_file.open("r") as f:
     data = json.load(f)
     data["version"] = version
 
-with open(manifest_file, "w") as f:
+with manifest_file.open("w") as f:
     json.dump(data, f, indent=2)

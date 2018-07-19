@@ -4,14 +4,16 @@ import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider
 import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
 import browser from 'webextension-polyfill';
 import BigNumber from 'bignumber.js';
-import { Database, Donation } from './db';
+import { Database } from './db';
 
 const addrs = {};
 // All on Ropsten
 addrs.erik = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-addrs.patrik = '0xbcEf85708670FA0127C484Ac649724B8028Ea08b';
+// Forgot his password?
+//addrs.patrik = '0xbcEf85708670FA0127C484Ac649724B8028Ea08b';
 addrs.jacob = '0xBF9e8395854cE02abB454d5131F45F2bFFB54017';
 addrs.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
+// TODO: Add johannes
 
 let web3;
 let db;
@@ -39,6 +41,7 @@ export default class Donate {
         // 3:  Ropsten testnet
         // 4:  Rinkeby testnet
         // 42: Kovan testnet
+        console.log(`Net ID: ${netId}`);
       })
       .catch(err => {
         throw err;
@@ -49,14 +52,11 @@ export default class Donate {
   }
 
   async donateAll(donations, refreshCallback) {
-    const donationPromises = donations.map(async d =>
-      this._donateOne(
-        d.address,
-        BigNumber(d.allocatedFunds),
-        d.url,
-        refreshCallback
-      )
-    );
+    const donationPromises = donations
+      .filter(d => undefined !== d.address)
+      .map(async d =>
+        this._donateOne(d.address, BigNumber(d.funds), d.url, refreshCallback)
+      );
     return Promise.all(donationPromises);
   }
 
@@ -84,13 +84,18 @@ export default class Donate {
   ) {
     try {
       if (!this.isAddress(addr)) {
-        throw 'Not an address';
+        throw `Not an address: ${addr}`;
       }
-      if (!(await this.hasBalance(addr))) {
-        throw 'Address looks inactive (0 balance)';
-      }
+      // TODO: Re-enable this when we have some better way of telling the user
+      // than by completely stopping them from donating
+      //if (!(await this.hasBalance(addr))) {
+      //  throw 'Address looks inactive (0 balance)';
+      //}
       const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this._myAcc();
+      if (!myAcc) {
+        throw 'You are not logged in to metamask, please install the extension and/or log in';
+      }
       return web3.eth
         .sendTransaction({
           from: myAcc,

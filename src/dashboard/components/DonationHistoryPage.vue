@@ -1,7 +1,8 @@
 <template lang="pug">
 div.container
-  h3 Donation history
-  b-card.p-2.bt-0(no-body)
+  v-toolbar(flat, color='white')
+    v-toolbar-title Donation history
+  v-card.p-2.bt-0(no-body)
     donation-history-component
 </template>
 <script>
@@ -14,5 +15,3 @@ export default {
   data: () => ({}),
 };
 </script>
-<style src="./dashboard.css">
-</style>

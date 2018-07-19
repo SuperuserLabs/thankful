@@ -1,18 +1,28 @@
+/*eslint-env node*/
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const webpack = require('webpack');
+
+let mode = process.env['PRODUCTION'] ? 'production' : 'development';
 
 module.exports = {
-  mode: process.env['PRODUCTION'] ? 'production' : 'development',
+  mode: mode,
   module: {
     rules: [
+      {
+        test: /\.styl$/,
+        loader: ['style-loader', 'css-loader', 'stylus-loader'],
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['env'],
+            presets: ['@babel/preset-env'],
+            plugins: [require('@babel/plugin-proposal-object-rest-spread')],
           },
         },
       },
@@ -26,7 +36,16 @@ module.exports = {
           },
           // this applies to pug imports inside JavaScript
           {
-            use: ['raw-loader', 'pug-plain-loader'],
+            use: [
+              'raw-loader',
+              {
+                loader: 'pug-plain-loader',
+                options: {
+                  data: { mode: mode },
+                  pretty: true,
+                },
+              },
+            ],
           },
         ],
       },
@@ -39,6 +58,14 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(eot|ttf|woff2?)(\?v=[0-9]\.[0-9]\.[0-9])?$/i,
+        use: [
+          {
+            loader: 'url-loader',
+          },
+        ],
       },
     ],
   },
@@ -59,7 +86,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'popup/index.html',
       template: 'src/popup/popup.pug',
-      inject: true,
+      inject: false,
     }),
     new HtmlWebpackPlugin({
       filename: 'dashboard/index.html',
@@ -67,6 +94,9 @@ module.exports = {
       inject: false,
     }),
     new VueLoaderPlugin(),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development', // use 'development' unless process.env.NODE_ENV is defined
+    }),
   ],
-  devtool: 'cheap-module-source-remap',
+  devtool: 'cheap-module-eval-source-map',
 };

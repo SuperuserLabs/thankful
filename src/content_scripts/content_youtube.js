@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill';
 import { Creator } from '../lib/db.js';
 import {
   sendCreator,

@@ -38,7 +38,7 @@ v-app
         h3 We're in alpha
         div
           | We're still figuring things out.
-          | Please report any issues #[a(href='https://github.com/SuperuserLabs/thankful/issues' style="color: #fff") here].
+          | Please report any issues #[a(href='https://github.com/SuperuserLabs/thankful/issues' style="color: #fff; text-decoration: underline") here].
     v-spacer
     v-toolbar-items
 

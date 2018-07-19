@@ -74,9 +74,9 @@ export class Database {
     return this.db.creator.get({ url: url });
   }
 
-  async getCreators({ limit = 100, withTimespent = false } = {}) {
+  async getCreators({ limit = 100, withDurations = false } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
-    if (withTimespent) {
+    if (withDurations) {
       await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);

@@ -74,13 +74,25 @@ export class Database {
     return this.db.creator.get({ url: url });
   }
 
-  async getCreators({ limit = 100, withTimespent = false } = {}) {
+  async getCreators({
+    limit = 100,
+    withTimespent = false,
+    withThanksAmount = false,
+  } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
     if (withTimespent) {
-      await Promise.all(
+      creators = await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);
           c.duration = _.sumBy(activities, 'duration');
+          return c;
+        })
+      );
+    }
+    if (withThanksAmount) {
+      creators = await Promise.all(
+        _.map(creators, async c => {
+          c.thanksAmount = await this.getCreatorThanksAmount(c.url);
           return c;
         })
       );

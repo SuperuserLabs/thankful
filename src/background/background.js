@@ -31,11 +31,7 @@ async function rescheduleAlarm() {
 }
 
 (function() {
-  browser.browserAction.onClicked.addListener(() => {
-    browser.tabs.create({
-      url: browser.runtime.getURL('dashboard/index.html'),
-    });
-  });
+  rescheduleAlarm();
 
   const db = new Database();
   let noContentScript = {};
@@ -66,7 +62,7 @@ async function rescheduleAlarm() {
       const audibleTabs = await browser.tabs.query({ audible: true });
       const tabs = _.filter(
         _.unionBy(currentTabArray, audibleTabs, 'url'),
-        tab => tab.incognito
+        tab => !tab.incognito
       );
 
       const timeSinceLastPoll = pollTimer();

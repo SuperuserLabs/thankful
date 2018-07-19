@@ -183,7 +183,7 @@ export default {
     },
     refresh() {
       this.$db
-        .getCreators({ withTimespent: true })
+        .getCreators({ withTimespent: true, withThanksAmount: true })
         .then(
           // Filter ignored creators
           _.partialRight(_.filter, c => c.ignore !== true)

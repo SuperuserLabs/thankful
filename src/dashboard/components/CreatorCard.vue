@@ -30,7 +30,7 @@ v-card(height='116px')
           v-list-tile-content
             v-list-tile-title
               | Ignore (no impl.)
-        v-list-tile(@click='console.warn("Not implemented")')
+        v-list-tile(@click='show_activity()')
           v-list-tile-action
             v-icon history
           v-list-tile-content
@@ -63,8 +63,17 @@ export default {
         duration: this.creator.duration,
       });
     },
+    show_activity() {
+      this.$store.commit('notifications/insert', {
+        text: 'show_activity not implemented',
+        type: 'error',
+      });
+    },
     ignore() {
-      console.warn('ignore not implemented');
+      this.$store.commit('notifications/insert', {
+        text: 'ignore not implemented',
+        type: 'error',
+      });
     },
     cancel() {
       this.setDefaultData(this);

@@ -1,12 +1,14 @@
 <template lang="pug">
 div
-  a(v-on:click='toTop()', v-if='dismissedErrors < errors.length', style='position:fixed;bottom:20px;right:100px;z-index:100')
+  a(v-on:click='toTop()', v-if='notifications.length > 0', style='position:fixed;bottom:20px;right:100px;z-index:100')
     v-icon(color='warning', x-large) warning
-  v-layout(row, wrap)
-    v-flex(xs6)
-      v-alert(v-for="(error, index) in errors", :key='index', show, dismissible, variant='warning', @dismissed='dismissedErrors++')
-        | {{ error }}
   div
+    // For testing notifications:
+    // v-btn(@click="errfun('lol')('lol')")
+    v-alert(v-for="(msg, index) in notifications", :key='index', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.index)')
+      b(v-if="msg.title")
+        | {{ msg.title }}:&nbsp;
+      | {{ msg.text }}
     v-dialog(v-model="dialog", max-width='500px')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -14,7 +16,7 @@ div
             | Editing
           v-spacer
           v-toolbar-items
-            v-btn(v-if='!editedCreator.new' dark flat @click='ignore(editing);')
+            v-btn(v-if='!editedCreator.new' dark flat @click='ignore();')
               | #[v-icon visibility_off] Ignore
         v-card-text
           v-layout(wrap)
@@ -37,8 +39,8 @@ div
                   | {{ props.item.title || props.item.url }}
               td.text-right
                 | {{ props.item.duration | friendlyDuration }}
-    v-snackbar(v-model='snackMessage.length > 0', top) {{ snackMessage }}
-      v-btn(color="pink", flat, @click="undo();") Undo
+    v-snackbar(v-model='showSnackbar', top) {{ snackMessage }}
+      v-btn(color="pink", flat, @click="undo()") Undo
     v-container(grid-list-md)
       v-flex(xs12).mb-3
         div.display-1 Your favorite creators
@@ -91,10 +93,6 @@ export default {
   },
   data: () => ({
     valid: true,
-    creatorList: [],
-    editing: -1,
-    errors: [],
-    dismissedErrors: 0,
     dialog: false,
     currentCreator: {},
     editedCreator: { name: '', url: '', address: '' },
@@ -105,20 +103,23 @@ export default {
     ],
     pagination: { sortBy: 'duration', descending: true },
     snackMessage: '',
+    showSnackbar: false,
     ethAddressRules: [
       v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
     ],
   }),
   computed: {
-    state() {
-      return this.$store.state.dashboard;
-    },
-
     creators() {
-      return _.take(this.creatorList, 12);
+      return this.$store.getters['dashboard/creatorsNotIgnored'];
+    },
+    notifications() {
+      return this.$store.getters['notifications/active'];
     },
   },
   methods: {
+    hideNotification(index) {
+      this.$store.commit('notifications/hide', index);
+    },
     getActivities(creator) {
       this.$db.getCreatorActivity(creator.url).then(activities => {
         this.activities = activities;
@@ -128,10 +129,14 @@ export default {
       document.body.scrollTop = 0; // For Safari
       document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
     },
-    errfun(title, sink = this.errors) {
+    errfun(title) {
       return message => {
         console.error(`${title}: ${message}`);
-        sink.push(`${title}: ${message}`);
+        this.$store.commit('notifications/insert', {
+          title,
+          text: message,
+          type: 'error',
+        });
       };
     },
     addCreator() {
@@ -140,72 +145,38 @@ export default {
       c.new = true;
       this.edit(c, -1);
     },
-    remove(creator, index) {
-      Object.assign(this.editedCreator, creator);
-      creator.delete();
-      this.creatorList.splice(index, 1);
-      this.editing = -1;
-      this.dialog = false;
-    },
-    ignore(index) {
+    ignore() {
       this.currentCreator.ignore = false;
       this.editedCreator.ignore = true;
       this.save(`Ignored ${this.editedCreator.name}.`);
-      this.creatorList.splice(index, 1);
     },
     save(message = '') {
-      const alternate = this.editedCreator;
-      const current = this.currentCreator;
-      const tmp = Object.assign({}, current);
-      return current
-        .delete()
-        .then(() => {
-          Object.assign(current, alternate);
-          return current.save();
+      // Update creator in vuex store
+      this.$store
+        .dispatch('dashboard/doUpdateCreator', {
+          index: this.currentCreator.index,
+          updates: this.editedCreator,
         })
         .then(() => {
-          this.editing = -1;
-          this.editedCreator = tmp;
+          // Dismiss editing popup and show snackBar
           this.dialog = false;
           this.snackMessage = message;
-          this.refresh();
+          this.showSnackbar = message.length > 0;
         });
     },
     undo() {
-      this.save();
+      this.$store.dispatch('dashboard/undo');
     },
-    edit(creator, index) {
+    edit(creator) {
       this.currentCreator = creator;
-      this.editing = index;
-      this.editedCreator = _.assignIn({}, creator);
+      this.editedCreator = _.pick(creator, ['name', 'url', 'address']);
       this.getActivities(creator);
       this.dialog = true;
     },
-    refresh() {
-      this.$db
-        .getCreators({ withTimespent: true })
-        .then(
-          // Filter ignored creators
-          _.partialRight(_.filter, c => c.ignore !== true)
-        )
-        .then(
-          // Order the creators
-          _.partialRight(_.orderBy, ['priority', 'duration'], ['asc', 'desc'])
-        )
-        .then(c => {
-          this.creatorList = c;
-        })
-        .then(() => {
-          this.$refs.donationHistory.refresh;
-          this.$refs.donationSummary.distribute;
-        });
-    },
-  },
-  created() {
-    this.refresh();
   },
   beforeCreate() {
     // These below are async, might not have run in time
+    this.$store.dispatch('dashboard/loadCreators');
     initThankfulTeamCreator();
     this.$db.attributeGithubActivity();
   },

@@ -5,8 +5,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const webpack = require('webpack');
 
+let mode = process.env['PRODUCTION'] ? 'production' : 'development';
+
 module.exports = {
-  mode: process.env['PRODUCTION'] ? 'production' : 'development',
+  mode: mode,
   module: {
     rules: [
       {
@@ -34,7 +36,16 @@ module.exports = {
           },
           // this applies to pug imports inside JavaScript
           {
-            use: ['raw-loader', 'pug-plain-loader'],
+            use: [
+              'raw-loader',
+              {
+                loader: 'pug-plain-loader',
+                options: {
+                  data: { mode: mode },
+                  pretty: true,
+                },
+              },
+            ],
           },
         ],
       },

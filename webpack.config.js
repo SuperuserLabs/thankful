@@ -98,5 +98,5 @@ module.exports = {
       NODE_ENV: 'development', // use 'development' unless process.env.NODE_ENV is defined
     }),
   ],
-  devtool: 'cheap-module-source-remap',
+  devtool: 'cheap-module-eval-source-map',
 };

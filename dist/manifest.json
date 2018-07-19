@@ -22,7 +22,7 @@
     }
   ],
   "content_security_policy":
-    "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'http://localhost:8098'; object-src 'self'",
 
   "permissions": [
     "tabs",

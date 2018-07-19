@@ -93,7 +93,6 @@ export default {
   },
   data: () => ({
     valid: true,
-    editing: -1,
     dialog: false,
     currentCreator: {},
     editedCreator: { name: '', url: '', address: '' },
@@ -110,9 +109,6 @@ export default {
     ],
   }),
   computed: {
-    state() {
-      return this.$store.state.dashboard;
-    },
     creators() {
       return this.$store.getters['dashboard/creatorsNotIgnored'];
     },
@@ -155,31 +151,25 @@ export default {
       this.save(`Ignored ${this.editedCreator.name}.`);
     },
     save(message = '') {
-      // Save creator to be able to undo changes
-      let creatorBeforeEdit = Object.assign({}, this.currentCreator);
-      Object.assign(this.currentCreator, this.editedCreator);
-
-      // Save creator to db
-      this.currentCreator.save();
-
-      // Update creators in vuex store
-      this.$store.commit('dashboard/setCreators', this.state.creators);
-
-      // Dismiss editing popup and show snackBar
-      this.editing = -1;
-      this.editedCreator = creatorBeforeEdit;
-      this.dialog = false;
-      this.snackMessage = message;
-      this.showSnackbar = message.length > 0;
-      this.refresh();
+      // Update creator in vuex store
+      this.$store
+        .dispatch('dashboard/doUpdateCreator', {
+          index: this.currentCreator.index,
+          updates: this.editedCreator,
+        })
+        .then(() => {
+          // Dismiss editing popup and show snackBar
+          this.dialog = false;
+          this.snackMessage = message;
+          this.showSnackbar = message.length > 0;
+        });
     },
     undo() {
-      this.save();
+      this.$store.dispatch('dashboard/undo');
     },
-    edit(creator, index) {
+    edit(creator) {
       this.currentCreator = creator;
-      this.editing = index;
-      this.editedCreator = _.assignIn({}, creator);
+      this.editedCreator = _.pick(creator, ['name', 'url', 'address']);
       this.getActivities(creator);
       this.dialog = true;
     },

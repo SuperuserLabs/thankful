@@ -3,6 +3,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const webpack = require('webpack');
 
 let mode = process.env['PRODUCTION'] ? 'production' : 'development';
 
@@ -93,6 +94,9 @@ module.exports = {
       inject: false,
     }),
     new VueLoaderPlugin(),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development', // use 'development' unless process.env.NODE_ENV is defined
+    }),
   ],
   devtool: 'cheap-module-source-remap',
 };

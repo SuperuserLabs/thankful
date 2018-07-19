@@ -78,7 +78,7 @@ function initThankfulTeamCreator() {
   creator.info =
     'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
-  creator.share = 0.2;
+  creator.share = 0.1;
   return creator.save();
 }
 

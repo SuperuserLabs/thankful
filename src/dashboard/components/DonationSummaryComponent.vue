@@ -93,7 +93,10 @@ export default {
         .set({ settings })
         .then(() => console.log('saved settings'));
 
-      let scoring = c => Math.sqrt(c.duration);
+      let scoring = c => {
+        //const oneHourInSeconds = 60 * 60;
+        return Math.sqrt(c.duration) /*+ c.thanks * oneHourInSeconds*/;
+      };
       let totScore = _.sum(this.creators.map(scoring));
       let factor = 1 - _.sum(this.creators.map(c => c.share));
 

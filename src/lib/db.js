@@ -244,4 +244,15 @@ export class Database {
         throw 'Could not count url thanks: ' + err;
       });
   }
+
+  async getCreatorThanksAmount(creator_url) {
+    creator_url = canonicalizeUrl(creator_url);
+    return this.db.thanks
+      .where('creator')
+      .equals(creator_url)
+      .count()
+      .catch(err => {
+        throw 'Could not count creator thanks: ' + err;
+      });
+  }
 }

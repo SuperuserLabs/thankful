@@ -1,7 +1,19 @@
 import _ from 'lodash';
-import { Database } from '../../../lib/db.js';
+import { Database, Creator } from '../../../lib/db.js';
 
 let db = new Database();
+
+function initThankfulTeamCreator() {
+  const creator = new Creator('https://getthankful.io', 'Thankful Team');
+  // Erik's address
+  // TODO: Change to a multisig wallet
+  creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
+  creator.info =
+    'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
+  creator.priority = 1;
+  creator.share = 0.2;
+  return creator.save();
+}
 
 export default {
   namespaced: true,
@@ -24,6 +36,8 @@ export default {
 
   actions: {
     async loadCreators({ commit }) {
+      await initThankfulTeamCreator();
+      await db.attributeGithubActivity();
       let creators = await db.getCreators({ withDurations: true });
       commit('setCreators', creators);
     },

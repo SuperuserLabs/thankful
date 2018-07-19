@@ -44,10 +44,9 @@ div
     v-container(grid-list-md)
       v-flex(xs12).mb-3
         div.display-1 Your favorite creators
-      div(v-if="creators.length === 0")
-        | No creators to show
-
-      v-layout(row, wrap)
+      v-layout(v-if='loading', row, justify-center, align-center)
+        v-progress-circular(indeterminate, :size='50')
+      v-layout(v-else, row, wrap)
         v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
@@ -72,18 +71,6 @@ import DonationSummaryComponent from './DonationSummaryComponent.vue';
 import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
 
-function initThankfulTeamCreator() {
-  const creator = new Creator('https://getthankful.io', 'Thankful Team');
-  // Erik's address
-  // TODO: Change to a multisig wallet
-  creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-  creator.info =
-    'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
-  creator.priority = 1;
-  creator.share = 0.2;
-  return creator.save();
-}
-
 export default {
   components: {
     'creator-card': CreatorCard,
@@ -94,6 +81,7 @@ export default {
   data: () => ({
     valid: true,
     dialog: false,
+    loading: true,
     currentCreator: {},
     editedCreator: { name: '', url: '', address: '' },
     activities: [],
@@ -110,7 +98,7 @@ export default {
   }),
   computed: {
     creators() {
-      return this.$store.getters['dashboard/creatorsNotIgnored'];
+      return this.$store.getters['db/creatorsNotIgnored'];
     },
     notifications() {
       return this.$store.getters['notifications/active'];
@@ -153,7 +141,7 @@ export default {
     save(message = '') {
       // Update creator in vuex store
       this.$store
-        .dispatch('dashboard/doUpdateCreator', {
+        .dispatch('db/doUpdateCreator', {
           index: this.currentCreator.index,
           updates: this.editedCreator,
         })
@@ -165,7 +153,7 @@ export default {
         });
     },
     undo() {
-      this.$store.dispatch('dashboard/undo');
+      this.$store.dispatch('db/undo');
     },
     edit(creator) {
       this.currentCreator = creator;
@@ -175,10 +163,9 @@ export default {
     },
   },
   beforeCreate() {
-    // These below are async, might not have run in time
-    this.$store.dispatch('dashboard/loadCreators');
-    initThankfulTeamCreator();
-    this.$db.attributeGithubActivity();
+    this.$store.dispatch('db/loadCreators').then(() => {
+      this.loading = false;
+    });
   },
 };
 </script>

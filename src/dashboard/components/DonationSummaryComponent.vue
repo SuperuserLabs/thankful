@@ -3,6 +3,10 @@ div.pt-2
   v-card
     v-toolbar(flat, color='white')
       v-toolbar-title.display-1 Donation summary
+      v-btn.ml-4(small, flat, target="_blank", href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing")
+        | List of addresses
+      v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
+        | Submit new addresses
       v-spacer
       v-flex(xs2, md1)
         v-text-field(v-model="totalAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)

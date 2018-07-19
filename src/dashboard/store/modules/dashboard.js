@@ -9,6 +9,7 @@ export default {
   state: {
     creators: [],
     lastEdit: {},
+    metamaskStatusError: 'Please install MetaMask to be able to donate',
   },
 
   getters: {
@@ -55,6 +56,9 @@ export default {
       let { index, keys, old } = state.lastEdit;
       let creator = _.omit(state.creators[index], keys);
       state.creators[index] = { ...creator, ...old };
+    },
+    setMetamaskStatusError: (state, error) => {
+      state.metamaskStatusError = error;
     },
   },
 };

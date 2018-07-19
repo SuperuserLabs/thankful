@@ -48,8 +48,10 @@ div.pt-2
                         autofocus)
 
   div.text-xs-center.pt-2.pb-3
-    v-btn(large, outline, color='primary', v-on:click="donateAll()")
+    v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ total.toFixed(2) }})
+    v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
+      | {{ buttonError }}
 </template>
 
 <script>
@@ -83,6 +85,9 @@ export default {
   computed: {
     total() {
       return _.sumBy(this.distribution, 'funds');
+    },
+    buttonError() {
+      return this.$store.state.dashboard.metamaskStatusError;
     },
     totalAmount: {
       get() {

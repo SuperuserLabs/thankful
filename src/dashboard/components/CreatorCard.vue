@@ -13,8 +13,9 @@ v-card(height='116px').mt-1
     v-layout(row, align-center).ma-0.subheading.text--secondary
       span(v-if="duration").px-1
         | {{ duration | fixed(0) | friendlyDuration(1) }}
+      // TODO: don't render this info when it's 0
       span.px-1
-        | 10
+        | {{ thanksAmount }}
       v-icon(small) favorite
     v-spacer
     v-menu(bottom left)
@@ -65,6 +66,7 @@ export default {
         name: this.creator.name,
         url: this.creator.url,
         duration: this.creator.duration,
+        thanksAmount: this.creator.thanksAmount,
       });
     },
     show_activity() {

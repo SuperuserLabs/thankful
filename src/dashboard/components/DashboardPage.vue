@@ -56,7 +56,7 @@ div
           v-card(hover, @click.native="addCreator()", height='116px')
             v-container.text-xs-center
               v-icon(x-large) add
-              div.title(style="color: #666")
+              div.text--secondary.title
                 | Add creator
 
       v-layout(row)

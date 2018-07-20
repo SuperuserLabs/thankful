@@ -207,6 +207,14 @@ describe('Thanks', () => {
     expect(await db.getUrlThanksAmount(thxUrlNotCanon)).toEqual(2);
   });
 
+  it('Thanks a not canon url, attaches to a creator, and counts creator thanks', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.logThank(thxUrlNotCanon, thxTitle);
+    await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
+
+    expect(await db.getCreatorThanksAmount(thxCreatorUrl)).toEqual(2);
+  });
+
   it('Attaches a creator to a thank', async () => {
     await db.logThank(thxUrl, thxTitle);
     await db.connectThanksToCreator(thxUrlNotCanon, thxCreatorUrl);

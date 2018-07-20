@@ -2,12 +2,12 @@
 v-card(height='116px').mt-1
   v-layout
     v-flex
-      a(:href="creator.url" target="_blank" style="text-decoration: none !important").headline
+      a(:href="url" target="_blank" style="text-decoration: none !important").headline
         v-btn(flat large block style="text-transform: none")
           div.headline.pr-1
-            font-awesome-icon(v-if='url.includes("getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
-            font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", color='red')
-            font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", color='black')
+            font-awesome-icon(v-if='isOnDomain(url, "getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
+            font-awesome-icon(v-if='isOnDomain(url, "youtube.com")', :icon="['fab', 'youtube']", color='red')
+            font-awesome-icon(v-if='isOnDomain(url, "github.com")', :icon="['fab', 'github']", color='black')
           | {{ name }}
   v-card-actions
     v-layout(row, align-center).ma-0.subheading.text--secondary

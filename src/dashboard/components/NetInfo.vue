@@ -1,13 +1,19 @@
 <template lang="pug">
 v-chip(:color='netColor', text-color='white')
-  div(v-if='netId === -1')
+  div(v-if="netId === -1")
     | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
+  div(v-else-if="!myAddress")
+    | You are connected to the {{ netName }} but not logged in. Please open
+    | MetaMask and log in.
   div(v-else)
     | You are connected to the {{ netName }}
 </template>
 <script>
 export default {
-  data: () => ({ netId: -1 }),
+  data: () => ({
+    netId: -1,
+    myAddress: null,
+  }),
   computed: {
     netName() {
       let names = {
@@ -31,9 +37,33 @@ export default {
   },
   methods: {
     update() {
-      this.$donate.getId().then(id => {
-        this.netId = id;
-      });
+      this.$donate
+        .getId()
+        .then(id => {
+          this.netId = id;
+          return this.$donate.getMyAddress();
+        })
+        .then(addr => {
+          if (addr !== undefined) {
+            this.myAddress = addr;
+            this.$store.commit('dashboard/setMetamaskStatusError', null);
+          } else {
+            this.myAddress = null;
+            this.$store.commit(
+              'dashboard/setMetamaskStatusError',
+              'Please log in to MetaMask to be able to donate'
+            );
+          }
+        })
+        .catch(err => {
+          console.error('Failed to update metamask status:', err);
+          this.$store.commit(
+            'dashboard/setMetamaskStatusError',
+            'MetaMask error, unable to donate'
+          );
+          this.netId = -1;
+          this.myAddress = -1;
+        });
     },
   },
   created() {

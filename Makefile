@@ -7,6 +7,9 @@ build-production:
 dev:
 	npm run dev
 
+vue-devtools:
+	npx vue-devtools
+
 install:
 	npm install
 

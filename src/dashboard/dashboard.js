@@ -37,4 +37,9 @@ new Vue({
   store,
   router,
   render: h => h(App),
+  created() {
+    this.$store.dispatch('settings/loadSettings').then(() => {
+      console.log('loaded settings');
+    });
+  },
 });

@@ -76,11 +76,11 @@ export class Database {
 
   async getCreators({
     limit = 100,
-    withTimespent = false,
+    withDurations = false,
     withThanksAmount = false,
   } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
-    if (withTimespent) {
+    if (withDurations) {
       creators = await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);

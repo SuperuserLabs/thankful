@@ -19,20 +19,18 @@ div
             v-btn(v-if='!editedCreator.new' dark flat @click='ignore();')
               | #[v-icon visibility_off] Ignore
         v-card-text
-          v-layout(wrap)
-            v-form(v-model='valid')
-              v-flex(xs12)
-                v-text-field(v-model='editedCreator.name', :rules='[v => !!v || "Name is required"]', label='Name')
-              v-flex(xs12)
-                v-text-field(v-model='editedCreator.url', :rules='[v => !!v || "URL is required"]', label='Homepage')
-              v-flex(xs12)
-                v-text-field(v-model='editedCreator.address', :rules='ethAddressRules', label='ETH Address')
-          p(v-if="editedCreator.info")
-            | {{ editedCreator.info }}
-          v-layout(row)
-            v-spacer
+          v-layout(row, wrap)
+            v-flex(xs12)
+              v-form(v-model='valid')
+                  v-text-field(v-model='editedCreator.name', :rules='[v => !!v || "Name is required"]', label='Name')
+                  v-text-field(v-model='editedCreator.url', :rules='[v => !!v || "URL is required"]', label='Homepage')
+                  v-text-field(v-model='editedCreator.address', :rules='ethAddressRules', label='ETH Address')
+            v-flex(xs12)
+              p(v-if="editedCreator.info")
+                | {{ editedCreator.info }}
+          v-layout(row, justify-end)
             v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
-          v-data-table(:headers="activityHeaders", :items="activities", :pagination.sync='pagination')
+          v-data-table(:headers="activityHeaders", :items="activityByCreator(currentCreator.url)", :pagination.sync='pagination')
             template(slot='items', slot-scope='props')
               td
                 a(:href="props.item.url")
@@ -44,13 +42,13 @@ div
     v-container(grid-list-md)
       v-flex(xs12).mb-3
         div.display-1 Your favorite creators
-      v-layout(v-if='loading', row, justify-center, align-center)
+      v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
         v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
-                       @click="edit(creator, index)")
+                       @edit="edit(creator, index)")
         v-flex(xs12, sm6, md3)
           v-card(hover, @click.native="addCreator()", height='116px')
             v-container.text-xs-center
@@ -70,6 +68,7 @@ import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
 import { Creator } from '../../lib/db.js';
 import _ from 'lodash';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -84,7 +83,6 @@ export default {
     loading: true,
     currentCreator: {},
     editedCreator: { name: '', url: '', address: '' },
-    activities: [],
     activityHeaders: [
       { text: 'Page', value: 'title' },
       { text: 'Duration', value: 'duration' },
@@ -97,21 +95,15 @@ export default {
     ],
   }),
   computed: {
-    creators() {
-      return this.$store.getters['db/creatorsNotIgnored'];
-    },
-    notifications() {
-      return this.$store.getters['notifications/active'];
-    },
+    ...mapGetters({
+      creators: 'db/creatorsNotIgnored',
+      activityByCreator: 'db/activityByCreator',
+      notifications: 'notifications/active',
+    }),
   },
   methods: {
     hideNotification(index) {
       this.$store.commit('notifications/hide', index);
-    },
-    getActivities(creator) {
-      this.$db.getCreatorActivity(creator.url).then(activities => {
-        this.activities = activities;
-      });
     },
     toTop() {
       document.body.scrollTop = 0; // For Safari
@@ -158,14 +150,14 @@ export default {
     edit(creator) {
       this.currentCreator = creator;
       this.editedCreator = _.pick(creator, ['name', 'url', 'address']);
-      this.getActivities(creator);
       this.dialog = true;
     },
   },
   beforeCreate() {
-    this.$store.dispatch('db/loadCreators').then(() => {
+    this.$store.dispatch('db/ensureCreators').then(() => {
       this.loading = false;
     });
+    this.$store.dispatch('db/ensureActivities');
   },
 };
 </script>

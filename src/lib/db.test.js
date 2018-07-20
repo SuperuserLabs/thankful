@@ -134,7 +134,7 @@ describe('Creator', () => {
     let duration = 10;
     await new Activity(a_url, a_title, duration, c_key).save();
 
-    let result = await db.getTimeForCreators();
+    let result = await db.getCreators({ withDurations: true });
     expect(result[0].duration).toBeCloseTo(duration);
   });
 

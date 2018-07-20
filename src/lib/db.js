@@ -67,7 +67,10 @@ export class Database {
         coll = coll.filter(a => a.creator === undefined);
       }
     }
-    return coll.limit(limit).toArray();
+    if (limit && limit >= 0) {
+      coll = coll.limit(limit);
+    }
+    return coll.toArray();
   }
 
   async getCreator(url) {
@@ -94,27 +97,6 @@ export class Database {
       .where('creator')
       .equals(c_url)
       .toArray();
-  }
-
-  async getTimeForCreators() {
-    let creatorCollection = this.db.creator;
-    return creatorCollection.toArray(creators => {
-      // Query related properties:
-      var activityPromises = creators.map(creator =>
-        this.getCreatorActivity(creator.url)
-      );
-
-      // Await genres and albums queries:
-      return Promise.all(activityPromises).then(activities => {
-        // Now we have all foreign keys resolved and
-        // we can put the results onto the bands array
-        // before returning it:
-        creators.forEach((creator, i) => {
-          creator.duration = _.sum(_.map(activities[i], a => a.duration || 0));
-        });
-        return creators;
-      });
-    });
   }
 
   async logActivity(url, duration, options = {}) {

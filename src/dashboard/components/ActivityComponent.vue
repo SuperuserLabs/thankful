@@ -1,5 +1,7 @@
 <template lang="pug">
-v-data-table(:headers="headers", :items="items", :pagination.sync='pagination', hide-actions)
+v-layout(v-if='loading', row, justify-center, align-center).pa-5
+  v-progress-circular(indeterminate, :size='50')
+v-data-table(v-else, :headers="headers", :items="items(unattributed)", :pagination.sync='pagination', hide-actions)
   template(slot='items', slot-scope='props')
     td(style="text-overflow:ellipsis; max-width: 0; overflow: hidden; white-space: nowrap;")
       a(:href="props.item.url", target="_blank")
@@ -9,38 +11,30 @@ v-data-table(:headers="headers", :items="items", :pagination.sync='pagination', 
 </template>
 
 <script>
-import _ from 'lodash';
+import { mapGetters } from 'vuex';
 
 export default {
   data: () => ({
-    activities: [],
     headers: [
       { text: 'Page', value: 'title', width: '80%' },
       { text: 'Duration', value: 'duration', width: '20%' },
     ],
     pagination: { sortBy: 'duration', descending: true, rowsPerPage: -1 },
+    loading: true,
   }),
   computed: {
-    items() {
-      if (this.unattributed) {
-        return _.filter(this.activities, a => !a.creator);
-      } else {
-        return this.activities;
-      }
-    },
+    ...mapGetters({
+      items: 'db/activities',
+    }),
   },
   props: {
     unattributed: { default: false, type: Boolean },
   },
-  methods: {
-    refresh() {
-      this.$db.getActivities().then(acts => {
-        this.activities = acts;
-      });
-    },
-  },
+  methods: {},
   created() {
-    this.refresh();
+    this.$store.dispatch('db/ensureActivities').then(() => {
+      this.loading = false;
+    });
   },
 };
 </script>

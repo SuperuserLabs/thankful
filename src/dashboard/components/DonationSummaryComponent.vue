@@ -3,6 +3,10 @@ div.pt-2
   v-card
     v-toolbar(flat, color='white')
       v-toolbar-title.display-1 Donation summary
+      v-btn.ml-4(small, flat, target="_blank", href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing")
+        | List of addresses
+      v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
+        | Submit new addresses
       v-spacer
       v-flex(xs2, md1)
         v-text-field(v-model="totalAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
@@ -44,8 +48,10 @@ div.pt-2
                         autofocus)
 
   div.text-xs-center.pt-2.pb-3
-    v-btn(large, outline, color='primary', v-on:click="donateAll()")
+    v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ total.toFixed(2) }})
+    v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
+      | {{ buttonError }}
 </template>
 
 <script>
@@ -79,6 +85,9 @@ export default {
   computed: {
     total() {
       return _.sumBy(this.distribution, 'funds');
+    },
+    buttonError() {
+      return this.$store.state.dashboard.metamaskStatusError;
     },
     totalAmount: {
       get() {

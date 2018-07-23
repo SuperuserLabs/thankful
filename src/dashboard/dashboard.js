@@ -7,7 +7,7 @@ import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faStar, faYoutube, faGithub);
 
-import { formatSecs } from '../lib/time.js';
+import { formatSecs, formatSecsShort } from '../lib/time.js';
 import Donate from '../lib/donate.js';
 import { Database } from '../lib/db.js';
 import 'typeface-roboto';
@@ -30,6 +30,7 @@ import store from './store';
 Vue.prototype.$donate = new Donate();
 Vue.prototype.$db = new Database();
 Vue.filter('friendlyDuration', formatSecs);
+Vue.filter('friendlyShortDuration', formatSecsShort);
 Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
 new Vue({

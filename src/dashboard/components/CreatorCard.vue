@@ -12,7 +12,7 @@ v-card(height='116px').mt-1
   v-card-actions
     v-layout(row, align-center).ma-0.subheading.text--secondary
       span(v-if="duration").px-1
-        | {{ duration | fixed(0) | friendlyDuration(1) }}
+        | {{ duration | fixed(0) | friendlyShortDuration }}
       template(v-if="thanksAmount")
         span.px-1
           | {{ thanksAmount }}

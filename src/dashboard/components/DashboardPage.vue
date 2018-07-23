@@ -96,7 +96,7 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      creators: 'db/creatorsNotIgnored',
+      creators: 'db/favoriteCreators',
       activityByCreator: 'db/activityByCreator',
       notifications: 'notifications/active',
     }),

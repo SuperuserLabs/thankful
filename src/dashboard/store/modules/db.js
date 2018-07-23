@@ -27,9 +27,16 @@ export default {
   },
 
   getters: {
+    favoriteCreators(state, getters) {
+      let creators = _.orderBy(
+        getters.creatorsNotIgnored,
+        ['priority', 'duration'],
+        ['asc', 'desc']
+      );
+      return creators.slice(0, 12);
+    },
     creatorsNotIgnored(state, getters) {
       let creators = _.filter(getters.creators, c => c.ignore !== true);
-      creators = _.orderBy(creators, ['priority', 'duration'], ['asc', 'desc']);
       return creators;
     },
     creators(state) {

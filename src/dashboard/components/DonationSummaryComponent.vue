@@ -87,7 +87,14 @@ export default {
       return _.sumBy(this.distribution, 'funds');
     },
     buttonError() {
-      return this.$store.state.dashboard.metamaskStatusError;
+      let { netId, address } = this.$store.state.metamask;
+      if (netId === -1) {
+        return 'Please install MetaMask to be able to donate';
+      }
+      if (!address) {
+        return 'Please log in to MetaMask to be able to donate';
+      }
+      return '';
     },
     totalAmount: {
       get() {

@@ -23,7 +23,7 @@ v-card(height='116px').mt-1
         v-icon more_vert
 
       v-list(hover)
-        v-list-tile(@click='$emit("click")')
+        v-list-tile(@click='$emit("edit")')
           v-list-tile-action
             v-icon edit
           v-list-tile-content

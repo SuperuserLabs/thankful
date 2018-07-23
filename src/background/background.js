@@ -60,7 +60,10 @@ async function rescheduleAlarm() {
         ? [currentTab]
         : [];
       const audibleTabs = await browser.tabs.query({ audible: true });
-      const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
+      const tabs = _.filter(
+        _.unionBy(currentTabArray, audibleTabs, 'url'),
+        tab => !tab.incognito
+      );
 
       const timeSinceLastPoll = pollTimer();
       if (timeSinceLastPoll > 70) {
@@ -139,5 +142,6 @@ error: ${JSON.stringify(message)}`
       stethoscope();
     }
   });
+
   stethoscope();
 })();

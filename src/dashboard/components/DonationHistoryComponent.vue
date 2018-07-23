@@ -1,20 +1,22 @@
 <template lang="pug">
-div
-  v-data-table(:headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
-    template(slot='items', slot-scope='props')
-      td
-        a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
-            | {{props.item.date.toLocaleDateString()}}
-      td
-        a(:href="props.item.url" target="_blank")
-          | {{props.item.name}}
-      td.text-xs-right 
-        | ${{props.item.usdAmount | fixed(2)}}
+v-layout(v-if='loading', row, justify-center, align-center).pa-5
+  v-progress-circular(indeterminate, :size='50')
+v-data-table(v-else, :headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
+  template(slot='items', slot-scope='props')
+    td
+      a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
+          | {{props.item.date.toLocaleDateString()}}
+    td
+      a(:href="props.item.url" target="_blank")
+        | {{props.item.name}}
+    td.text-xs-right 
+      | ${{props.item.usdAmount | fixed(2)}}
 </template>
 <script>
+import { mapState } from 'vuex';
 export default {
   data: () => ({
-    donations: [],
+    loading: true,
     headers: [
       { text: 'Date', value: 'date' },
       { text: 'Creator', value: 'name' },
@@ -26,19 +28,15 @@ export default {
       rowsPerPage: -1,
     },
   }),
-  props: {},
-  methods: {
-    refresh() {
-      this.$db
-        .getDonations()
-        .then(ds => {
-          this.donations = ds;
-        })
-        .catch(console.error);
-    },
+  computed: {
+    ...mapState('db', ['donations']),
   },
+  props: {},
+  methods: {},
   created() {
-    this.refresh();
+    this.$store.dispatch('db/ensureDonations').then(() => {
+      this.loading = false;
+    });
   },
 };
 </script>

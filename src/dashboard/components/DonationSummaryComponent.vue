@@ -56,6 +56,7 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
+import { mapGetters } from 'vuex';
 
 export default {
   data: function() {
@@ -74,7 +75,7 @@ export default {
         // TODO: Don't allow saving invalid inputs
         fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
-          v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
+          v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
     };
@@ -105,6 +106,7 @@ export default {
         console.log('saved settings');
       },
     },
+    ...mapGetters(['metamask/isAddress']),
   },
   methods: {
     updateAddress(x) {
@@ -132,10 +134,8 @@ export default {
       });
     },
     donateAll() {
-      this.$donate
-        .donateAll(this.distribution, () =>
-          console.log('Please f5 to see new donation history.')
-        )
+      this.$store.metamask
+        .dispatch('donateAll', this.distribution)
         .catch(e => this.$emit('error', e));
     },
   },

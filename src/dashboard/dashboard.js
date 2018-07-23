@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faStar, faYoutube, faGithub);
 
 import { formatSecs } from '../lib/time.js';
-import Donate from '../lib/donate.js';
 import 'typeface-roboto';
 import '../stylus/main.styl';
 
@@ -26,7 +25,6 @@ import App from './components/App.vue';
 
 import store from './store';
 
-Vue.prototype.$donate = new Donate();
 Vue.filter('friendlyDuration', formatSecs);
 Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 

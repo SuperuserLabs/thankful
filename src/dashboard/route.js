@@ -2,12 +2,13 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import DashboardPage from './components/DashboardPage.vue';
-import ActivityPage from './components/ActivityPage.vue';
-import DonationHistoryPage from './components/DonationHistoryPage.vue';
-import CreatorList from './components/CreatorList.vue';
+const DashboardPage = () => import('./components/DashboardPage.vue');
+const ActivityPage = () => import('./components/ActivityPage.vue');
+const DonationHistoryPage = () =>
+  import('./components/DonationHistoryPage.vue');
+const CreatorList = () => import('./components/CreatorList.vue');
 
-import DevPage from './components/DevPage.vue';
+const DevPage = () => import('./components/DevPage.vue');
 
 Vue.use(VueRouter);
 

@@ -30,7 +30,7 @@ div
                 | {{ editedCreator.info }}
           v-layout(row, justify-end)
             v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
-          v-data-table(:headers="activityHeaders", :items="activityByCreator(currentCreator.url)", :pagination.sync='pagination')
+          v-data-table(v-if='dialog', :headers="activityHeaders", :items="activityByCreator(currentCreator.url)", :pagination.sync='pagination')
             template(slot='items', slot-scope='props')
               td
                 a(:href="props.item.url")
@@ -66,7 +66,7 @@ import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationHistoryComponent from './DonationHistoryComponent.vue';
 import DonationSummaryComponent from './DonationSummaryComponent.vue';
-import { Creator } from '../../lib/db.js';
+import { Creator } from '../../lib/models.js';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
 
@@ -91,7 +91,7 @@ export default {
     snackMessage: '',
     showSnackbar: false,
     ethAddressRules: [
-      v => !v || this.$donate.isAddress(v) || 'Not a valid ETH address',
+      v => !v || this.isAddress(v) || 'Not a valid ETH address',
     ],
   }),
   computed: {
@@ -99,6 +99,7 @@ export default {
       creators: 'db/favoriteCreators',
       activityByCreator: 'db/activityByCreator',
       notifications: 'notifications/active',
+      isAddress: 'metamask/isAddress',
     }),
   },
   methods: {

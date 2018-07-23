@@ -1,7 +1,3 @@
-import Donate from '../../../lib/donate.js';
-
-let donate = new Donate();
-
 let networks = {
   '-1': { color: 'warning' },
   1: { name: 'Main Ethereum Network', color: 'green' },
@@ -9,6 +5,7 @@ let networks = {
   4: { name: 'Rinkeby Test Network', color: 'orange' },
   42: { name: 'Kovan Test Network', color: 'purple' },
 };
+let donate;
 
 export default {
   namespaced: true,
@@ -24,9 +21,14 @@ export default {
     netColor(state) {
       return networks[state.netId].color;
     },
+    isAddress() {
+      return addr => donate.isAddress(addr);
+    },
   },
   actions: {
-    initialize({ dispatch }) {
+    async initialize({ dispatch }) {
+      let module = await import('../../../lib/donate.js');
+      donate = new module.default();
       setTimeout(() => dispatch('update'), 500);
       setInterval(() => dispatch('update'), 5000);
     },

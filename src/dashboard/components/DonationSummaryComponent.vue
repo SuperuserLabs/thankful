@@ -103,8 +103,10 @@ export default {
         console.log('saved settings');
       },
     },
-    ...mapGetters({ isAddress: 'metamask/isAddress' }),
-    ...mapGetters({ creators: 'db/creatorsWithShare' }),
+    ...mapGetters({
+      isAddress: 'metamask/isAddress',
+      creators: 'db/creatorsWithShare',
+    }),
   },
   methods: {
     updateAddress(index, address) {

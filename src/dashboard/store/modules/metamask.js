@@ -50,7 +50,7 @@ export default {
     },
     async donateAll({ dispatch }, donations) {
       let all = await donate.donateAll(donations);
-      all.map(async d => {
+      return all.map(async d => {
         let donation = await d;
         if (donation.failed) {
           throw donation.err;

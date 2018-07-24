@@ -1,4 +1,16 @@
 {
-    presets: ['@babel/preset-env'],
-    plugins: ['@babel/plugin-proposal-object-rest-spread', '@babel/plugin-syntax-dynamic-import']
+  "presets": ["@babel/preset-env"],
+  "plugins": [
+    "lodash",
+    [
+      "transform-imports",
+      {
+        "vuetify": {
+          "transform": "vuetify/es5/components/${member}",
+        }
+      }
+    ],
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-syntax-dynamic-import"
+  ]
 }

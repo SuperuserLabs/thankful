@@ -42,6 +42,8 @@
     "@vue/devtools": "^1.1.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-lodash": "^3.3.4",
+    "babel-plugin-transform-imports": "^1.5.0",
     "bluebird": "^3.5.1",
     "chrome-webstore-upload-cli": "^1.1.1",
     "css-loader": "^0.28.11",

@@ -48,6 +48,16 @@ export default {
         commit('unsetAddress');
       }
     },
+    async donateAll({ dispatch }, donations) {
+      let all = await donate.donateAll(donations);
+      all.map(async d => {
+        let donation = await d;
+        if (donation.failed) {
+          throw donation.err;
+        }
+        return dispatch('db/logDonation', donation, { root: true });
+      });
+    },
   },
   mutations: {
     setAddress(state, address) {

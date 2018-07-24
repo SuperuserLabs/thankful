@@ -20,7 +20,7 @@ div.pt-2
           v-edit-dialog(large,
                         lazy,
                         @open="currentAddressValue = props.item.address",
-                        @save="props.item.address = currentAddressValue ; updateAddress(props.item)")
+                        @save="updateAddress(props.item.index, currentAddressValue )")
             div {{ props.item.address }}
             div.mt-3.title(slot="input")
               | Change address
@@ -80,9 +80,6 @@ export default {
       },
     };
   },
-  props: {
-    creators: Array,
-  },
   computed: {
     total() {
       return _.sumBy(this.distribution, 'funds');
@@ -106,36 +103,27 @@ export default {
         console.log('saved settings');
       },
     },
-    ...mapGetters(['metamask/isAddress']),
+    ...mapGetters({ isAddress: 'metamask/isAddress' }),
+    ...mapGetters({ creators: 'db/creatorsWithShare' }),
   },
   methods: {
-    updateAddress(x) {
-      this.$emit('addressUpdate', x);
+    updateAddress(index, address) {
+      this.$store.dispatch('db/doUpdateCreator', {
+        index: index,
+        updates: { address: address },
+      });
     },
     distribute() {
-      let scoring = c => Math.sqrt(c.duration);
-      let totScore = _.sum(this.creators.map(scoring));
-      let factor = 1 - _.sum(this.creators.map(c => c.share));
-
       this.distribution = this.creators.map(c => {
-        let funds;
-        if (c.share > 0) {
-          funds = c.share * this.totalAmount;
-        } else {
-          funds = this.totalAmount * (scoring(c) / totScore) * factor;
-        }
         return {
-          name: c.name,
-          duration: c.duration,
-          url: c.url,
-          address: c.address,
-          funds: parseFloat(funds.toFixed(2)),
+          ...c,
+          funds: parseFloat((c.share * this.totalAmount).toFixed(2)),
         };
       });
     },
     donateAll() {
-      this.$store.metamask
-        .dispatch('donateAll', this.distribution)
+      this.$store
+        .dispatch('metamask/donateAll', this.distribution)
         .catch(e => this.$emit('error', e));
     },
   },

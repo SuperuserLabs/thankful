@@ -45,10 +45,10 @@ div
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
-        v-flex(v-for="(creator, index) in creators", :key='creator.url', xs12, sm6, md3)
+        v-flex(v-for="creator in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
-                       @edit="edit(creator, index)")
+                       @edit="edit(creator)")
         v-flex(xs12, sm6, md3)
           v-card(hover, @click.native="addCreator()", height='116px')
             v-container.text-xs-center
@@ -58,7 +58,7 @@ div
 
       v-layout(row)
         v-flex(xs12)
-          donation-summary-component(:creators="creators", ref='donationSummary', @error="errfun('Donating failed')($event)")
+          donation-summary-component(ref='donationSummary', @error="errfun('Donating failed')($event)")
 </template>
 
 <script>

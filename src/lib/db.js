@@ -77,13 +77,25 @@ export class Database {
     return this.db.creator.get({ url: url });
   }
 
-  async getCreators({ limit = 100, withDurations = false } = {}) {
+  async getCreators({
+    limit = 100,
+    withDurations = false,
+    withThanksAmount = false,
+  } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
     if (withDurations) {
       await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);
           c.duration = _.sumBy(activities, 'duration');
+          return c;
+        })
+      );
+    }
+    if (withThanksAmount) {
+      await Promise.all(
+        _.map(creators, async c => {
+          c.thanksAmount = await this.getCreatorThanksAmount(c.url);
           return c;
         })
       );
@@ -228,6 +240,17 @@ export class Database {
       .count()
       .catch(err => {
         throw 'Could not count url thanks: ' + err;
+      });
+  }
+
+  async getCreatorThanksAmount(creator_url) {
+    creator_url = canonicalizeUrl(creator_url);
+    return this.db.thanks
+      .where('creator')
+      .equals(creator_url)
+      .count()
+      .catch(err => {
+        throw 'Could not count creator thanks: ' + err;
       });
   }
 }

@@ -1,17 +1,22 @@
 <template lang="pug">
-v-card(height='116px')
-  //v-card-title
-  v-flex.text-xs-center
-    a(:href="creator.url" target="_blank" style="text-decoration: none !important").headline
-      v-btn(flat large block style="text-transform: none")
-        div(style="font-size: 1.5em; padding-right: 0.5em")
-          font-awesome-icon(v-if='url.includes("getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
-          font-awesome-icon(v-if='isOnDomain(url,"youtube.com")', :icon="['fab', 'youtube']", color='red')
-          font-awesome-icon(v-if='isOnDomain(url,"github.com")', :icon="['fab', 'github']", color='black')
-        | {{ name }}
+v-card(height='116px').mt-1
+  v-layout
+    v-flex
+      a(:href="url" target="_blank" style="text-decoration: none !important").headline
+        v-btn(flat large block style="text-transform: none")
+          div.headline.pr-1
+            font-awesome-icon(v-if='isOnDomain(url, "getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
+            font-awesome-icon(v-if='isOnDomain(url, "youtube.com")', :icon="['fab', 'youtube']", color='red')
+            font-awesome-icon(v-if='isOnDomain(url, "github.com")', :icon="['fab', 'github']", color='black')
+          | {{ name }}
   v-card-actions
-    div(v-if="duration" style="padding-left: 0.5em").subheading.text--secondary
-      | {{ duration | fixed(0) | friendlyDuration }}
+    v-layout(row, align-center).ma-0.subheading.text--secondary
+      span(v-if="duration").px-1
+        | {{ duration | fixed(0) | friendlyShortDuration }}
+      template(v-if="thanksAmount")
+        span.px-1
+          | {{ thanksAmount }}
+        v-icon(small) favorite
     v-spacer
     v-menu(bottom left)
       v-btn(slot="activator" icon)
@@ -61,6 +66,7 @@ export default {
         name: this.creator.name,
         url: this.creator.url,
         duration: this.creator.duration,
+        thanksAmount: this.creator.thanksAmount,
       });
     },
     show_activity() {

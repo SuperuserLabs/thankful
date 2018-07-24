@@ -11,11 +11,14 @@ function initThankfulTeamCreator() {
   creator.info =
     'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
-  creator.share = 0.2;
+  creator.share = 0.1;
   return creator.save();
 }
 
-const scoringFunction = c => Math.sqrt(c.duration);
+const scoringFunction = c => {
+  const oneHour = 60 * 60;
+  return Math.sqrt(c.duration + c.thanksAmount * oneHour);
+};
 
 export default {
   namespaced: true,
@@ -103,7 +106,10 @@ export default {
     async loadCreators({ commit }) {
       await initThankfulTeamCreator();
       await db.attributeGithubActivity();
-      let creators = await db.getCreators({ withDurations: true });
+      let creators = await db.getCreators({
+        withDurations: true,
+        withThanksAmount: true,
+      });
       commit('setCreators', creators);
       commit('setLoaded', 'creators');
     },

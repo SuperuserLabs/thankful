@@ -7,7 +7,7 @@ import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faStar, faYoutube, faGithub);
 
-import { formatSecs } from '../lib/time.js';
+import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';
 import '../stylus/main.styl';
 
@@ -26,6 +26,7 @@ import App from './components/App.vue';
 import store from './store';
 
 Vue.filter('friendlyDuration', formatSecs);
+Vue.filter('friendlyShortDuration', formatSecsShort);
 Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
 new Vue({

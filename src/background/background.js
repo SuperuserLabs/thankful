@@ -40,6 +40,8 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
+  let lastDonation = new Date(0);
+
   async function receiveCreator(msg) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
     if (msg.type !== 'creatorFound') {
@@ -142,6 +144,13 @@ error: ${JSON.stringify(message)}`
       stethoscope();
     }
   });
+
+  // do alert stuff
+
+  browser.browserAction.setBadgeBackgroundColor({ color: 'ForestGreen' });
+  browser.browserAction.setBadgeText({ text: '🔔' });
+  browser.browserAction.setTitle({ title: 'Thankful (💩)' });
+  console.log('last donation at:', lastDonation);
 
   stethoscope();
 })();

@@ -67,7 +67,10 @@ export class Database {
         coll = coll.filter(a => a.creator === undefined);
       }
     }
-    return coll.limit(limit).toArray();
+    if (limit && limit >= 0) {
+      coll = coll.limit(limit);
+    }
+    return coll.toArray();
   }
 
   async getCreator(url) {
@@ -81,7 +84,7 @@ export class Database {
   } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
     if (withDurations) {
-      creators = await Promise.all(
+      await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);
           c.duration = _.sumBy(activities, 'duration');
@@ -90,7 +93,7 @@ export class Database {
       );
     }
     if (withThanksAmount) {
-      creators = await Promise.all(
+      await Promise.all(
         _.map(creators, async c => {
           c.thanksAmount = await this.getCreatorThanksAmount(c.url);
           return c;
@@ -106,27 +109,6 @@ export class Database {
       .where('creator')
       .equals(c_url)
       .toArray();
-  }
-
-  async getTimeForCreators() {
-    let creatorCollection = this.db.creator;
-    return creatorCollection.toArray(creators => {
-      // Query related properties:
-      var activityPromises = creators.map(creator =>
-        this.getCreatorActivity(creator.url)
-      );
-
-      // Await genres and albums queries:
-      return Promise.all(activityPromises).then(activities => {
-        // Now we have all foreign keys resolved and
-        // we can put the results onto the bands array
-        // before returning it:
-        creators.forEach((creator, i) => {
-          creator.duration = _.sum(_.map(activities[i], a => a.duration || 0));
-        });
-        return creators;
-      });
-    });
   }
 
   async logActivity(url, duration, options = {}) {
@@ -192,20 +174,24 @@ export class Database {
     );
   }
 
-  async getDonations(limit = 10) {
+  async getDonation(id) {
+    return this.db.donations.get(id).then(d => this.donationWithCreator(d));
+  }
+
+  async donationWithCreator(donation) {
+    return _.assign(
+      await this.getCreator(donation.url),
+      _.update(donation, 'date', date => new Date(date))
+    );
+  }
+
+  async getDonations(limit = 100) {
     return this.db.donations
       .reverse()
       .limit(limit)
       .toArray()
       .then(donations =>
-        Promise.all(
-          donations.map(async d =>
-            _.assign(
-              await this.getCreator(d.url),
-              _.update(d, 'date', date => new Date(date))
-            )
-          )
-        )
+        Promise.all(donations.map(d => this.donationWithCreator(d)))
       )
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);

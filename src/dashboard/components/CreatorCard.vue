@@ -12,18 +12,18 @@ v-card(height='116px').mt-1
   v-card-actions
     v-layout(row, align-center).ma-0.subheading.text--secondary
       span(v-if="duration").px-1
-        | {{ duration | fixed(0) | friendlyDuration(1) }}
-      // TODO: don't render this info when it's 0
-      span.px-1
-        | {{ thanksAmount }}
-      v-icon(small) favorite
+        | {{ duration | fixed(0) | friendlyShortDuration }}
+      template(v-if="thanksAmount")
+        span.px-1
+          | {{ thanksAmount }}
+        v-icon(small) favorite
     v-spacer
     v-menu(bottom left)
       v-btn(slot="activator" icon)
         v-icon more_vert
 
       v-list(hover)
-        v-list-tile(@click='$emit("click")')
+        v-list-tile(@click='$emit("edit")')
           v-list-tile-action
             v-icon edit
           v-list-tile-content

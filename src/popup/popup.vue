@@ -7,7 +7,8 @@ v-app
       p.text-xs-center Thanks for trying Thankful!
 
       v-btn(color="success", v-on:click="thank()")
-        | Thank this page 💛
+        | Thank this page
+        v-icon.pl-1(color="yellow") favorite
 
       p.text-xs-center
         | Thanks for this page: {{ this.thanksAmount }}

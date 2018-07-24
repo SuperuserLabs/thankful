@@ -22,7 +22,10 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env'],
-            plugins: [require('@babel/plugin-proposal-object-rest-spread')],
+            plugins: [
+              require('@babel/plugin-proposal-object-rest-spread'),
+              require('@babel/plugin-syntax-dynamic-import'),
+            ],
           },
         },
       },
@@ -80,6 +83,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '/',
     filename: '[name]/index.js',
   },
   plugins: [

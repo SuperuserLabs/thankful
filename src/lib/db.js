@@ -174,20 +174,24 @@ export class Database {
     );
   }
 
-  async getDonations(limit = 10) {
+  async getDonation(id) {
+    return this.db.donations.get(id).then(d => this.donationWithCreator(d));
+  }
+
+  async donationWithCreator(donation) {
+    return _.assign(
+      await this.getCreator(donation.url),
+      _.update(donation, 'date', date => new Date(date))
+    );
+  }
+
+  async getDonations(limit = 100) {
     return this.db.donations
       .reverse()
       .limit(limit)
       .toArray()
       .then(donations =>
-        Promise.all(
-          donations.map(async d =>
-            _.assign(
-              await this.getCreator(d.url),
-              _.update(d, 'date', date => new Date(date))
-            )
-          )
-        )
+        Promise.all(donations.map(d => this.donationWithCreator(d)))
       )
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);

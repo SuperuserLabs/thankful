@@ -2,73 +2,20 @@
 v-chip(:color='netColor', text-color='white')
   div(v-if="netId === -1")
     | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
-  div(v-else-if="!myAddress")
+  div(v-else-if="!address")
     | You are connected to the {{ netName }} but not logged in. Please open
     | MetaMask and log in.
   div(v-else)
     | You are connected to the {{ netName }}
 </template>
 <script>
+import { mapGetters, mapState } from 'vuex';
 export default {
-  data: () => ({
-    netId: -1,
-    myAddress: null,
-  }),
+  data: () => ({}),
+  methods: {},
   computed: {
-    netName() {
-      let names = {
-        1: 'Main Ethereum Network',
-        3: 'Ropsten Test Network',
-        4: 'Rinkeby Test Network',
-        42: 'Kovan Test Network',
-      };
-      return names[this.netId];
-    },
-    netColor() {
-      let names = {
-        '-1': 'warning',
-        1: 'green',
-        3: 'red',
-        4: 'orange',
-        42: 'purple',
-      };
-      return names[this.netId];
-    },
-  },
-  methods: {
-    update() {
-      this.$donate
-        .getId()
-        .then(id => {
-          this.netId = id;
-          return this.$donate.getMyAddress();
-        })
-        .then(addr => {
-          if (addr !== undefined) {
-            this.myAddress = addr;
-            this.$store.commit('dashboard/setMetamaskStatusError', null);
-          } else {
-            this.myAddress = null;
-            this.$store.commit(
-              'dashboard/setMetamaskStatusError',
-              'Please log in to MetaMask to be able to donate'
-            );
-          }
-        })
-        .catch(err => {
-          console.error('Failed to update metamask status:', err);
-          this.$store.commit(
-            'dashboard/setMetamaskStatusError',
-            'MetaMask error, unable to donate'
-          );
-          this.netId = -1;
-          this.myAddress = -1;
-        });
-    },
-  },
-  created() {
-    setInterval(this.update, 5000);
-    setTimeout(this.update, 500);
+    ...mapGetters('metamask', ['netColor', 'netName']),
+    ...mapState('metamask', ['netId', 'address']),
   },
 };
 </script>

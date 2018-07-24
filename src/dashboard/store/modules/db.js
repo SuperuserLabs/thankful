@@ -15,6 +15,11 @@ function initThankfulTeamCreator() {
   return creator.save();
 }
 
+const scoringFunction = c => {
+  const oneHour = 60 * 60;
+  return Math.sqrt(c.duration + c.thanksAmount * oneHour);
+};
+
 export default {
   namespaced: true,
 
@@ -27,13 +32,45 @@ export default {
   },
 
   getters: {
+    favoriteCreators(state, getters) {
+      let creators = _.orderBy(
+        getters.creatorsNotIgnored,
+        ['priority', 'score'],
+        ['asc', 'desc']
+      );
+      return creators.slice(0, 12);
+    },
     creatorsNotIgnored(state, getters) {
       let creators = _.filter(getters.creators, c => c.ignore !== true);
-      creators = _.orderBy(creators, ['priority', 'duration'], ['asc', 'desc']);
       return creators;
     },
     creators(state) {
-      return _.map(state.creators, (e, i) => ({ ...e, index: i }));
+      return _.map(state.creators, (e, i) => ({
+        ...e,
+        index: i,
+        score: scoringFunction(e),
+      }));
+    },
+    creatorsWithShare(state, getters) {
+      if (getters.favoriteCreators.length > 0) {
+        let creators = getters.favoriteCreators;
+        let totScore = _.sumBy(creators, 'score');
+        let factor = 1 - _.sumBy(creators, 'share');
+
+        return creators.map(c => {
+          let share;
+          if (c.share > 0) {
+            share = c.share;
+          } else {
+            share = (c.score / totScore) * factor;
+          }
+          return {
+            ..._.pick(c, ['name', 'duration', 'url', 'address', 'index']),
+            share: share,
+          };
+        });
+      }
+      return [];
     },
 
     activityByCreator: state => creatorUrl => state.activities[creatorUrl],
@@ -97,9 +134,18 @@ export default {
       await state.creators[index].delete();
       commit('remove', { index });
     },
+    async logDonation({ commit }, { creatorUrl, weiAmount, usdAmount, hash }) {
+      let id = await db.logDonation(creatorUrl, weiAmount, usdAmount, hash);
+      let donation = await db.getDonation(id);
+      commit('addDonation', donation);
+      return donation;
+    },
   },
 
   mutations: {
+    addDonation(state, donation) {
+      state.donations.push(donation);
+    },
     setDonations(state, donations) {
       state.donations = donations;
     },

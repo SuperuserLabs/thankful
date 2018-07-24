@@ -84,7 +84,7 @@ export class Database {
   } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
     if (withDurations) {
-      creators = await Promise.all(
+      await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);
           c.duration = _.sumBy(activities, 'duration');
@@ -93,7 +93,7 @@ export class Database {
       );
     }
     if (withThanksAmount) {
-      creators = await Promise.all(
+      await Promise.all(
         _.map(creators, async c => {
           c.thanksAmount = await this.getCreatorThanksAmount(c.url);
           return c;

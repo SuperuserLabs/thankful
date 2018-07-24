@@ -8,8 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faStar, faYoutube, faGithub);
 
 import { formatSecs } from '../lib/time.js';
-import Donate from '../lib/donate.js';
-import { Database } from '../lib/db.js';
 import 'typeface-roboto';
 import '../stylus/main.styl';
 
@@ -27,8 +25,6 @@ import App from './components/App.vue';
 
 import store from './store';
 
-Vue.prototype.$donate = new Donate();
-Vue.prototype.$db = new Database();
 Vue.filter('friendlyDuration', formatSecs);
 Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
@@ -38,8 +34,7 @@ new Vue({
   router,
   render: h => h(App),
   created() {
-    this.$store.dispatch('settings/loadSettings').then(() => {
-      console.log('loaded settings');
-    });
+    this.$store.dispatch('settings/loadSettings');
+    this.$store.dispatch('metamask/initialize');
   },
 });

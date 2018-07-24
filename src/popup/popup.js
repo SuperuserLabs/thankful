@@ -3,6 +3,8 @@ import Vuetify from 'vuetify';
 
 import { Database } from '../lib/db.js';
 
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
+
 Vue.use(Vuetify, {
   theme: {},
 });

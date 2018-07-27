@@ -27,9 +27,10 @@ export default {
   },
   actions: {
     async initialize({ dispatch }) {
-      let module = await import('../../../lib/donate.js');
+      let module = await import(/* webpackChunkName: "donate" */ '../../../lib/donate.js');
       donate = new module.default();
-      setTimeout(() => dispatch('update'), 500);
+      await donate.init();
+      dispatch('update');
       setInterval(() => dispatch('update'), 5000);
     },
     async update({ commit }) {

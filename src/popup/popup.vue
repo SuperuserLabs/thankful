@@ -74,7 +74,7 @@ export default {
     },
   },
   created() {
-    import('../lib/db')
+    import(/* webpackChunkName: "db" */ '../lib/db')
       .then(module => (db = new module.Database()))
       .then(() => {
         this.refresh();

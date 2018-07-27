@@ -2,7 +2,6 @@ import Dexie from 'dexie';
 import _ from 'lodash';
 import { canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
-import Promise from 'bluebird';
 import { Activity, Creator, Donation, Thank, registerModel } from './models.js';
 
 export { Activity, Creator };

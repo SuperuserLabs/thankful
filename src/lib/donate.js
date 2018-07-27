@@ -1,9 +1,5 @@
-import 'idempotent-babel-polyfill';
-import Web3 from 'web3';
-import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider.js';
-import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
-import browser from 'webextension-polyfill';
 import BigNumber from 'bignumber.js';
+import browser from 'webextension-polyfill';
 
 const addrs = {};
 // All on Ropsten
@@ -17,30 +13,24 @@ addrs.johannes = '0x4D69bbD5417aB826F9DAbc7BBb6ddE60C5c5EF26';
 let web3;
 
 export default class Donate {
-  constructor() {
-    this._metamaskExtensionId()
-      .then(METAMASK_EXTENSION_ID => {
-        const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
-        const pluginStream = new PortStream(metamaskPort);
-        const web3Provider = new MetamaskInpageProvider(pluginStream);
-        web3 = new Web3(web3Provider);
+  init() {
+    return this._metamaskExtensionId().then(async METAMASK_EXTENSION_ID => {
+      const Web3 = (await import('web3')).default;
+      const MetamaskInpageProvider = (await import('metamask-crx/app/scripts/lib/inpage-provider.js'))
+        .default;
+      const PortStream = (await import('metamask-crx/app/scripts/lib/port-stream.js'))
+        .default;
+      const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
+      const pluginStream = new PortStream(metamaskPort);
+      const web3Provider = new MetamaskInpageProvider(pluginStream);
+      await import('bn.js');
+      web3 = new Web3(web3Provider);
 
-        // We might want to use this for unit testing
-        // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+      // We might want to use this for unit testing
+      // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-        return web3.eth.net.getId();
-      })
-      .then(() => {
-        // Networks:
-        // 1:  Mainnet
-        // 2:  Deprecated Morden testnet
-        // 3:  Ropsten testnet
-        // 4:  Rinkeby testnet
-        // 42: Kovan testnet
-      })
-      .catch(err => {
-        throw err;
-      });
+      return web3.eth.net.getId();
+    });
   }
   async getId() {
     return web3.eth.net.getId();

@@ -9,8 +9,13 @@ coverage
 addon/**/*.js
 addon/**/*.html
 dist/**/*.js
+dist/**/*.css
+dist/**/*.woff
+dist/**/*.ttf
+dist/**/*.eot
 dist/**/*.html
 thankful.zip
+stats.json
 
 # .env secrets
 .env-webstore

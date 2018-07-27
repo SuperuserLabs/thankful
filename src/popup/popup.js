@@ -2,6 +2,7 @@ import {
   Vuetify, // required
   VApp, // required
   VBtn,
+  VIcon,
 } from 'vuetify';
 
 (async () => {
@@ -12,6 +13,7 @@ import {
     components: {
       VApp,
       VBtn,
+      VIcon,
     },
   });
 

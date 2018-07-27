@@ -4,7 +4,7 @@ import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faStar, faYoutube, faGithub);
 
-import { formatSecs } from '../lib/time.js';
+import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';
 import '../stylus/main.styl';
 
@@ -25,6 +25,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
   const store = (await import('./store')).default;
 
   Vue.filter('friendlyDuration', formatSecs);
+  Vue.filter('friendlyShortDuration', formatSecsShort);
   Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
   new Vue({

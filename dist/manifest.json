@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Thankful",
-  "version": "0.4.2",
+  "version": "0.5.1",
   "description": "",
   "icons": {
     "64": "icons/handshake.png"
@@ -23,7 +23,6 @@
   ],
   "content_security_policy":
     "script-src 'self' 'unsafe-eval' 'http://localhost:8098'; object-src 'self'",
-
   "permissions": [
     "tabs",
     "activeTab",

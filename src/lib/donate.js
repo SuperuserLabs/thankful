@@ -1,10 +1,5 @@
-import 'idempotent-babel-polyfill';
-import Web3 from 'web3';
-import MetamaskInpageProvider from 'metamask-crx/app/scripts/lib/inpage-provider.js';
-import PortStream from 'metamask-crx/app/scripts/lib/port-stream.js';
-import browser from 'webextension-polyfill';
 import BigNumber from 'bignumber.js';
-import { Database } from './db';
+import browser from 'webextension-polyfill';
 
 const addrs = {};
 // All on Ropsten
@@ -16,47 +11,36 @@ addrs.johan = '0xB41371729C8e5EEF5D0992f8c2D10f809EcFE112';
 addrs.johannes = '0x4D69bbD5417aB826F9DAbc7BBb6ddE60C5c5EF26';
 
 let web3;
-let db;
 
 export default class Donate {
-  constructor() {
-    db = new Database();
+  init() {
+    return this._metamaskExtensionId().then(async METAMASK_EXTENSION_ID => {
+      const Web3 = (await import('web3')).default;
+      const MetamaskInpageProvider = (await import('metamask-crx/app/scripts/lib/inpage-provider.js'))
+        .default;
+      const PortStream = (await import('metamask-crx/app/scripts/lib/port-stream.js'))
+        .default;
+      const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
+      const pluginStream = new PortStream(metamaskPort);
+      const web3Provider = new MetamaskInpageProvider(pluginStream);
+      await import('bn.js');
+      web3 = new Web3(web3Provider);
 
-    this._metamaskExtensionId()
-      .then(METAMASK_EXTENSION_ID => {
-        const metamaskPort = browser.runtime.connect(METAMASK_EXTENSION_ID);
-        const pluginStream = new PortStream(metamaskPort);
-        const web3Provider = new MetamaskInpageProvider(pluginStream);
-        web3 = new Web3(web3Provider);
+      // We might want to use this for unit testing
+      // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
-        // We might want to use this for unit testing
-        // web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-
-        return web3.eth.net.getId();
-      })
-      .then(() => {
-        // Networks:
-        // 1:  Mainnet
-        // 2:  Deprecated Morden testnet
-        // 3:  Ropsten testnet
-        // 4:  Rinkeby testnet
-        // 42: Kovan testnet
-      })
-      .catch(err => {
-        throw err;
-      });
+      return web3.eth.net.getId();
+    });
   }
   async getId() {
     return web3.eth.net.getId();
   }
 
-  async donateAll(donations, refreshCallback) {
+  async donateAll(donations) {
     const donationPromises = donations
-      .filter(d => undefined !== d.address)
-      .map(async d =>
-        this._donateOne(d.address, BigNumber(d.funds), d.url, refreshCallback)
-      );
-    return Promise.all(donationPromises);
+      .filter(d => !!d.address)
+      .map(async d => this._donateOne(d.address, BigNumber(d.funds), d.url));
+    return donationPromises;
   }
 
   isAddress(address) {
@@ -76,7 +60,6 @@ export default class Donate {
     addr,
     usdAmount,
     creatorUrl,
-    refreshCallback,
     // A basic transaction should only need 21k but we have some margin because
     // of the data we attach. Also, unused gas is refunded.
     gasLimit = 1e5
@@ -95,23 +78,32 @@ export default class Donate {
       if (!myAcc) {
         throw 'You are not logged in to metamask, please install the extension and/or log in';
       }
-      return web3.eth
-        .sendTransaction({
-          from: myAcc,
-          to: addr,
-          value: weiAmount,
-          gas: gasLimit,
-          // Function seems buggy
-          //data: web3.utils.utf8ToHex('💛'),
-          data: '0xf09f929b',
-        })
-        .once('transactionHash', hash => {
-          return db
-            .logDonation(creatorUrl, weiAmount, usdAmount, hash)
-            .then(refreshCallback);
-        });
+      return new Promise(resolve =>
+        web3.eth
+          .sendTransaction({
+            from: myAcc,
+            to: addr,
+            value: weiAmount,
+            gas: gasLimit,
+            // Function seems buggy
+            //data: web3.utils.utf8ToHex('💛'),
+            data: '0xf09f929b',
+          })
+          .once('transactionHash', resolve)
+      ).then(hash => ({
+        creatorUrl: creatorUrl,
+        weiAmount: weiAmount,
+        usdAmount: usdAmount,
+        hash: hash,
+        failed: false,
+      }));
     } catch (error) {
-      throw error;
+      return {
+        creatorUrl: creatorUrl,
+        usdAmount: usdAmount,
+        failed: true,
+        error: error,
+      };
     }
   }
 

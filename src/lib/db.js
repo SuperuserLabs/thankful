@@ -2,7 +2,6 @@ import Dexie from 'dexie';
 import _ from 'lodash';
 import { canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
-import Promise from 'bluebird';
 import { Activity, Creator, Donation, Thank, registerModel } from './models.js';
 
 export { Activity, Creator };
@@ -77,13 +76,25 @@ export class Database {
     return this.db.creator.get({ url: url });
   }
 
-  async getCreators({ limit = 100, withDurations = false } = {}) {
+  async getCreators({
+    limit = 100,
+    withDurations = false,
+    withThanksAmount = false,
+  } = {}) {
     let creators = await this.db.creator.limit(limit).toArray();
     if (withDurations) {
       await Promise.all(
         _.map(creators, async c => {
           let activities = await this.getCreatorActivity(c.url);
           c.duration = _.sumBy(activities, 'duration');
+          return c;
+        })
+      );
+    }
+    if (withThanksAmount) {
+      await Promise.all(
+        _.map(creators, async c => {
+          c.thanksAmount = await this.getCreatorThanksAmount(c.url);
           return c;
         })
       );
@@ -162,20 +173,24 @@ export class Database {
     );
   }
 
-  async getDonations(limit = 10) {
+  async getDonation(id) {
+    return this.db.donations.get(id).then(d => this.donationWithCreator(d));
+  }
+
+  async donationWithCreator(donation) {
+    return _.assign(
+      await this.getCreator(donation.url),
+      _.update(donation, 'date', date => new Date(date))
+    );
+  }
+
+  async getDonations(limit = 100) {
     return this.db.donations
       .reverse()
       .limit(limit)
       .toArray()
       .then(donations =>
-        Promise.all(
-          donations.map(async d =>
-            _.assign(
-              await this.getCreator(d.url),
-              _.update(d, 'date', date => new Date(date))
-            )
-          )
-        )
+        Promise.all(donations.map(d => this.donationWithCreator(d)))
       )
       .catch(err => {
         console.log("Couldn't get donation history from db:", err);
@@ -224,6 +239,17 @@ export class Database {
       .count()
       .catch(err => {
         throw 'Could not count url thanks: ' + err;
+      });
+  }
+
+  async getCreatorThanksAmount(creator_url) {
+    creator_url = canonicalizeUrl(creator_url);
+    return this.db.thanks
+      .where('creator')
+      .equals(creator_url)
+      .count()
+      .catch(err => {
+        throw 'Could not count creator thanks: ' + err;
       });
   }
 }

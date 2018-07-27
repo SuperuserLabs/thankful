@@ -2,12 +2,17 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import DashboardPage from './components/DashboardPage.vue';
-import ActivityPage from './components/ActivityPage.vue';
-import DonationHistoryPage from './components/DonationHistoryPage.vue';
-import CreatorList from './components/CreatorList.vue';
+const DashboardPage = () =>
+  import(/* webpackChunkName: "dashboard_page" */ './components/DashboardPage.vue');
+const ActivityPage = () =>
+  import(/* webpackChunkName: "activity_page" */ './components/ActivityPage.vue');
+const DonationHistoryPage = () =>
+  import(/* webpackChunkName: "donation_history_page" */ './components/DonationHistoryPage.vue');
+const CreatorList = () =>
+  import(/* webpackChunkName: "creator_list_page" */ './components/CreatorList.vue');
 
-import DevPage from './components/DevPage.vue';
+const DevPage = () =>
+  import(/* webpackChunkName: "dev_page" */ './components/DevPage.vue');
 
 Vue.use(VueRouter);
 

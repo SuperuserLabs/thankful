@@ -22,6 +22,8 @@ v-app
 import browser from 'webextension-polyfill';
 import { getCurrentTab } from '../lib/tabs.js';
 
+let db;
+
 export default {
   data: function() {
     return {
@@ -32,7 +34,7 @@ export default {
     thank() {
       getCurrentTab()
         .then(tab => {
-          return this.$db.logThank(tab.url, tab.title);
+          return db.logThank(tab.url, tab.title);
         })
         .then(() => {
           this.refresh();
@@ -44,7 +46,7 @@ export default {
     refreshThanksCount() {
       getCurrentTab()
         .then(tab => {
-          return this.$db.getUrlThanksAmount(tab.url);
+          return db.getUrlThanksAmount(tab.url);
         })
         .then(amount => {
           this.thanksAmount = amount;
@@ -72,7 +74,11 @@ export default {
     },
   },
   created() {
-    this.refresh();
+    import(/* webpackChunkName: "db" */ '../lib/db')
+      .then(module => (db = new module.Database()))
+      .then(() => {
+        this.refresh();
+      });
   },
 };
 </script>

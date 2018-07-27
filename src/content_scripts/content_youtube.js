@@ -1,4 +1,4 @@
-import { Creator } from '../lib/db.js';
+import { Creator } from '../lib/models.js';
 import {
   sendCreator,
   addPageChangeListener,

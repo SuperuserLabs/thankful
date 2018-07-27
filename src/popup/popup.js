@@ -1,21 +1,24 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify';
+import {
+  Vuetify, // required
+  VApp, // required
+  VBtn,
+  VIcon,
+} from 'vuetify';
 
-import { Database } from '../lib/db.js';
+(async () => {
+  const Vue = (await import('vue')).default;
+  const App = (await import('./popup.vue')).default;
 
-import 'material-design-icons-iconfont/dist/material-design-icons.css';
+  Vue.use(Vuetify, {
+    components: {
+      VApp,
+      VBtn,
+      VIcon,
+    },
+  });
 
-Vue.use(Vuetify, {
-  theme: {},
-});
-
-import App from './popup.vue';
-
-import 'vuetify/dist/vuetify.min.css';
-
-Vue.prototype.$db = new Database();
-
-new Vue({
-  el: '#popup',
-  render: h => h(App),
-});
+  new Vue({
+    el: '#popup',
+    render: h => h(App),
+  });
+})();

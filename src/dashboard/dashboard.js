@@ -1,6 +1,3 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify';
-
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
@@ -13,29 +10,32 @@ import '../stylus/main.styl';
 
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
-Vue.component('font-awesome-icon', FontAwesomeIcon);
+(async () => {
+  const Vue = (await import(/* webpackPreload: true */ 'vue')).default;
+  const Vuetify = (await import(/* webpackPreload: true */ 'vuetify')).default;
 
-Vue.use(Vuetify, {
-  theme: { primary: '#00695C' },
-});
+  Vue.component('font-awesome-icon', FontAwesomeIcon);
 
-import router from './route.js';
+  Vue.use(Vuetify, {
+    theme: { primary: '#00695C' },
+  });
 
-import App from './components/App.vue';
+  const router = (await import('./route.js')).default;
+  const App = (await import('./components/App.vue')).default;
+  const store = (await import('./store')).default;
 
-import store from './store';
+  Vue.filter('friendlyDuration', formatSecs);
+  Vue.filter('friendlyShortDuration', formatSecsShort);
+  Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
-Vue.filter('friendlyDuration', formatSecs);
-Vue.filter('friendlyShortDuration', formatSecsShort);
-Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
-
-new Vue({
-  el: '#dashboard',
-  store,
-  router,
-  render: h => h(App),
-  created() {
-    this.$store.dispatch('settings/loadSettings');
-    this.$store.dispatch('metamask/initialize');
-  },
-});
+  new Vue({
+    el: '#dashboard',
+    store,
+    router,
+    render: h => h(App),
+    created() {
+      this.$store.dispatch('settings/loadSettings');
+      this.$store.dispatch('metamask/initialize');
+    },
+  });
+})();

@@ -40,8 +40,6 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
-  let lastDonation = new Date(0);
-
   async function receiveCreator(msg) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
     if (msg.type !== 'creatorFound') {
@@ -146,11 +144,30 @@ error: ${JSON.stringify(message)}`
   });
 
   // do alert stuff
+  //const donationInterval = 60 * 60 * 24 * 7; // One week
+  //const reminderinterval = 60 * 60 * 24; // 24 hours
+
+  let times = {};
+  browser.storage.local
+    .get('reminderTimes')
+    .then(t => {
+      if (t.lastDonation === undefined) {
+        times.lastDonation === new Date(0);
+        times.lastToast === new Date(0);
+      } else {
+        times = t;
+      }
+      console.log('times:', times);
+      return browser.storage.local.set({ reminderTimes: times });
+    })
+    .catch(err => {
+      console.error('Could not get reminderTimes:', err);
+    });
 
   browser.browserAction.setBadgeBackgroundColor({ color: 'ForestGreen' });
   browser.browserAction.setBadgeText({ text: '🔔' });
   browser.browserAction.setTitle({ title: 'Thankful (💩)' });
-  console.log('last donation at:', lastDonation);
+  //console.log('last donation at:', lastDonation);
 
   stethoscope();
 })();

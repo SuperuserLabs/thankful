@@ -45,7 +45,7 @@ async function rescheduleAlarm() {
   //// This should stay low since it removes the badge when the user has donated
   //const reminderCheckInterval = 1000 * 5; // 5 seconds
   const donationInterval = 1000 * 60;
-  const toastInterval = 1000 * 10;
+  const toastInterval = 1000 * 30;
   const reminderCheckInterval = 1000 * 5;
 
   // We won't start out by reminding new users
@@ -167,11 +167,15 @@ error: ${JSON.stringify(message)}`
       })
       .then(() => {
         if (new Date() - lastDonation > donationInterval) {
+          browser.storage.local.set({ shouldDonate: true });
+
           browser.browserAction.setBadgeBackgroundColor({
             color: 'ForestGreen',
           });
           browser.browserAction.setBadgeText({ text: '🔔' });
-          browser.browserAction.setTitle({ title: 'Thankful (💩)' });
+          browser.browserAction.setTitle({
+            title: 'Thankful: Reminder to donate',
+          });
 
           if (new Date() - lastToast > toastInterval) {
             // TODO: Add the logo to the notification
@@ -184,6 +188,8 @@ error: ${JSON.stringify(message)}`
             lastToast = new Date();
           }
         } else {
+          browser.storage.local.set({ shouldDonate: false });
+
           browser.browserAction.setBadgeText({ text: '' });
           browser.browserAction.setTitle({ title: 'Thankful' });
         }

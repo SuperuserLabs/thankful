@@ -12,6 +12,9 @@ v-app
 
       p.text-xs-center
         | Thanks for this page: {{ this.thanksAmount }}
+      
+      p.text-xs-center.pb-0(v-if="this.shouldDonate")
+        | Now is a good time to donate, click below to get started. 👇
 
       v-btn(color="info", v-on:click="openDashboard()")
         | Open dashboard
@@ -19,6 +22,7 @@ v-app
 
 
 <script>
+import browser from 'webextension-polyfill';
 import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
 
 let db;
@@ -27,6 +31,7 @@ export default {
   data: function() {
     return {
       thanksAmount: 0,
+      shouldDonate: false,
     };
   },
   methods: {
@@ -54,11 +59,20 @@ export default {
           throw "Couldn't get thanks count for page: " + err;
         });
     },
+    getShouldDonate() {
+      browser.storage.local
+        .get(['shouldDonate'])
+        .then(o => {
+          this.shouldDonate = o.shouldDonate;
+        })
+        .catch(err => console.error('Could not get shouldDonate:', err));
+    },
     openDashboard() {
       openDashboardTab();
     },
     refresh() {
       this.refreshThanksCount();
+      this.getShouldDonate();
     },
   },
   created() {

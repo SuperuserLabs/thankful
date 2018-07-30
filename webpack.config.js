@@ -87,6 +87,7 @@ module.exports = {
     popup: ['./src/popup/popup.js'],
     dashboard: ['./src/dashboard/dashboard.js'],
     content_youtube: ['./src/content_scripts/content_youtube.js'],
+    content_medium: ['./src/content_scripts/content_medium.js'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

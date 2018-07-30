@@ -1,8 +1,12 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
+import {
+  faYoutube,
+  faGithub,
+  faMedium,
+} from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faStar, faYoutube, faGithub);
+library.add(faStar, faYoutube, faGithub, faMedium);
 
 import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';

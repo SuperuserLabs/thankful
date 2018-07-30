@@ -40,15 +40,15 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
-  //const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
-  //const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
-  //// Don't use browser.storage.onChanged.addListener, it spams events for
-  //// no reason
-  //// In minutes
-  //const reminderCheckInterval = 60; // One hour
-  const donationInterval = 1000 * 60 * 2;
-  const toastInterval = 1000 * 20;
-  const reminderCheckInterval = 0.2;
+  // These variables are in milliseconds
+  const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
+  const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
+  // Could use browser.runtime.connect for faster updates and less frequent
+  // polling but that feels like unnecessary complexity
+  // Don't use browser.storage.onChanged.addListener, it spams events for
+  // no reason
+  // This variable is in minutes
+  const reminderCheckInterval = 5 / 60; // 5 seconds
 
   // We won't start out by reminding new users
   let lastDonation = new Date();

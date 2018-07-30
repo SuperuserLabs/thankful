@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Thankful",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "",
   "icons": {
     "64": "icons/handshake.png"

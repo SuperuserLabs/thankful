@@ -29,18 +29,21 @@ v-card(height='116px').mt-1
           v-list-tile-content
             v-list-tile-title
               | Edit
-        v-list-tile(@click='ignore()')
-          v-list-tile-action
-            v-icon visibility_off
-          v-list-tile-content
-            v-list-tile-title
-              | Ignore (no impl.)
-        v-list-tile(@click='show_activity()')
+        v-tooltip(bottom)
+          template(slot='activator')
+            v-list-tile(@click='$emit("ignore")')
+              v-list-tile-action
+                v-icon visibility_off
+              v-list-tile-content
+                v-list-tile-title
+                  | Ignore
+          | {{ $t('tip.ignore') }}
+        v-list-tile(@click='$emit("activity")')
           v-list-tile-action
             v-icon history
           v-list-tile-content
             v-list-tile-title
-              | Show activity (no impl.)
+              | Show activity
 </template>
 
 <script>
@@ -67,12 +70,6 @@ export default {
         url: this.creator.url,
         duration: this.creator.duration,
         thanksAmount: this.creator.thanksAmount,
-      });
-    },
-    show_activity() {
-      this.$store.commit('notifications/insert', {
-        text: 'show_activity not implemented',
-        type: 'error',
       });
     },
     ignore() {

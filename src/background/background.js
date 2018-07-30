@@ -47,7 +47,9 @@ async function rescheduleAlarm() {
   const toastInterval = 1000 * 10;
   const reminderCheckInterval = 1000 * 5;
 
+  // We won't start out by reminding new users
   let lastDonation = new Date();
+  // We'll toast when the browser starts
   let lastToast = new Date(0);
 
   async function receiveCreator(msg) {
@@ -163,7 +165,6 @@ error: ${JSON.stringify(message)}`
         return browser.storage.local.set({ lastDonation: lastDonation });
       })
       .then(() => {
-        console.log('last donation made at:', lastDonation);
         if (new Date() - lastDonation > donationInterval) {
           browser.browserAction.setBadgeBackgroundColor({
             color: 'ForestGreen',

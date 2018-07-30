@@ -6,14 +6,14 @@ v-app
 
       p.text-xs-center Thanks for trying Thankful!
 
-      v-btn(color="success", v-on:click="thank()")
+      v-btn(color="success", v-on:click="thank()", :loading='loading')
         | Thank this page
         v-icon.pl-1(color="yellow") favorite
 
       p.text-xs-center
         | Thanks for this page: {{ this.thanksAmount }}
 
-      v-btn(color="info", v-on:click="openDashboard()")
+      v-btn(color="info", @click="openDashboard()")
         | Open dashboard
 </template>
 
@@ -28,6 +28,7 @@ export default {
   data: function() {
     return {
       thanksAmount: 0,
+      loading: true,
     };
   },
   methods: {
@@ -77,6 +78,7 @@ export default {
     import(/* webpackChunkName: "db" */ '../lib/db')
       .then(module => (db = new module.Database()))
       .then(() => {
+        this.loading = false;
         this.refresh();
       });
   },

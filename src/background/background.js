@@ -40,6 +40,13 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
+  const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
+  const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
+  const reminderCheckInterval = 1000 * 60 * 60; // One hour
+
+  let lastDonation = new Date(0);
+  let lastToast = new Date(0);
+
   async function receiveCreator(msg) {
     console.log('receiveCreator: ' + JSON.stringify(msg));
     if (msg.type !== 'creatorFound') {
@@ -143,37 +150,44 @@ error: ${JSON.stringify(message)}`
     }
   });
 
-  // do alert stuff
-  //const donationInterval = 60 * 60 * 24 * 7; // One week
-  //const reminderinterval = 60 * 60 * 24; // 24 hours
-
-  let lastDonation = new Date(0);
-  //let lastReminder = new Date(0);
-  browser.storage.local
-    .get('lastDonation')
-    .then(t => {
-      console.log('times:', t);
-      if (t.lastDonation !== undefined) {
-        lastDonation = t.lastDonation;
-      }
-      return browser.storage.local.set({ lastDonation: lastDonation });
-    })
-    .then(() => {
-      console.log('last donation made at:', lastDonation);
-      // if (donation was a long time ago) {
-      toastReminder();
-      browser.browserAction.setBadgeBackgroundColor({ color: 'ForestGreen' });
-      browser.browserAction.setBadgeText({ text: '🔔' });
-      browser.browserAction.setTitle({ title: 'Thankful (💩)' });
-    })
-    .catch(err => {
-      console.error('Could not get reminderTimes:', err);
-    });
+  function reminderCheck() {
+    browser.storage.local
+      .get('lastDonation')
+      .then(t => {
+        if (t.lastDonation !== undefined) {
+          lastDonation = t.lastDonation;
+        }
+        return browser.storage.local.set({ lastDonation: lastDonation });
+      })
+      .then(() => {
+        console.log('last donation made at:', lastDonation);
+        if (new Date() - lastDonation > donationInterval) {
+          browser.browserAction.setBadgeBackgroundColor({
+            color: 'ForestGreen',
+          });
+          browser.browserAction.setBadgeText({ text: '🔔' });
+          browser.browserAction.setTitle({ title: 'Thankful (💩)' });
+          if (new Date() - lastToast > toastInterval) {
+            toastReminder();
+            lastToast = new Date();
+          }
+        } else {
+          browser.browserAction.setBadgeText({ text: '' });
+          browser.browserAction.setTitle({ title: 'Thankful' });
+        }
+      })
+      .catch(err => {
+        console.error('Could not get reminderTimes:', err);
+      });
+  }
 
   function toastReminder() {
     // TODO: Implement this
-    console.log('TOAST');
+    console.log('TOAST 🍞');
   }
+
+  reminderCheck();
+  setInterval(reminderCheck, reminderCheckInterval); // Check once every hour
 
   stethoscope();
 })();

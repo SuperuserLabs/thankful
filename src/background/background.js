@@ -4,7 +4,7 @@ import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Creator } from '../lib/db.js';
-import { getCurrentTab } from '../lib/tabs.js';
+import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
 import _ from 'lodash';
 
 /**
@@ -192,6 +192,8 @@ error: ${JSON.stringify(message)}`
         console.error('Could not get reminderTimes:', err);
       });
   }
+
+  browser.notifications.onClicked.addListener(openDashboardTab);
 
   reminderCheck();
   setInterval(reminderCheck, reminderCheckInterval);

@@ -19,8 +19,7 @@ v-app
 
 
 <script>
-import browser from 'webextension-polyfill';
-import { getCurrentTab } from '../lib/tabs.js';
+import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
 
 let db;
 
@@ -56,18 +55,7 @@ export default {
         });
     },
     openDashboard() {
-      let dashboard_url = browser.runtime.getURL('dashboard/index.html');
-      browser.tabs
-        .query({ currentWindow: true, url: dashboard_url })
-        .then(e => {
-          if (e.length < 1) {
-            browser.tabs.create({
-              url: dashboard_url,
-            });
-          } else {
-            browser.tabs.update(e[0].id, { active: true });
-          }
-        });
+      openDashboardTab();
     },
     refresh() {
       this.refreshThanksCount();

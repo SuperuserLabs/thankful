@@ -6,7 +6,7 @@ v-app
 
       p.text-xs-center Thanks for trying Thankful!
 
-      v-btn(color="success", v-on:click="thank()")
+      v-btn(color="success", v-on:click="thank()", :loading='loading')
         | Thank this page
         v-icon.pl-1(color="yellow") favorite
 
@@ -16,7 +16,7 @@ v-app
       p.text-xs-center.pb-0(v-if="this.shouldDonate")
         | Now is a good time to donate, click below to get started. 👇
 
-      v-btn(color="info", v-on:click="openDashboard()")
+      v-btn(color="info", @click="openDashboard()")
         | Open dashboard
 </template>
 
@@ -32,6 +32,7 @@ export default {
     return {
       thanksAmount: 0,
       shouldDonate: false,
+      loading: true,
     };
   },
   methods: {
@@ -79,6 +80,7 @@ export default {
     import(/* webpackChunkName: "db" */ '../lib/db')
       .then(module => (db = new module.Database()))
       .then(() => {
+        this.loading = false;
         this.refresh();
       });
   },

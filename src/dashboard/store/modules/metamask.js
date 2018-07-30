@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 let networks = {
   '-1': { color: 'warning' },
   1: { name: 'Main Ethereum Network', color: 'green' },
@@ -56,6 +58,8 @@ export default {
         if (donation.failed) {
           throw donation.err;
         }
+        // For communicating with the background script
+        browser.storage.local.set({ lastDonation: new Date() });
         return dispatch('db/logDonation', donation, { root: true });
       });
     },

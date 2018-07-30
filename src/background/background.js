@@ -40,11 +40,14 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
-  const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
-  const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
-  const reminderCheckInterval = 1000 * 60 * 60; // One hour
+  //const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
+  //const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
+  //const reminderCheckInterval = 1000 * 5; // 5 seconds
+  const donationInterval = 1000 * 60;
+  const toastInterval = 1000 * 10;
+  const reminderCheckInterval = 1000 * 5;
 
-  let lastDonation = new Date(0);
+  let lastDonation = new Date();
   let lastToast = new Date(0);
 
   async function receiveCreator(msg) {
@@ -167,6 +170,7 @@ error: ${JSON.stringify(message)}`
           });
           browser.browserAction.setBadgeText({ text: '🔔' });
           browser.browserAction.setTitle({ title: 'Thankful (💩)' });
+
           if (new Date() - lastToast > toastInterval) {
             toastReminder();
             lastToast = new Date();

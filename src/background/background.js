@@ -42,6 +42,7 @@ async function rescheduleAlarm() {
 
   //const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
   //const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
+  //// This should stay low since it removes the badge when the user has donated
   //const reminderCheckInterval = 1000 * 5; // 5 seconds
   const donationInterval = 1000 * 60;
   const toastInterval = 1000 * 10;
@@ -173,7 +174,13 @@ error: ${JSON.stringify(message)}`
           browser.browserAction.setTitle({ title: 'Thankful (💩)' });
 
           if (new Date() - lastToast > toastInterval) {
-            toastReminder();
+            // TODO: Add the logo to the notification
+            browser.notifications.create({
+              type: 'basic',
+              title: 'Thankful: Reminder to donate 🔔',
+              message:
+                "You haven't donated in a while, click here to go to the donation dashboard",
+            });
             lastToast = new Date();
           }
         } else {
@@ -186,13 +193,8 @@ error: ${JSON.stringify(message)}`
       });
   }
 
-  function toastReminder() {
-    // TODO: Implement this
-    console.log('TOAST 🍞');
-  }
-
   reminderCheck();
-  setInterval(reminderCheck, reminderCheckInterval); // Check once every hour
+  setInterval(reminderCheck, reminderCheckInterval);
 
   stethoscope();
 })();

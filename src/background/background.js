@@ -42,11 +42,13 @@ async function rescheduleAlarm() {
 
   //const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
   //const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
-  //// This should stay low since it removes the badge when the user has donated
-  //const reminderCheckInterval = 1000 * 5; // 5 seconds
-  const donationInterval = 1000 * 60;
-  const toastInterval = 1000 * 30;
-  const reminderCheckInterval = 1000 * 5;
+  //// Don't use browser.storage.onChanged.addListener, it spams events for
+  //// no reason
+  //// In minutes
+  //const reminderCheckInterval = 60; // One hour
+  const donationInterval = 1000 * 60 * 2;
+  const toastInterval = 1000 * 20;
+  const reminderCheckInterval = 0.2;
 
   // We won't start out by reminding new users
   let lastDonation = new Date();
@@ -151,8 +153,9 @@ error: ${JSON.stringify(message)}`
 
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
-      console.log('Heartbeat alarm triggered');
       stethoscope();
+    } else if (alarm.name === 'reminderCheck') {
+      reminderCheck();
     }
   });
 
@@ -202,7 +205,9 @@ error: ${JSON.stringify(message)}`
   browser.notifications.onClicked.addListener(openDashboardTab);
 
   reminderCheck();
-  setInterval(reminderCheck, reminderCheckInterval);
+  browser.alarms.create('reminderCheck', {
+    periodInMinutes: reminderCheckInterval,
+  });
 
   stethoscope();
 })();

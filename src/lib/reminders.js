@@ -38,7 +38,7 @@ export async function isTimeToDonate(db) {
     // to "donate again". But that might be nice, not telling them to
     // donate until we know that they *can* donate.
     const lastTime =
-      lastDonation === undefined ? new Date(0) : new Date(lastDonation.date);
+      lastDonation === undefined ? new Date() : new Date(lastDonation.date);
     return new Date() - lastTime > donationInterval;
   });
 }

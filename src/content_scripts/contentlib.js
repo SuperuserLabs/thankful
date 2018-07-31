@@ -19,10 +19,19 @@ export async function waitForElement(
   retries = 5,
   node = document
 ) {
+  return await waitForElements([query], retryTime, retries, node)[0];
+}
+
+export async function waitForElements(
+  queries,
+  retryTime,
+  retries = 5,
+  node = document
+) {
   let error;
   for (let i = 0; i < retries; i++) {
     try {
-      return await queryElement(query, node);
+      return await Promise.all(queries.map(query => queryElement(query, node)));
     } catch (err) {
       error = err;
     }

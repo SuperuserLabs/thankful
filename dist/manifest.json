@@ -19,6 +19,10 @@
     {
       "matches": ["*://*.youtube.com/*"],
       "js": ["content_youtube/index.js"]
+    },
+    {
+      "matches": ["*://*.medium.com/*"],
+      "js": ["content_medium/index.js"]
     }
   ],
   "content_security_policy":

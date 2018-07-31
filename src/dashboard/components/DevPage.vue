@@ -63,18 +63,18 @@ export default {
           log('Database exists, deleting...');
           try {
             await Dexie.delete(dest);
-            let newdb = new Dexie(dest);
-            newdb.version(verno).stores(schema);
-            await Promise.all(
-              _.map(db, (items, key) =>
-                newdb[key].bulkAdd(items).catch(Dexie.BulkError, e => log(e))
-              )
-            );
-            log(`Database '${dest}' imported`);
           } catch (err) {
             log('Delete failed: ' + err);
           }
         }
+        let newdb = new Dexie(dest);
+        newdb.version(verno).stores(schema);
+        await Promise.all(
+          _.map(db, (items, key) =>
+            newdb[key].bulkAdd(items).catch(Dexie.BulkError, e => log(e))
+          )
+        );
+        log(`Database '${dest}' imported`);
       })(this.destination, this.data);
     },
     exportFile() {

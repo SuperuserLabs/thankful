@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { isWebExtension } from './util';
 import browser from 'webextension-polyfill';
 
 const addrs = {};
@@ -114,18 +115,22 @@ export default class Donate {
   }
 
   _metamaskExtensionId() {
-    if (browser.runtime.getBrowserInfo) {
-      return browser.runtime.getBrowserInfo().then(res => {
-        if (res.name === 'Firefox') {
-          return 'webextension@metamask.io';
-        } else {
-          // Assume Chrome if it's some other string
-          return 'nkbihfbeogaeaoehlefnkodbefgpgknn';
-        }
-      });
+    if (isWebExtension()) {
+      if (browser.runtime.getBrowserInfo) {
+        return browser.runtime.getBrowserInfo().then(res => {
+          if (res.name === 'Firefox') {
+            return 'webextension@metamask.io';
+          } else {
+            // Assume Chrome if it's some other string
+            return 'nkbihfbeogaeaoehlefnkodbefgpgknn';
+          }
+        });
+      } else {
+        // Assume Chrome if getBrowserInfo isn't defined
+        return Promise.resolve('nkbihfbeogaeaoehlefnkodbefgpgknn');
+      }
     } else {
-      // Assume Chrome if getBrowserInfo isn't defined
-      return Promise.resolve('nkbihfbeogaeaoehlefnkodbefgpgknn');
+      return Promise.reject('Not supported outside WebExtension, yet');
     }
   }
 

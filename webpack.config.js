@@ -87,6 +87,7 @@ module.exports = {
     popup: ['./src/popup/popup.js'],
     dashboard: ['./src/dashboard/dashboard.js'],
     content_youtube: ['./src/content_scripts/content_youtube.js'],
+    content_medium: ['./src/content_scripts/content_medium.js'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -94,7 +95,11 @@ module.exports = {
     filename: '[name]/index.js',
   },
   plugins: [
-    new LodashModuleReplacementPlugin({ shorthands: true }),
+    new LodashModuleReplacementPlugin({
+      shorthands: true,
+      collections: true,
+      paths: true,
+    }),
     new MiniCssExtractPlugin({
       filename: '[name].css',
       chunkFilename: '[id].css',

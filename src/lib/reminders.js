@@ -16,16 +16,16 @@ const reminderCheckInterval = 5 / 60; // 5 seconds
 // We'll toast when the browser starts
 let lastToast = new Date(0);
 
-export function initReminders() {
+export function initReminders(db) {
   browser.notifications.onClicked.addListener(openDashboardTab);
 
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'reminderCheck') {
-      reminderCheck();
+      reminderCheck(db);
     }
   });
 
-  reminderCheck();
+  reminderCheck(db);
   browser.alarms.create('reminderCheck', {
     periodInMinutes: reminderCheckInterval,
   });
@@ -43,8 +43,8 @@ export async function isTimeToDonate(db) {
   });
 }
 
-function reminderCheck() {
-  isTimeToDonate()
+function reminderCheck(db) {
+  isTimeToDonate(db)
     .then(shouldDonate => {
       if (shouldDonate) {
         browser.browserAction.setBadgeBackgroundColor({

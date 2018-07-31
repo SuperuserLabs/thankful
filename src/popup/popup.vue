@@ -61,7 +61,7 @@ export default {
         });
     },
     getShouldDonate() {
-      isTimeToDonate()
+      isTimeToDonate(db)
         .then(shouldDonate => {
           this.shouldDonate = shouldDonate;
         })

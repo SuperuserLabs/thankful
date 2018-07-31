@@ -143,7 +143,7 @@ error: ${JSON.stringify(message)}`
     }
   });
 
-  initReminders();
+  initReminders(db);
 
   stethoscope();
 })();

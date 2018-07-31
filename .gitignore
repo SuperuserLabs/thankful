@@ -15,6 +15,7 @@ dist/**/*.ttf
 dist/**/*.eot
 dist/**/*.html
 thankful.zip
+thankful-src.zip
 stats.json
 
 # .env secrets

@@ -51,6 +51,9 @@ publish-amo: prepublish
 	env MOZILLA_EXTENSION_ID='{b4bbcd8e-acc0-4044-b09b-1c15d0b66875}' \
 		node scripts/publish-mozilla-addons.js
 
+zip-src:
+	git archive -o thankful-src.zip HEAD
+
 publish-webstore: prepublish
 	# This will likely not be able to run in CI, see:
 	#	https://github.com/SuperuserLabs/thankful/pull/39#issuecomment-401839665

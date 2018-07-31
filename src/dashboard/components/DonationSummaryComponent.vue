@@ -21,7 +21,7 @@ div.pt-2
                         lazy,
                         @open="currentAddressValue = props.item.address",
                         @save="updateAddress(props.item.index, currentAddressValue )")
-            div {{ props.item.address }}
+            div(style="font-family: monospace").text--secondary.subheading {{ props.item.address }}
             div.mt-3.title(slot="input")
               | Change address
             v-text-field(slot="input",

@@ -10,13 +10,23 @@ v-card(height='116px').mt-1
             font-awesome-icon(v-if='isOnDomain(url, "github.com")', :icon="['fab', 'github']", color='black')
           | {{ name }}
   v-card-actions
-    v-layout(row, align-center).ma-0.subheading.text--secondary
-      span(v-if="duration").px-1
-        | {{ duration | fixed(0) | friendlyShortDuration }}
-      template(v-if="thanksAmount")
-        span.px-1
-          | {{ thanksAmount }}
-        v-icon(small) favorite
+    v-layout(row, align-center).ma-0.pl-1.body-1.text--secondary
+      span(v-if="duration").pr-1
+        v-tooltip(bottom)
+          span(slot="activator")
+            v-icon(small) watch_later
+            span.px-1
+              | {{ duration | fixed(0) | friendlyShortDuration }}
+          span
+            | Time spent on creator
+      span(v-if="thanksAmount").pr-1
+        v-tooltip(bottom)
+          span(slot="activator")
+            v-icon(small) favorite
+            span.px-1
+              | {{ thanksAmount }}
+          span
+            | Times you've thanked this creators content
     v-spacer
     v-menu(bottom left)
       v-btn(slot="activator" icon)

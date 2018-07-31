@@ -22,6 +22,9 @@ lint-fix:
 test:
 	npm run test
 
+serve:
+	cd dist/ && python3 -m http.server
+
 typecheck:
 	mypy scripts/
 

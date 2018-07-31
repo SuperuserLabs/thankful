@@ -10,6 +10,8 @@ import '../stylus/main.styl';
 
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
+import _ from 'lodash';
+
 (async () => {
   const Vue = (await import(/* webpackPreload: true */ 'vue')).default;
   const Vuetify = (await import(/* webpackPreload: true */ 'vuetify')).default;
@@ -27,6 +29,14 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
   Vue.filter('friendlyDuration', formatSecs);
   Vue.filter('friendlyShortDuration', formatSecsShort);
   Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
+
+  const messages = {
+    tip: {
+      ignore:
+        "This creator won't receive donations and won't show up among your favorite creators",
+    },
+  };
+  Vue.prototype.$t = path => _.get(messages, path);
 
   new Vue({
     el: '#dashboard',

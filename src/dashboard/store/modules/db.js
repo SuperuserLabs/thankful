@@ -124,6 +124,7 @@ export default {
     },
     undo({ commit, dispatch, state }) {
       const { index } = state.lastEdit;
+      console.log(state.lastEdit);
       commit('undoCreatorUpdate');
       return dispatch('save', { index: index });
     },
@@ -161,7 +162,7 @@ export default {
     updateCreator(state, { index, updates }) {
       let creator = state.creators[index];
       let keys = _.keys(updates);
-      state.lastEdit = { index: index, keys: keys, old: _.pick(updates, keys) };
+      state.lastEdit = { index: index, keys: keys, old: _.pick(creator, keys) };
       state.creators.splice(
         index,
         1,
@@ -174,13 +175,13 @@ export default {
     },
     undoCreatorUpdate(state) {
       let { index, keys, old } = state.lastEdit;
-      let creator = _.omit(state.creators[index], keys);
+      let creator = state.creators[index];
       state.creators.splice(
         index,
         1,
         Object.assign(
           Object.create(Object.getPrototypeOf(creator)),
-          creator,
+          _.omit(creator, keys),
           old
         )
       );

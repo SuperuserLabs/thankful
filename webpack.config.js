@@ -94,7 +94,11 @@ module.exports = {
     filename: '[name]/index.js',
   },
   plugins: [
-    new LodashModuleReplacementPlugin({ shorthands: true }),
+    new LodashModuleReplacementPlugin({
+      shorthands: true,
+      collections: true,
+      paths: true,
+    }),
     new MiniCssExtractPlugin({
       filename: '[name].css',
       chunkFilename: '[id].css',

@@ -16,6 +16,7 @@ async function clearDB(db) {
   await db.db.creator.clear();
   await db.db.activity.clear();
   await db.db.donations.clear();
+  await db.db.thanks.clear();
 }
 
 describe('Activity', () => {
@@ -69,6 +70,19 @@ describe('Activity', () => {
     });
     expect(acts_without_creators).toHaveLength(2);
   });
+
+  it('Attaches creator to an activity with connectUrl', async () => {
+    const c_url = 'https://creatorurl.com';
+    await db.logActivity(url, 12.5);
+    await db.connectUrlToCreator(url, c_url);
+
+    expect(
+      (await db.db.activity
+        .where('url')
+        .equals(url)
+        .toArray())[0].creator
+    ).toEqual(c_url);
+  });
 });
 
 describe('Creator', () => {
@@ -120,7 +134,7 @@ describe('Creator', () => {
     let duration = 10;
     await new Activity(a_url, a_title, duration, c_key).save();
 
-    let result = await db.getTimeForCreators();
+    let result = await db.getCreators({ withDurations: true });
     expect(result[0].duration).toBeCloseTo(duration);
   });
 
@@ -164,5 +178,64 @@ describe('GitHub activity', () => {
     await db.attributeGithubActivity();
     let activity = await db.getActivity(url);
     expect(activity.creator).toBeUndefined();
+  });
+});
+
+describe('Thanks', () => {
+  const db = new Database();
+  const thxUrl = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
+  const thxUrlNotCanon = thxUrl + '&t=123';
+  const thxTitle = 'Elder Scrolls 6 Trailer';
+  const thxCreatorUrl =
+    'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('Thanks a url and count', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.logThank(thxUrl, thxTitle);
+
+    expect(await db.getUrlThanksAmount(thxUrl)).toEqual(2);
+  });
+
+  it('Thanks a not canon url and count', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.logThank(thxUrlNotCanon, thxTitle);
+
+    expect(await db.getUrlThanksAmount(thxUrlNotCanon)).toEqual(2);
+  });
+
+  it('Thanks a not canon url, attaches to a creator, and counts creator thanks', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.logThank(thxUrlNotCanon, thxTitle);
+    await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
+
+    expect(await db.getCreatorThanksAmount(thxCreatorUrl)).toEqual(2);
+  });
+
+  it('Attaches a creator to a thank', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.connectThanksToCreator(thxUrlNotCanon, thxCreatorUrl);
+
+    expect(
+      (await db.db.thanks
+        .where('url')
+        .equals(thxUrl)
+        .toArray())[0].creator
+    ).toEqual(thxCreatorUrl);
+  });
+
+  it('Attaches creator to a thank with connectUrl', async () => {
+    await db.logThank(thxUrl, thxTitle);
+    await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
+
+    expect(
+      (await db.db.thanks
+        .where('url')
+        .equals(thxUrl)
+        .toArray())[0].creator
+    ).toEqual(thxCreatorUrl);
   });
 });

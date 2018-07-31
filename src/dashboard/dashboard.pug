@@ -3,6 +3,8 @@ html
         meta(charset="UTF-8")
         title Thankful Dashboard
 
+        if mode == 'development'
+            script(src="http://localhost:8098")
+
     body
         div#dashboard
-        script(src="./index.js")

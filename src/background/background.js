@@ -4,6 +4,7 @@ import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Creator } from '../lib/db.js';
+import { getCurrentTab } from '../lib/tabs.js';
 import _ from 'lodash';
 
 /**
@@ -29,18 +30,13 @@ async function rescheduleAlarm() {
     .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
 }
 
-function getCurrentTab() {
-  // Note: an identical version exists in aw-watcher-web
-  return browser.tabs
-    .query({ active: true, currentWindow: true })
-    .then(tabs => tabs[0]);
-}
-
 (function() {
   rescheduleAlarm();
 
   const db = new Database();
   let noContentScript = {};
+
+  const pollTimer = valueConstantTicker(); // tracks time since last poll
   const tabTimers = {};
   const tabTitles = {};
 
@@ -51,16 +47,10 @@ function getCurrentTab() {
     }
     // FIXME: Doing a creator.save() overwrites a preexisting creator object
     await new Creator(msg.creator.url, msg.creator.name).save();
-    let result = await db.connectActivityToCreator(
+    await db.connectUrlToCreator(
       canonicalizeUrl(msg.activity.url),
       msg.creator.url
     );
-    if (result === 0) {
-      console.log('Failed connecting activity to creator');
-    } else {
-      console.log('Successfully connected activity to creator');
-    }
-    await db.getActivity(canonicalizeUrl(msg.activity.url));
   }
 
   async function stethoscope() {
@@ -70,7 +60,19 @@ function getCurrentTab() {
         ? [currentTab]
         : [];
       const audibleTabs = await browser.tabs.query({ audible: true });
-      const tabs = _.unionBy(currentTabArray, audibleTabs, 'url');
+      const tabs = _.filter(
+        _.unionBy(currentTabArray, audibleTabs, 'url'),
+        tab => !tab.incognito
+      );
+
+      const timeSinceLastPoll = pollTimer();
+      if (timeSinceLastPoll > 70) {
+        // If significantly more than 60s, reset timers.
+        // This is usually indicative of computer being suspended.
+        // See: https://github.com/SuperuserLabs/thankful/issues/61
+        console.log('suspend detected, resetting timers');
+        _.each(tabTimers, tabTimer => tabTimer());
+      }
 
       const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
       const goneUrls = _.difference(Object.keys(tabTimers), currentUrls);
@@ -124,19 +126,6 @@ error: ${JSON.stringify(message)}`
       });
   }
 
-  browser.browserAction.onClicked.addListener(() => {
-    let dashboard_url = browser.runtime.getURL('dashboard/index.html');
-    browser.tabs.query({ currentWindow: true, url: dashboard_url }).then(e => {
-      if (e.length < 1) {
-        browser.tabs.create({
-          url: dashboard_url,
-        });
-      } else {
-        browser.tabs.update(e[0].id, { active: true });
-      }
-    });
-  });
-
   browser.tabs.onUpdated.addListener(stethoscope);
 
   browser.tabs.onUpdated.addListener(sendPageChange);
@@ -153,5 +142,6 @@ error: ${JSON.stringify(message)}`
       stethoscope();
     }
   });
+
   stethoscope();
 })();

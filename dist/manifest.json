@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Thankful",
-  "version": "0.2.1",
+  "version": "0.5.1",
   "description": "",
   "icons": {
     "64": "icons/handshake.png"
@@ -9,6 +9,7 @@
   "browser_action": {
     "default_icon": "icons/handshake.png",
     "default_title": "Thankful",
+    "default_popup": "popup/index.html",
     "browser_style": true
   },
   "background": {
@@ -21,7 +22,7 @@
     }
   ],
   "content_security_policy":
-    "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'http://localhost:8098'; object-src 'self'",
   "permissions": [
     "tabs",
     "activeTab",

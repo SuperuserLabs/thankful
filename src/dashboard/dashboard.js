@@ -1,35 +1,41 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify';
-
 import { library } from '@fortawesome/fontawesome-svg-core';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faYoutube, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faYoutube, faGithub);
+library.add(faStar, faYoutube, faGithub);
 
-import { formatSecs } from '../lib/time.js';
-import Donate from '../lib/donate.js';
-import { Database } from '../lib/db.js';
+import { formatSecs, formatSecsShort } from '../lib/time.js';
+import 'typeface-roboto';
+import '../stylus/main.styl';
 
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
-Vue.component('font-awesome-icon', FontAwesomeIcon);
+(async () => {
+  const Vue = (await import(/* webpackPreload: true */ 'vue')).default;
+  const Vuetify = (await import(/* webpackPreload: true */ 'vuetify')).default;
 
-Vue.use(Vuetify, {
-  theme: {},
-});
+  Vue.component('font-awesome-icon', FontAwesomeIcon);
 
-import 'vuetify/dist/vuetify.min.css';
+  Vue.use(Vuetify, {
+    theme: { primary: '#00695C' },
+  });
 
-import router from './route.js';
+  const router = (await import('./route.js')).default;
+  const App = (await import('./components/App.vue')).default;
+  const store = (await import('./store')).default;
 
-import App from './App.vue';
+  Vue.filter('friendlyDuration', formatSecs);
+  Vue.filter('friendlyShortDuration', formatSecsShort);
+  Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
-Vue.prototype.$donate = new Donate();
-Vue.prototype.$db = new Database();
-Vue.filter('friendlyDuration', formatSecs);
-
-new Vue({
-  el: '#dashboard',
-  router: router,
-  render: h => h(App),
-});
+  new Vue({
+    el: '#dashboard',
+    store,
+    router,
+    render: h => h(App),
+    created() {
+      this.$store.dispatch('settings/loadSettings');
+      this.$store.dispatch('metamask/initialize');
+    },
+  });
+})();

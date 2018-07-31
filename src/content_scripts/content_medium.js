@@ -5,8 +5,6 @@ import {
   waitForElements,
 } from './contentlib.js';
 
-// TODO: Should content_youtube.js be renamed to content_script.js and have checks for each site?
-
 function crawlPage() {
   // Tries to extract channel URL from page, retries after 1 second if not successful.
   return waitForElements(
@@ -15,6 +13,7 @@ function crawlPage() {
   ).then(([c_name, c_url]) => {
     let url = document.location.href;
     let creator = new Creator(c_url.href, c_name.content);
+    console.info('Found creator: ' + JSON.stringify(creator));
     sendCreator(url, creator);
   });
 }

@@ -7,17 +7,26 @@ library.add(faStar, faYoutube, faGithub);
 import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';
 import '../stylus/main.styl';
+import { messages } from '../resources';
 
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 (async () => {
   const Vue = (await import(/* webpackPreload: true */ 'vue')).default;
   const Vuetify = (await import(/* webpackPreload: true */ 'vuetify')).default;
+  const VueI18n = (await import(/* webpackPreload: true */ 'vue-i18n')).default;
 
   Vue.component('font-awesome-icon', FontAwesomeIcon);
 
   Vue.use(Vuetify, {
     theme: { primary: '#00695C' },
+  });
+
+  // Create VueI18n instance with options
+  Vue.use(VueI18n);
+  const i18n = new VueI18n({
+    locale: 'en', // set locale
+    messages, // set locale messages
   });
 
   const router = (await import('./route.js')).default;
@@ -32,6 +41,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     el: '#dashboard',
     store,
     router,
+    i18n,
     render: h => h(App),
     created() {
       this.$store.dispatch('settings/loadSettings');

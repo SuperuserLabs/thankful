@@ -94,6 +94,7 @@
     "material-design-icons-iconfont": "^3.0.3",
     "metamask-crx": "github:MetaMask/metamask-extension#v4.8.0",
     "typeface-roboto": "0.0.54",
+    "vue-i18n": "^8.0.0",
     "vuetify": "^1.1.1",
     "vuex": "^3.0.1",
     "web3": "^1.0.0-beta.34"

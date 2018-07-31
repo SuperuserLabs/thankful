@@ -115,7 +115,6 @@ export default class Donate {
   }
 
   _metamaskExtensionId() {
-    console.log(`isWebExtension: ${isWebExtension()}`);
     if (isWebExtension()) {
       if (browser.runtime.getBrowserInfo) {
         return browser.runtime.getBrowserInfo().then(res => {

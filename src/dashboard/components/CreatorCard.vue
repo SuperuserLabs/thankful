@@ -19,7 +19,8 @@ v-card(height='116px').mt-1
             span.px-1
               | {{ duration | fixed(0) | friendlyShortDuration }}
           span
-            | Time spent on creator
+            // Time spent on creator
+            | {{ $t('tip.timespent_creator') }}
       span(v-if="thanksAmount").pr-1
         v-tooltip(bottom)
           span(slot="activator")
@@ -27,7 +28,8 @@ v-card(height='116px').mt-1
             span.px-1
               | {{ thanksAmount }}
           span
-            | Times you've thanked this creators content
+            // Times you've thanked this creators content
+            | {{ $t('tip.thanks_creator') }}
     v-spacer
     v-menu(bottom left)
       v-btn(slot="activator" icon)

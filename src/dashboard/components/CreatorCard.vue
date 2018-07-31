@@ -8,6 +8,7 @@ v-card(height='116px').mt-1
             font-awesome-icon(v-if='isOnDomain(url, "getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
             font-awesome-icon(v-if='isOnDomain(url, "youtube.com")', :icon="['fab', 'youtube']", color='red')
             font-awesome-icon(v-if='isOnDomain(url, "github.com")', :icon="['fab', 'github']", color='black')
+            font-awesome-icon(v-if='isOnDomain(url, "medium.com")', :icon="['fab', 'medium']", color='black')
           | {{ name }}
   v-card-actions
     v-layout(row, align-center).ma-0.pl-1.body-1.text--secondary
@@ -41,18 +42,21 @@ v-card(height='116px').mt-1
           v-list-tile-content
             v-list-tile-title
               | Edit
-        v-list-tile(@click='ignore()')
-          v-list-tile-action
-            v-icon visibility_off
-          v-list-tile-content
-            v-list-tile-title
-              | Ignore (no impl.)
-        v-list-tile(@click='show_activity()')
+        v-tooltip(bottom)
+          template(slot='activator')
+            v-list-tile(@click='$emit("ignore")')
+              v-list-tile-action
+                v-icon visibility_off
+              v-list-tile-content
+                v-list-tile-title
+                  | Ignore
+          | {{ $t('tip.ignore') }}
+        v-list-tile(@click='$emit("activity")')
           v-list-tile-action
             v-icon history
           v-list-tile-content
             v-list-tile-title
-              | Show activity (no impl.)
+              | Show activity
 </template>
 
 <script>
@@ -79,12 +83,6 @@ export default {
         url: this.creator.url,
         duration: this.creator.duration,
         thanksAmount: this.creator.thanksAmount,
-      });
-    },
-    show_activity() {
-      this.$store.commit('notifications/insert', {
-        text: 'show_activity not implemented',
-        type: 'error',
       });
     },
     ignore() {

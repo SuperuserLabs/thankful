@@ -9,15 +9,17 @@ div
       b(v-if="msg.title")
         | {{ msg.title }}:&nbsp;
       | {{ msg.text }}
-    v-dialog(v-model="dialog", max-width='500px')
+    v-dialog(v-model="dialog.edit", max-width='500px', @input='newCreator = false')
       v-card(tile)
         v-toolbar(card dark color="primary")
           v-toolbar-title
             | Editing
           v-spacer
           v-toolbar-items
-            v-btn(v-if='!editedCreator.new' dark flat @click='ignore();')
-              | #[v-icon visibility_off] Ignore
+            v-tooltip(v-if='!dialog.new', bottom)
+              v-btn(slot='activator', dark, flat, @click='ignore(currentCreator)')
+                | #[v-icon visibility_off] Ignore
+              | {{ $t('tip.ignore') }}
         v-card-text
           v-layout(row, wrap)
             v-flex(xs12)
@@ -30,7 +32,13 @@ div
                 | {{ editedCreator.info }}
           v-layout(row, justify-end)
             v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
-          v-data-table(v-if='dialog', :headers="activityHeaders", :items="activityByCreator(currentCreator.url)", :pagination.sync='pagination')
+    v-dialog(v-model="dialog.activity", max-width='800px')
+      v-card(tile)
+        v-toolbar(card dark color="primary")
+          v-toolbar-title
+            | Activity
+        v-card-text
+          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.url)", :pagination.sync='pagination')
             template(slot='items', slot-scope='props')
               td
                 a(:href="props.item.url")
@@ -48,7 +56,10 @@ div
         v-flex(v-for="creator in creators", :key='creator.url', xs12, sm6, md3)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.url",
-                       @edit="edit(creator)")
+                       @edit="edit(creator)",
+                       @activity="activity(creator)",
+                       @ignore="ignore(creator)"
+                       )
         v-flex(xs12, sm6, md3)
           v-card(hover, @click.native="addCreator()", height='116px')
             v-container.text-xs-center
@@ -79,7 +90,7 @@ export default {
   },
   data: () => ({
     valid: true,
-    dialog: false,
+    dialog: { edit: false, activity: false },
     loading: true,
     currentCreator: {},
     editedCreator: { name: '', url: '', address: '' },
@@ -93,6 +104,7 @@ export default {
     ethAddressRules: [
       v => !v || this.isAddress(v) || 'Not a valid ETH address',
     ],
+    newCreator: false,
   }),
   computed: {
     ...mapGetters({
@@ -123,13 +135,13 @@ export default {
     addCreator() {
       let c = new Creator('', '');
       c.priority = 2;
-      c.new = true;
+      this.newCreator = true;
       this.edit(c, -1);
     },
-    ignore() {
-      this.currentCreator.ignore = false;
-      this.editedCreator.ignore = true;
-      this.save(`Ignored ${this.editedCreator.name}.`);
+    ignore(creator) {
+      this.currentCreator = creator;
+      this.editedCreator = { ignore: true };
+      this.save(`Ignored ${this.currentCreator.name}.`);
     },
     save(message = '') {
       // Update creator in vuex store
@@ -140,18 +152,24 @@ export default {
         })
         .then(() => {
           // Dismiss editing popup and show snackBar
-          this.dialog = false;
+          this.dialog.edit = false;
           this.snackMessage = message;
           this.showSnackbar = message.length > 0;
         });
     },
     undo() {
       this.$store.dispatch('db/undo');
+      this.showSnackbar = false;
     },
     edit(creator) {
       this.currentCreator = creator;
       this.editedCreator = _.pick(creator, ['name', 'url', 'address']);
-      this.dialog = true;
+      this.dialog.edit = true;
+      this.dialog.new = this.newCreator;
+    },
+    activity(creator) {
+      this.currentCreator = creator;
+      this.dialog.activity = true;
     },
   },
   beforeCreate() {

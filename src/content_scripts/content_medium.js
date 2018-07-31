@@ -2,19 +2,17 @@ import { Creator } from '../lib/models.js';
 import {
   sendCreator,
   addPageChangeListener,
-  waitForElement,
+  waitForElements,
 } from './contentlib.js';
 
 function crawlPage() {
   // Tries to extract channel URL from page, retries after 1 second if not successful.
-  return waitForElement('div#owner-container a', 1000).then(channelLink => {
+  return waitForElements(
+    ['meta[property=author]', 'link[rel=author]'],
+    1000
+  ).then(([c_name, c_url]) => {
     let url = document.location.href;
-    let c_url = channelLink.getAttribute('href');
-    if (!c_url.includes('://')) {
-      c_url = 'https://www.youtube.com' + c_url;
-    }
-    let c_name = channelLink.textContent;
-    let creator = new Creator(c_url, c_name);
+    let creator = new Creator(c_url.href, c_name.content);
     console.info('Found creator: ' + JSON.stringify(creator));
     sendCreator(url, creator);
   });

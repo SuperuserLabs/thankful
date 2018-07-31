@@ -12,5 +12,5 @@ export function isNode() {
 
 export function isWebExtension() {
   // TODO: Test in Chrome, Firefox, and in-page
-  return window && window.chrome && browser.runtime && browser.runtime.id;
+  return !!(window && window.chrome && browser.runtime && browser.runtime.id);
 }

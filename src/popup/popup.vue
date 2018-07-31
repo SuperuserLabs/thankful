@@ -12,6 +12,9 @@ v-app
 
       p.text-xs-center
         | Thanks for this page: {{ this.thanksAmount }}
+      
+      p.text-xs-center.pb-0(v-if="this.shouldDonate")
+        | Now is a good time to donate, click below to get started. 👇
 
       v-btn(color="info", @click="openDashboard()")
         | Open dashboard
@@ -19,8 +22,8 @@ v-app
 
 
 <script>
-import browser from 'webextension-polyfill';
-import { getCurrentTab } from '../lib/tabs.js';
+import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
+import { isTimeToDonate } from '../lib/reminders.js';
 
 let db;
 
@@ -28,6 +31,7 @@ export default {
   data: function() {
     return {
       thanksAmount: 0,
+      shouldDonate: false,
       loading: true,
     };
   },
@@ -56,22 +60,19 @@ export default {
           throw "Couldn't get thanks count for page: " + err;
         });
     },
+    getShouldDonate() {
+      isTimeToDonate(db)
+        .then(shouldDonate => {
+          this.shouldDonate = shouldDonate;
+        })
+        .catch(err => console.error('Could not get shouldDonate:', err));
+    },
     openDashboard() {
-      let dashboard_url = browser.runtime.getURL('dashboard/index.html');
-      browser.tabs
-        .query({ currentWindow: true, url: dashboard_url })
-        .then(e => {
-          if (e.length < 1) {
-            browser.tabs.create({
-              url: dashboard_url,
-            });
-          } else {
-            browser.tabs.update(e[0].id, { active: true });
-          }
-        });
+      openDashboardTab();
     },
     refresh() {
       this.refreshThanksCount();
+      this.getShouldDonate();
     },
   },
   created() {

@@ -56,6 +56,7 @@ export default {
         if (donation.failed) {
           throw donation.err;
         }
+
         return dispatch('db/logDonation', donation, { root: true });
       });
     },

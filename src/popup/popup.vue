@@ -22,8 +22,8 @@ v-app
 
 
 <script>
-import browser from 'webextension-polyfill';
 import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
+import { isTimeToDonate } from '../lib/reminders.js';
 
 let db;
 
@@ -61,10 +61,9 @@ export default {
         });
     },
     getShouldDonate() {
-      browser.storage.local
-        .get(['shouldDonate'])
-        .then(o => {
-          this.shouldDonate = o.shouldDonate;
+      isTimeToDonate()
+        .then(shouldDonate => {
+          this.shouldDonate = shouldDonate;
         })
         .catch(err => console.error('Could not get shouldDonate:', err));
     },

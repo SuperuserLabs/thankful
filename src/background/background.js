@@ -47,11 +47,11 @@ async function rescheduleAlarm() {
   // polling but that feels like unnecessary complexity
   // Don't use browser.storage.onChanged.addListener, it spams events for
   // no reason
+  // Could also observe the db but there doesn't seem to be a light way to do
+  // that
   // This variable is in minutes
   const reminderCheckInterval = 5 / 60; // 5 seconds
 
-  // We won't start out by reminding new users
-  let lastDonation = new Date();
   // We'll toast when the browser starts
   let lastToast = new Date(0);
 
@@ -159,19 +159,28 @@ error: ${JSON.stringify(message)}`
     }
   });
 
-  function reminderCheck() {
-    browser.storage.local
-      .get('lastDonation')
-      .then(t => {
-        if (t.lastDonation !== undefined) {
-          lastDonation = t.lastDonation;
-        }
-        return browser.storage.local.set({ lastDonation: lastDonation });
-      })
-      .then(() => {
-        if (new Date() - lastDonation > donationInterval) {
-          browser.storage.local.set({ shouldDonate: true });
+  // This is outside vuex because we use it in background.js
+  async function isTimeToDonate() {
+    return db.donations
+      .reverse()
+      .limit(1)
+      .toArray()
+      .then(([lastDonation]) => {
+        // When the user hasn't donated yet, we won't know when to remind them
+        // to "donate again". But that might be nice, not telling them to
+        // donate until we know that they *can* donate.
+        const lastTime =
+          lastDonation === undefined
+            ? new Date(0)
+            : new Date(lastDonation.date);
+        return new Date() - lastTime > donationInterval;
+      });
+  }
 
+  function reminderCheck() {
+    isTimeToDonate()
+      .then(shouldDonate => {
+        if (shouldDonate) {
           browser.browserAction.setBadgeBackgroundColor({
             color: 'ForestGreen',
           });
@@ -191,8 +200,6 @@ error: ${JSON.stringify(message)}`
             lastToast = new Date();
           }
         } else {
-          browser.storage.local.set({ shouldDonate: false });
-
           browser.browserAction.setBadgeText({ text: '' });
           browser.browserAction.setTitle({ title: 'Thankful' });
         }

@@ -161,20 +161,14 @@ error: ${JSON.stringify(message)}`
 
   // This is outside vuex because we use it in background.js
   async function isTimeToDonate() {
-    return db.donations
-      .reverse()
-      .limit(1)
-      .toArray()
-      .then(([lastDonation]) => {
-        // When the user hasn't donated yet, we won't know when to remind them
-        // to "donate again". But that might be nice, not telling them to
-        // donate until we know that they *can* donate.
-        const lastTime =
-          lastDonation === undefined
-            ? new Date(0)
-            : new Date(lastDonation.date);
-        return new Date() - lastTime > donationInterval;
-      });
+    return db.getDonations(1).then(([lastDonation]) => {
+      // When the user hasn't donated yet, we won't know when to remind them
+      // to "donate again". But that might be nice, not telling them to
+      // donate until we know that they *can* donate.
+      const lastTime =
+        lastDonation === undefined ? new Date(0) : new Date(lastDonation.date);
+      return new Date() - lastTime > donationInterval;
+    });
   }
 
   function reminderCheck() {

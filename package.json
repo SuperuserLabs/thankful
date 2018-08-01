@@ -50,6 +50,7 @@
     "bluebird": "^3.5.1",
     "chrome-webstore-upload-cli": "^1.1.1",
     "css-loader": "^0.28.11",
+    "csvtojson": "^2.0.7",
     "dexie": "^2.0.4",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",

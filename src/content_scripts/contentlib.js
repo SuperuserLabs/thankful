@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-async function queryElement(query, node) {
+function queryElement(query, node) {
   let element = node.querySelector(query);
   if (element) {
     return element;
@@ -19,7 +19,7 @@ export async function waitForElement(
   retries = 5,
   node = document
 ) {
-  return await waitForElements([query], retryTime, retries, node)[0];
+  return (await waitForElements([query], retryTime, retries, node))[0];
 }
 
 export async function waitForElements(
@@ -31,7 +31,7 @@ export async function waitForElements(
   let error;
   for (let i = 0; i < retries; i++) {
     try {
-      return await Promise.all(queries.map(query => queryElement(query, node)));
+      return queries.map(query => queryElement(query, node));
     } catch (err) {
       error = err;
     }

@@ -5,6 +5,7 @@ import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database, Creator } from '../lib/db.js';
 import { getCurrentTab } from '../lib/tabs.js';
+import { initReminders } from '../lib/reminders.js';
 import _ from 'lodash';
 
 /**
@@ -138,10 +139,11 @@ error: ${JSON.stringify(message)}`
 
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
-      console.log('Heartbeat alarm triggered');
       stethoscope();
     }
   });
+
+  initReminders(db);
 
   stethoscope();
 })();

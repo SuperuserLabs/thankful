@@ -104,12 +104,16 @@ export default {
       commit('setLoaded', 'donations');
     },
     async loadCreators({ commit }) {
+      await db.attachEthAddresses();
       await initThankfulTeamCreator();
       await db.attributeGithubActivity();
+      console.log('loadCreators');
       let creators = await db.getCreators({
         withDurations: true,
         withThanksAmount: true,
       });
+      console.log(creators);
+
       commit('setCreators', creators);
       commit('setLoaded', 'creators');
     },

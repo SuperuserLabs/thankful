@@ -7,6 +7,6 @@ exec(
   csv()
     .fromString(result.stdout)
     .then(jsonObj => {
-      console.log(jsonObj);
+      console.log(JSON.stringify(jsonObj));
     });
 });

@@ -144,6 +144,29 @@ export class Database {
       });
   }
 
+  async connectEthAddressToCreator(address, creatorUrl) {
+    url = canonicalizeUrl(creatorUrl);
+    await this.db.creator
+      .where('url')
+      .equals(url)
+      .modify({ address: creator.address })
+      .catch(err => {
+        throw 'Could not connect address to creator, ' + err;
+      });
+  }
+
+  async attachEthAddresses() {
+    console.log('attachEthAddresses');
+    const response = await fetch('/data/crypto_addresses.json');
+    const creatorsJSON = await response.json();
+
+    _.each(creatorsJSON, creator => {
+      _.each(creator.urls.split(';').filter(x => x !== ''), url => {
+        connectEthAddressToCreator(creator.address, url);
+      });
+    });
+  }
+
   async connectActivityToCreator(url, creator) {
     url = canonicalizeUrl(url);
     await this.db.activity

@@ -47,15 +47,12 @@ div.pt-2
                         single-line,
                         autofocus)
 
-  div.text-xs-center.pt-2.pb-3
+  v-layout(column, align-center).pt-2.pb-3
     v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ total.toFixed(2) }})
     v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
       | {{ buttonError }}
-    // TODO: Make this a checkbox and send it on donation instead
-  div.text-xs-center.pb-3
-    v-btn(large, outline, color='primary', v-on:click="sendAddressLess()")
-      | Send address-less creator info
+    v-checkbox(label="Send the Thankful devs info about creators with missing addresses" v-model="shouldSendAddressLess")
 </template>
 
 <script>
@@ -82,6 +79,7 @@ export default {
           v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
+      shouldSendAddressLess: true,
     };
   },
   computed: {
@@ -130,6 +128,11 @@ export default {
     donateAll() {
       this.$store
         .dispatch('metamask/donateAll', this.distribution)
+        .then(() => {
+          if (this.shouldSendAddressLess) {
+            return this.sendAddressLess();
+          }
+        })
         .catch(e => this.$emit('error', e));
     },
     async sendAddressLess() {

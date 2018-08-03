@@ -38,9 +38,23 @@ function dbinit() {
         });
       });
     });
+  /* Version 5 upgrade summary:
+   * Drop tables activity and creator to allow better naming and integer primary key.
+   * thanks: 'creator' key (which was the url of a creator) replaced by creator_id
+   * donations: 'url' key (which was the url of a creator) replaced by creator_id
+   * creators: 'url' becomes multi-valued
+   */
+  db.version(5).stores({
+    activity: null,
+    activities: '++id, &url, title, duration, creator_id',
+    creator: null,
+    creators: '++id, *url, name, ignore',
+    thanks: '++id, url, date, title, creator_id',
+    donations: '++id, date, creator_id, weiAmount, usdAmount',
+  });
 
-  registerModel(db, Activity, db.activity, 'url');
-  registerModel(db, Creator, db.creator, 'url');
+  registerModel(db, Activity, db.activities, 'url');
+  registerModel(db, Creator, db.creators, 'url');
   registerModel(db, Donation, db.donations, 'id');
   registerModel(db, Thank, db.thanks, 'id');
 
@@ -54,11 +68,11 @@ export class Database {
   }
 
   async getActivity(url) {
-    return await this.db.activity.get({ url: canonicalizeUrl(url) });
+    return await this.db.activities.get({ url: canonicalizeUrl(url) });
   }
 
   async getActivities({ limit = 1000, withCreators = null } = {}) {
-    let coll = this.db.activity.orderBy('duration').reverse();
+    let coll = this.db.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
       if (withCreators) {
         coll = coll.filter(a => a.creator !== undefined);
@@ -73,7 +87,7 @@ export class Database {
   }
 
   async getCreator(url) {
-    return this.db.creator.get({ url: url });
+    return this.db.creators.get({ url: url });
   }
 
   async getCreators({
@@ -81,7 +95,7 @@ export class Database {
     withDurations = false,
     withThanksAmount = false,
   } = {}) {
-    let creators = await this.db.creator.limit(limit).toArray();
+    let creators = await this.db.creators.limit(limit).toArray();
     if (withDurations) {
       await Promise.all(
         _.map(creators, async c => {
@@ -102,20 +116,19 @@ export class Database {
     return creators;
   }
 
-  async getCreatorActivity(c_url) {
+  async getCreatorActivity(creator_id) {
     // Get all activity connected to a certain creator
-    return this.db.activity
-      .where('creator')
-      .equals(c_url)
+    return this.db.activities
+      .where('creator_id')
+      .equals(creator_id)
       .toArray();
   }
 
   async logActivity(url, duration, options = {}) {
-    // TODO: Use update instead of put if url exists
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     url = canonicalizeUrl(url);
-    return this.db.activity
+    return this.db.activities
       .get({ url: url })
       .then(activity => {
         if (activity === undefined) {
@@ -126,7 +139,7 @@ export class Database {
         }
         activity.duration += duration;
         Object.assign(activity, options);
-        return this.db.activity.put(activity);
+        return this.db.activities.put(activity);
       })
       .catch(err => {
         throw 'Could not log activity, ' + err;
@@ -146,7 +159,7 @@ export class Database {
 
   async connectActivityToCreator(url, creator) {
     url = canonicalizeUrl(url);
-    await this.db.activity
+    await this.db.activities
       .where('url')
       .equals(url)
       .modify({ creator: creator })

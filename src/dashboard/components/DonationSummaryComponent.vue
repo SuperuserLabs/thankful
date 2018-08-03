@@ -133,17 +133,23 @@ export default {
         .catch(e => this.$emit('error', e));
     },
     async sendAddressLess() {
-      const server = 'http://localhost:5000';
-      const res = await fetch(
-        server + '/missing/?missing_info=' + JSON.stringify({ hello: 'world' }),
-        { method: 'POST' }
-      );
-      if (res.status !== 200) {
-        console.error(
-          `Unexpected address-less creator response, status: ${
-            res.status
-          }, message: ${await res.text()}`
+      try {
+        const server = 'http://localhost:5000';
+        const res = await fetch(
+          server +
+            '/missing/?missing_info=' +
+            JSON.stringify({ hello: 'world' }),
+          { method: 'POST' }
         );
+        if (res.status !== 200) {
+          console.error(
+            `Unexpected address-less creator response, status: ${
+              res.status
+            }, message: ${await res.text()}`
+          );
+        }
+      } catch (err) {
+        console.error('Failed to send address-less creators:' + err);
       }
     },
   },

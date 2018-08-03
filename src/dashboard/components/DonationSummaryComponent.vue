@@ -52,6 +52,10 @@ div.pt-2
       | Send your thanks! (${{ total.toFixed(2) }})
     v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
       | {{ buttonError }}
+    // TODO: Make this a checkbox and send it on donation instead
+  div.text-xs-center.pb-3
+    v-btn(large, outline, color='primary', v-on:click="sendAddressLess()")
+      | Send address-less creator info
 </template>
 
 <script>
@@ -128,6 +132,9 @@ export default {
         .dispatch('metamask/donateAll', this.distribution)
         .catch(e => this.$emit('error', e));
     },
+    sendAddressLess() {
+      console.log('nice');
+    }
   },
   created() {
     this.distribute();

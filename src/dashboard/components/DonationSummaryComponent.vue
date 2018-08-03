@@ -142,8 +142,6 @@ export default {
           c => c.address === undefined
         ).map(c => _.pick(c, ['url', 'funds']));
 
-        console.log('al', addressLess);
-
         const server = 'http://localhost:5000';
         const res = await fetch(
           server + '/missing/?missing_info=' + JSON.stringify(addressLess),

@@ -47,11 +47,12 @@ div.pt-2
                         single-line,
                         autofocus)
 
-  div.text-xs-center.pt-2.pb-3
+  v-layout(column, align-center).pt-2.pb-3
     v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
       | Send your thanks! (${{ total.toFixed(2) }})
     v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
       | {{ buttonError }}
+    v-checkbox(label="Send the Thankful devs info about creators with missing addresses" v-model="shouldSendAddressLess")
 </template>
 
 <script>
@@ -78,6 +79,7 @@ export default {
           v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
+      shouldSendAddressLess: true,
     };
   },
   computed: {
@@ -126,7 +128,37 @@ export default {
     donateAll() {
       this.$store
         .dispatch('metamask/donateAll', this.distribution)
+        .then(() => {
+          if (this.shouldSendAddressLess) {
+            return this.sendAddressLess();
+          }
+        })
         .catch(e => this.$emit('error', e));
+    },
+    async sendAddressLess() {
+      try {
+        const addressLess = _.filter(
+          this.distribution,
+          c => c.address === undefined
+        ).map(c => _.pick(c, ['url', 'funds']));
+
+        // TODO: Add the actual server here
+        const server = 'http://localhost:5000';
+        const res = await fetch(
+          server + '/missing/?missing_info=' + JSON.stringify(addressLess),
+          { method: 'POST' }
+        );
+
+        if (res.status !== 200) {
+          console.error(
+            `Unexpected address-less creator response, status: ${
+              res.status
+            }, message: ${await res.text()}`
+          );
+        }
+      } catch (err) {
+        console.error('Failed to send address-less creators:' + err);
+      }
     },
   },
   created() {

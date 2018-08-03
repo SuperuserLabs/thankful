@@ -120,6 +120,9 @@ module.exports = {
     }),
   ],
   devtool: 'cheap-module-eval-source-map',
+  watchOptions: {
+    poll: true,
+  },
   optimization: {
     minimizer: [
       new UglifyJsPlugin({

@@ -13,8 +13,8 @@ Dexie.dependencies.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 import { Database, Activity, Creator } from './db.js';
 
 async function clearDB(db) {
-  await db.db.creator.clear();
-  await db.db.activity.clear();
+  await db.db.creators.clear();
+  await db.db.activities.clear();
   await db.db.donations.clear();
   await db.db.thanks.clear();
 }
@@ -77,7 +77,7 @@ describe('Activity', () => {
     await db.connectUrlToCreator(url, c_url);
 
     expect(
-      (await db.db.activity
+      (await db.db.activities
         .where('url')
         .equals(url)
         .toArray())[0].creator
@@ -124,7 +124,7 @@ describe('Creator', () => {
     await activity.save();
     await db.connectActivityToCreator(activity.url, c_url);
 
-    let creatorActivity = await db.getCreatorActivity(c_url);
+    let creatorActivity = await db.getCreatorActivity(creator.id);
     expect(creatorActivity).toHaveLength(1);
     expect(creatorActivity[0].duration).toBeCloseTo(10);
   });

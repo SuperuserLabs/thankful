@@ -132,9 +132,20 @@ export default {
         .dispatch('metamask/donateAll', this.distribution)
         .catch(e => this.$emit('error', e));
     },
-    sendAddressLess() {
-      console.log('nice');
-    }
+    async sendAddressLess() {
+      const server = 'http://localhost:5000';
+      const res = await fetch(
+        server + '/missing/?missing_info=' + JSON.stringify({ hello: 'world' }),
+        { method: 'POST' }
+      );
+      if (res.status !== 200) {
+        console.error(
+          `Unexpected address-less creator response, status: ${
+            res.status
+          }, message: ${await res.text()}`
+        );
+      }
+    },
   },
   created() {
     this.distribute();

@@ -44,14 +44,45 @@ function dbinit() {
    * donations: 'url' key (which was the url of a creator) replaced by creator_id
    * creators: 'url' becomes multi-valued
    */
-  db.version(5).stores({
-    activity: null,
-    activities: '++id, &url, title, duration, creator_id',
-    creator: null,
-    creators: '++id, *url, name, ignore',
-    thanks: '++id, url, date, title, creator_id',
-    donations: '++id, date, creator_id, weiAmount, usdAmount',
-  });
+  db.version(5)
+    .stores({
+      activity: null,
+      activities: '++id, &url, title, duration, creator_id',
+      creator: null,
+      creators: '++id, *url, name, ignore',
+      thanks: '++id, url, date, title, creator_id',
+      donations: '++id, date, creator_id, weiAmount, usdAmount',
+    })
+    .upgrade(trans => {
+      trans.activity
+        .toArray()
+        .then(activities => trans.activities.bulkAdd(activities))
+        .then(() =>
+          trans.creator
+            .toArray()
+            .then(creators =>
+              trans.creators.bulkAdd(
+                creators.map(c => ({ ...c, url: [c.url] }))
+              )
+            )
+        )
+        .then(() =>
+          trans.thanks.toCollection().modify(t =>
+            trans.creators.get({ url: t.creator }).then(c => {
+              t.creator_id = c.id;
+              delete t.creator;
+            })
+          )
+        )
+        .then(() =>
+          trans.donations.toCollection().modify(d =>
+            trans.creators.get({ url: d.url }).then(c => {
+              d.creator_id = c.id;
+              delete d.url;
+            })
+          )
+        );
+    });
 
   registerModel(db, Activity, db.activities, 'url');
   registerModel(db, Creator, db.creators, 'url');

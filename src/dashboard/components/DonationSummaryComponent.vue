@@ -134,13 +134,19 @@ export default {
     },
     async sendAddressLess() {
       try {
+        const addressLess = _.filter(
+          this.distribution,
+          c => c.address === undefined
+        ).map(c => _.pick(c, ['url', 'funds']));
+
+        console.log('al', addressLess);
+
         const server = 'http://localhost:5000';
         const res = await fetch(
-          server +
-            '/missing/?missing_info=' +
-            JSON.stringify({ hello: 'world' }),
+          server + '/missing/?missing_info=' + JSON.stringify(addressLess),
           { method: 'POST' }
         );
+
         if (res.status !== 200) {
           console.error(
             `Unexpected address-less creator response, status: ${

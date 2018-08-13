@@ -7,7 +7,8 @@ How to make a release:
 -   Run `env TRAVIS_TAG=<version> make prepublish` and make sure it succeeds.
 -   Commit the changed files (`package.json` and `dist/manifest.json`).
 -   Create a PR, merge when checks have passed.
--   Create a tag.
+-   Check out the master branch.
+-   Create a release/tag on GitHub.
 -   Publish to Chrome webstore (not automated)
     -   First time only:
         -   Create a `.env-webstore` with your `CLIENT_ID=...` and `CLIENT_SECRET=...` on separate lines

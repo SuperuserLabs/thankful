@@ -10,10 +10,10 @@ export default class Donate {
     const web3Provider = createMetaMaskProvider();
 
     web3Provider.on('error', error => {
-      // Failed to connect to MetaMask, fallback logic.
       console.error('Failed to connect to MetaMask:', error);
     });
 
+    // TODO: Add comment that explains this import
     await import('bn.js');
     web3 = new Web3(web3Provider);
 

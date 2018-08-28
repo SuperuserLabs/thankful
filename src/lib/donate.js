@@ -16,7 +16,6 @@ export default class Donate {
 
     await import('bn.js');
     web3 = new Web3(web3Provider);
-    console.log('created web3');
 
     return web3.eth.net.getId();
   }

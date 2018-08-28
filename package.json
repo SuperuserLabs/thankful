@@ -93,12 +93,13 @@
     "bignumber.js": "^7.2.1",
     "eslint-plugin-jest": "^21.22.0",
     "file-loader": "^2.0.0",
+    "lerna": "^3.1.4",
     "material-design-icons-iconfont": "^3.0.3",
     "metamask-extension-provider": "git://github.com:Powersource/metamask-extension-provider.git#patch-1",
     "typeface-roboto": "0.0.54",
     "vue-i18n": "^8.0.0",
     "vuetify": "^1.1.14",
     "vuex": "^3.0.1",
-    "web3": "^1.0.0-beta.35"
+    "web3": "git://github.com/jonashaag/web3.js.git#1.0-csp-fix"
   }
 }

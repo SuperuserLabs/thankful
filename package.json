@@ -94,7 +94,7 @@
     "eslint-plugin-jest": "^21.22.0",
     "file-loader": "^2.0.0",
     "material-design-icons-iconfont": "^3.0.3",
-    "metamask-extension-provider": "^1.1.0",
+    "metamask-extension-provider": "git://github.com:Powersource/metamask-extension-provider.git#patch-1",
     "typeface-roboto": "0.0.54",
     "vue-i18n": "^8.0.0",
     "vuetify": "^1.1.14",

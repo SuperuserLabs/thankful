@@ -15,6 +15,7 @@ dist/**/*.ttf
 dist/**/*.eot
 dist/**/*.html
 dist/**/*.json
+dist/**/*.map
 thankful.zip
 thankful-src.zip
 stats.json

@@ -2,6 +2,7 @@ build:
 	npm run build
 
 build-production:
+    npm ci
 	env PRODUCTION=true npm run build
 
 get-crypto-addresses:

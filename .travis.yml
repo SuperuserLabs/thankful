@@ -7,7 +7,7 @@ cache:
   - "$HOME/.npm"
 
 install:
- - make install
+ - make install-ci
 
 script:
  - make lint

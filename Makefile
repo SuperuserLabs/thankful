@@ -2,7 +2,6 @@ build:
 	npm run build
 
 build-production:
-	npm ci
 	env PRODUCTION=true npm run build
 
 get-crypto-addresses:
@@ -16,6 +15,9 @@ vue-devtools:
 
 install:
 	npm install
+
+install-ci:
+	npm ci
 
 lint:
 	npm run lint

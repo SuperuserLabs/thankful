@@ -6,6 +6,9 @@ cache:
   directories:
   - "$HOME/.npm"
 
+before_install:
+ - npm install -g lerna
+
 install:
  - make install-ci
 

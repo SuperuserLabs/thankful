@@ -84,8 +84,8 @@ function dbinit() {
         );
     });
 
-  registerModel(db, Activity, db.activities, 'url');
-  registerModel(db, Creator, db.creators, 'url');
+  registerModel(db, Activity, db.activities, 'id');
+  registerModel(db, Creator, db.creators, 'id');
   registerModel(db, Donation, db.donations, 'id');
   registerModel(db, Thank, db.thanks, 'id');
 
@@ -106,9 +106,9 @@ export class Database {
     let coll = this.db.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
       if (withCreators) {
-        coll = coll.filter(a => a.creator !== undefined);
+        coll = coll.filter(a => a.creator_id !== undefined);
       } else {
-        coll = coll.filter(a => a.creator === undefined);
+        coll = coll.filter(a => a.creator_id === undefined);
       }
     }
     if (limit && limit >= 0) {
@@ -139,7 +139,7 @@ export class Database {
     if (withThanksAmount) {
       await Promise.all(
         _.map(creators, async c => {
-          c.thanksAmount = await this.getCreatorThanksAmount(c.url);
+          c.thanksAmount = await this.getCreatorThanksAmount(c.id);
           return c;
         })
       );
@@ -149,6 +149,8 @@ export class Database {
 
   async getCreatorActivity(creator_id) {
     // Get all activity connected to a certain creator
+    console.log(creator_id);
+    console.log(await this.db.activities.toArray());
     return this.db.activities
       .where('creator_id')
       .equals(creator_id)
@@ -177,34 +179,35 @@ export class Database {
       });
   }
 
-  async connectThanksToCreator(url, creator) {
+  async connectThanksToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
     await this.db.thanks
       .where('url')
       .equals(url)
-      .modify({ creator: creator })
+      .modify({ creator_id: creator_id })
       .catch(err => {
         throw 'Could not connect Thanks to creator, ' + err;
       });
   }
 
-  async connectActivityToCreator(url, creator) {
+  async connectActivityToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
     await this.db.activities
       .where('url')
       .equals(url)
-      .modify({ creator: creator })
+      .modify({ creator_id: creator_id })
       .catch(err => {
         throw 'Could not connect Activity to creator, ' + err;
       });
   }
 
-  async connectUrlToCreator(url, creator) {
+  async connectUrlToCreator(url, creator_url) {
     try {
       url = canonicalizeUrl(url);
+      let creator = await this.getCreator(creator_url);
       await Promise.all([
-        this.connectThanksToCreator(url, creator),
-        this.connectActivityToCreator(url, creator),
+        this.connectThanksToCreator(url, creator.id),
+        this.connectActivityToCreator(url, creator.id),
       ]);
     } catch (err) {
       throw 'Could not connect URL to creator, ' + err;
@@ -286,11 +289,10 @@ export class Database {
       });
   }
 
-  async getCreatorThanksAmount(creator_url) {
-    creator_url = canonicalizeUrl(creator_url);
+  async getCreatorThanksAmount(creator_id) {
     return this.db.thanks
-      .where('creator')
-      .equals(creator_url)
+      .where('creator_id')
+      .equals(creator_id)
       .count()
       .catch(err => {
         throw 'Could not count creator thanks: ' + err;

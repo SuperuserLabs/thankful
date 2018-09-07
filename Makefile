@@ -4,6 +4,9 @@ build:
 build-production:
 	env PRODUCTION=true npm run build
 
+get-crypto-addresses:
+	node scripts/get_crypto_addresses.js > dist/data/crypto_addresses.json
+
 dev:
 	npm run dev
 

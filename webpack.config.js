@@ -119,7 +119,7 @@ module.exports = {
       NODE_ENV: mode, // use 'development' unless process.env.NODE_ENV is defined
     }),
   ],
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'cheap-module-source-map',
   optimization: {
     minimizer: [
       new UglifyJsPlugin({

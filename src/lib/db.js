@@ -270,7 +270,9 @@ export class Database {
     }
   }
 
-  async logThank(url, title, creator_url) {
+  async logThank(url, title) {
+    let activity = await this.db.activity.get({ url: url });
+    let creator_url = activity !== undefined ? activity.creator : undefined;
     return this.db.thanks.add(new Thank(url, title, creator_url)).catch(err => {
       throw 'Logging thank failed: ' + err;
     });

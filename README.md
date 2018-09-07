@@ -77,6 +77,8 @@ Zero, zip, nothing, nil. We will try to make Thankful as good as possible and ho
 -   Flattr
 -   Gratipay
 -   Liberapay
+-   [Brave](https://brave.com/)
+-   [Giveth](https://giveth.io/)
 
 All these deserve our deepest thanks, they have all done something very special and we've learned a lot by observing their journeys over the years.
 

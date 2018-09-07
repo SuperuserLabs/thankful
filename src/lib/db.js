@@ -149,8 +149,6 @@ export class Database {
 
   async getCreatorActivity(creator_id) {
     // Get all activity connected to a certain creator
-    console.log(creator_id);
-    console.log(await this.db.activities.toArray());
     return this.db.activities
       .where('creator_id')
       .equals(creator_id)
@@ -214,9 +212,9 @@ export class Database {
     }
   }
 
-  async logDonation(creatorUrl, weiAmount, usdAmount, hash) {
+  async logDonation(creator_id, weiAmount, usdAmount, hash) {
     return this.db.donations.add(
-      new Donation(creatorUrl, weiAmount.toString(), usdAmount.toString(), hash)
+      new Donation(creator_id, weiAmount.toString(), usdAmount.toString(), hash)
     );
   }
 

@@ -29,12 +29,12 @@ class Model {
 }
 
 export class Activity extends Model {
-  constructor(url, title, duration, creator) {
+  constructor(url, title, duration, creator_id) {
     super();
     this.url = canonicalizeUrl(url);
     this.title = cleanTitle(title);
     this.duration = duration;
-    this.creator = creator;
+    this.creator_id = creator_id;
   }
 }
 
@@ -51,9 +51,9 @@ export class Creator extends Model {
 }
 
 export class Donation {
-  constructor(creatorUrl, weiAmount, usdAmount, transaction) {
+  constructor(creator_id, weiAmount, usdAmount, transaction) {
     this.date = new Date().toISOString();
-    this.url = creatorUrl;
+    this.creator_id = creator_id;
     this.weiAmount = weiAmount;
     this.usdAmount = usdAmount;
     this.transaction = transaction;
@@ -61,11 +61,11 @@ export class Donation {
 }
 
 export class Thank {
-  constructor(url, title, creator) {
+  constructor(url, title, creator_id) {
     this.url = canonicalizeUrl(url);
     this.date = new Date().toISOString();
     this.title = cleanTitle(title);
-    this.creator = creator;
+    this.creator_id = creator_id;
   }
 }
 

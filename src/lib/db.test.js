@@ -128,8 +128,6 @@ describe('Creator', () => {
     await activity.save();
     await db.connectActivityToCreator(activity.url, creator.id);
 
-    delete console.log;
-    console.log(creator);
     let creatorActivity = await db.getCreatorActivity(creator.id);
     expect(creatorActivity).toHaveLength(1);
     expect(creatorActivity[0].duration).toBeCloseTo(10);
@@ -173,8 +171,8 @@ describe('GitHub activity', () => {
     await db.logActivity(url, 10);
     await db.attributeGithubActivity();
     let activity = await db.getActivity(url);
-    expect(activity.creator).toEqual(c_url);
     let creator = await db.getCreator(c_url);
+    expect(activity.creator_id).toEqual(creator.id);
     expect(creator.url).toEqual(c_url);
   });
 
@@ -217,35 +215,35 @@ describe('Thanks', () => {
   it('Thanks a not canon url, attaches to a creator, and counts creator thanks', async () => {
     await db.logThank(thxUrl, thxTitle);
     await db.logThank(thxUrlNotCanon, thxTitle);
-    await new Creator(thxCreatorUrl, thxCreatorName).save();
+    let id = await new Creator(thxCreatorUrl, thxCreatorName).save();
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
-    expect(await db.getCreatorThanksAmount(thxCreatorUrl)).toEqual(2);
+    expect(await db.getCreatorThanksAmount(id)).toEqual(2);
   });
 
   it('Attaches a creator to a thank', async () => {
     await db.logThank(thxUrl, thxTitle);
-    await new Creator(thxCreatorUrl, thxCreatorName).save();
-    await db.connectThanksToCreator(thxUrlNotCanon, thxCreatorUrl);
+    let id = await new Creator(thxCreatorUrl, thxCreatorName).save();
+    await db.connectThanksToCreator(thxUrlNotCanon, id);
 
     expect(
       (await db.db.thanks
         .where('url')
         .equals(thxUrl)
-        .toArray())[0].creator
-    ).toEqual(thxCreatorUrl);
+        .toArray())[0].creator_id
+    ).toEqual(id);
   });
 
   it('Attaches creator to a thank with connectUrl', async () => {
     await db.logThank(thxUrl, thxTitle);
-    await new Creator(thxCreatorUrl, thxCreatorName).save();
+    let id = await new Creator(thxCreatorUrl, thxCreatorName).save();
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
     expect(
       (await db.db.thanks
         .where('url')
         .equals(thxUrl)
-        .toArray())[0].creator
-    ).toEqual(thxCreatorUrl);
+        .toArray())[0].creator_id
+    ).toEqual(id);
   });
 });

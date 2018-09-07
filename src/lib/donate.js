@@ -60,7 +60,7 @@ export default class Donate {
   async _donateOne(
     addr,
     usdAmount,
-    creatorUrl,
+    creator_id,
     // A basic transaction should only need 21k but we have some margin because
     // of the data we attach. Also, unused gas is refunded.
     gasLimit = 1e5
@@ -92,7 +92,7 @@ export default class Donate {
           })
           .once('transactionHash', resolve)
       ).then(hash => ({
-        creatorUrl: creatorUrl,
+        creator_id: creator_id,
         weiAmount: weiAmount,
         usdAmount: usdAmount,
         hash: hash,
@@ -100,7 +100,7 @@ export default class Donate {
       }));
     } catch (error) {
       return {
-        creatorUrl: creatorUrl,
+        creator_id: creator_id,
         usdAmount: usdAmount,
         failed: true,
         error: error,

@@ -47,7 +47,9 @@ async function rescheduleAlarm() {
       return;
     }
     // FIXME: Doing a creator.save() overwrites a preexisting creator object
-    await new Creator(msg.creator.url, msg.creator.name).save();
+    let creator = await db.getCreator(msg.creator.url);
+    if (!creator) await new Creator(msg.creator.url, msg.creator.name).save();
+
     await db.connectUrlToCreator(
       canonicalizeUrl(msg.activity.url),
       msg.creator.url

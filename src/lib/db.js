@@ -38,7 +38,7 @@ function dbinit() {
         });
       });
     });
-  /* Version 5 upgrade summary:
+  /* Version 6 upgrade summary:
    * Drop tables activity and creator to allow better naming and integer primary key.
    * thanks: 'creator' key (which was the url of a creator) replaced by creator_id
    * donations: 'url' key (which was the url of a creator) replaced by creator_id
@@ -46,14 +46,12 @@ function dbinit() {
    */
   db.version(5)
     .stores({
-      activity: null,
       activities: '++id, &url, title, duration, creator_id',
-      creator: null,
       creators: '++id, *url, name, ignore',
       thanks: '++id, url, date, title, creator_id',
       donations: '++id, date, creator_id, weiAmount, usdAmount',
     })
-    .upgrade(trans => {
+    .upgrade(trans =>
       trans.activity
         .toArray()
         .then(activities => trans.activities.bulkAdd(activities))
@@ -81,8 +79,12 @@ function dbinit() {
               delete d.url;
             })
           )
-        );
-    });
+        )
+    );
+  //db.version(6).stores({
+  //activity: null,
+  //creator: null,
+  //});
 
   registerModel(db, Activity, db.activities, 'id');
   registerModel(db, Creator, db.creators, 'id');

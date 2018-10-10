@@ -12,6 +12,7 @@ function initThankfulTeamCreator() {
     'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
   creator.priority = 1;
   creator.share = 0.1;
+  creator.id = 0;
   return creator.save();
 }
 
@@ -110,6 +111,7 @@ export default {
         withDurations: true,
         withThanksAmount: true,
       });
+      console.log(creators);
       commit('setCreators', creators);
       commit('setLoaded', 'creators');
     },

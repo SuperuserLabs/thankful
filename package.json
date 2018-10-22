@@ -82,7 +82,7 @@
     "vue-loader": "^15.4.2",
     "vue-router": "^3.0.1",
     "vue-template-compiler": "^2.5.17",
-    "webextension-polyfill": "^0.2.1",
+    "webextension-polyfill": "^0.3.1",
     "webpack": "^4.20.2",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.2",

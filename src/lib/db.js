@@ -2,9 +2,7 @@ import Dexie from 'dexie';
 import _ from 'lodash';
 import { canonicalizeUrl } from './url.js';
 import isReserved from 'github-reserved-names';
-import { Activity, Creator, Donation, Thank, registerModel } from './models.js';
-
-export { Activity, Creator };
+import { Donation, Thank } from './models.js';
 
 let _db = undefined;
 
@@ -86,10 +84,10 @@ function dbinit() {
   //creator: null,
   //});
 
-  registerModel(db, Activity, db.activities, 'id');
-  registerModel(db, Creator, db.creators, 'id');
-  registerModel(db, Donation, db.donations, 'id');
-  registerModel(db, Thank, db.thanks, 'id');
+  //registerModel(db, Activity, db.activities, 'id');
+  //registerModel(db, Creator, db.creators, 'id');
+  //registerModel(db, Donation, db.donations, 'id');
+  //registerModel(db, Thank, db.thanks, 'id');
 
   _db = db;
   return db;
@@ -98,6 +96,23 @@ function dbinit() {
 export class Database {
   constructor() {
     this.db = dbinit();
+  }
+
+  initThankfulTeamCreator() {
+    return this.updateCreator(
+      'https://getthankful.io',
+      'Thankful Team',
+      // Erik's address
+      // TODO: Change to a multisig wallet
+      {
+        address: '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35',
+        info:
+          'Be thankful for Thankful, donate so we can keep helping people to be thankful!',
+        priority: 1,
+        share: 0.1,
+        id: 0,
+      }
+    );
   }
 
   async getActivity(url) {
@@ -260,7 +275,7 @@ export class Database {
         let user_or_org = u.pathname.split('/')[1];
         if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
           let creator_url = `https://github.com/${user_or_org}`;
-          await new Creator(creator_url, user_or_org).save();
+          await this.updateCreator(creator_url, user_or_org);
           await this.connectUrlToCreator(a.url, creator_url);
         }
       });
@@ -270,6 +285,39 @@ export class Database {
     } catch (err) {
       throw 'Could not attribute Github activity, ' + err;
     }
+  }
+
+  async updateCreator(
+    url,
+    name,
+    { urls = [], ignore = null, address = null, priority = null } = {}
+  ) {
+    let creators = this.db.creators;
+    this.db.transaction('rw', creators, async () => {
+      let creator = await creators.get({ url: url });
+      if (creator) {
+        let urlSet = new Set([...creator.url, ...urls]);
+        creator = {
+          id: creator.id,
+          url: Array.from(urlSet),
+          name: name,
+          ignore: ignore === null ? creator.ignore : ignore,
+          address: address === null ? creator.address : address,
+          priority: priority === null ? creator.priority : priority,
+        };
+        return creators.put(creator);
+      } else {
+        let urlSet = new Set([url, ...urls]);
+        creator = {
+          url: Array.from(urlSet),
+          name: name,
+          ignore: !!ignore,
+          address: address,
+          priority: priority,
+        };
+        return creators.add(creator);
+      }
+    });
   }
 
   async logThank(url, title) {

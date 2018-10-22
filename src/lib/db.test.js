@@ -10,7 +10,7 @@ setGlobalVars();
 Dexie.dependencies.indexedDB = require('fake-indexeddb');
 Dexie.dependencies.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
-import { Database, Activity, Creator } from './db.js';
+import { Database } from './db.js';
 
 async function clearDB(db) {
   await db.db.creators.clear();
@@ -37,23 +37,13 @@ describe('Activity', () => {
     expect(activity.duration).toBeCloseTo(23.37, 3);
   });
 
-  it('logs activity by manually editing the Activity object', async () => {
-    let activity = new Activity(url, undefined, 13.37);
-    await activity.save();
-    activity = await db.getActivity(url);
-    expect(activity.duration).toBeCloseTo(13.37, 3);
-
-    activity.duration += 10;
-    expect(activity.duration).toBeCloseTo(23.37, 3);
-    await activity.save();
-    activity = await db.getActivity(url);
-    expect(activity.duration).toBeCloseTo(23.37, 3);
-  });
-
   it('get activity filtered by (un)known creators', async () => {
     const c_url = 'https://creatorurl.com';
     await db.logActivity(url, 13.37);
-    let id = await new Creator(c_url, 'dummy').save();
+
+    await db.updateCreator(c_url, 'dummy');
+    let id = await db.getCreator(c_url);
+
     await db.connectActivityToCreator(url, id);
     await db.logActivity(url + 'qwe', 13.37);
     await db.logActivity(url + 'asd', 13.37);
@@ -77,7 +67,10 @@ describe('Activity', () => {
   it('Attaches creator to an activity with connectUrl', async () => {
     const c_url = 'https://creatorurl.com';
     await db.logActivity(url, 12.5);
-    let creator_id = await new Creator(c_url, 'dummy').save();
+
+    await db.updateCreator(c_url, 'dummy');
+    let creatorId = await db.getCreator(c_url);
+
     await db.connectUrlToCreator(url, c_url);
 
     expect(
@@ -85,7 +78,7 @@ describe('Activity', () => {
         .where('url')
         .equals(url)
         .toArray())[0].creator_id
-    ).toEqual(creator_id);
+    ).toEqual(creatorId);
   });
 });
 
@@ -93,7 +86,6 @@ describe('Creator', () => {
   const db = new Database();
   const c_name = 'Bethesda Softworks';
   const c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
-  const a_title = 'Elder Scrolls 6 Trailer';
   const a_url = 'https://www.youtube.com/watch?v=OkFdqqyI8y4';
 
   beforeEach(async () => {
@@ -101,15 +93,15 @@ describe('Creator', () => {
   });
 
   it('get all creators', async () => {
-    await new Creator(c_url, c_name).save();
-    await new Creator('testurl', 'testname').save();
+    await db.updateCreator(c_url, c_name);
+    await db.updateCreator('testurl', 'testname');
 
     let creators = await db.getCreators();
     expect(creators).toHaveLength(2);
   });
 
   it('correctly adds creator', async () => {
-    await new Creator(c_url, c_name).save();
+    await db.updateCreator(c_url, c_name);
 
     let creator = await db.getCreator(c_url);
     expect(creator.url).toBe(c_url);
@@ -117,15 +109,15 @@ describe('Creator', () => {
   });
 
   it('add creator and connect activity to creator', async () => {
-    await new Creator(c_url, c_name).save();
+    await db.updateCreator(c_url, c_name);
 
     // Test fetching creator by url
     let creator = await db.getCreator(c_url);
     expect(creator.url).toBe(c_url);
     expect(creator.name).toBe(c_name);
 
-    let activity = new Activity(a_url, a_title, 10);
-    await activity.save();
+    await db.logActivity(a_url, 10);
+    let [activity] = db.getActivity(a_url);
     await db.connectActivityToCreator(activity.url, creator.id);
 
     let creatorActivity = await db.getCreatorActivity(creator.id);
@@ -134,9 +126,11 @@ describe('Creator', () => {
   });
 
   it('gets duration of all activity by creator', async () => {
-    let c_key = await new Creator(c_url, c_name).save();
+    await db.updateCreator(c_url, c_name);
+
+    let creatorKey = (await db.getCreator(c_url)).id;
     let duration = 10;
-    await new Activity(a_url, a_title, duration, c_key).save();
+    db.logActivity(a_url, duration, { creator_id: creatorKey });
 
     let result = await db.getCreators({ withDurations: true });
     expect(result[0].duration).toBeCloseTo(duration);
@@ -146,7 +140,7 @@ describe('Creator', () => {
     let creator = await db.getCreator(c_url);
     expect(creator).toBeUndefined(creator);
 
-    await new Creator(c_url, c_name).save();
+    await db.updateCreator(c_url, c_name);
 
     creator = await db.getCreator(c_url);
     expect(creator.url).toBe(c_url);
@@ -215,7 +209,10 @@ describe('Thanks', () => {
   it('Thanks a not canon url, attaches to a creator, and counts creator thanks', async () => {
     await db.logThank(thxUrl, thxTitle);
     await db.logThank(thxUrlNotCanon, thxTitle);
-    let id = await new Creator(thxCreatorUrl, thxCreatorName).save();
+
+    await db.updateCreator(thxCreatorUrl, thxCreatorName);
+    let id = await db.getCreator(thxCreatorUrl);
+
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
     expect(await db.getCreatorThanksAmount(id)).toEqual(2);
@@ -223,7 +220,10 @@ describe('Thanks', () => {
 
   it('Attaches a creator to a thank', async () => {
     await db.logThank(thxUrl, thxTitle);
-    let id = await new Creator(thxCreatorUrl, thxCreatorName).save();
+
+    await db.updateCreator(thxCreatorUrl, thxCreatorName);
+    let id = await db.getCreator(thxCreatorUrl);
+
     await db.connectThanksToCreator(thxUrlNotCanon, id);
 
     expect(
@@ -236,7 +236,10 @@ describe('Thanks', () => {
 
   it('Attaches creator to a thank with connectUrl', async () => {
     await db.logThank(thxUrl, thxTitle);
-    let id = await new Creator(thxCreatorUrl, thxCreatorName).save();
+
+    await db.updateCreator(thxCreatorUrl, thxCreatorName);
+    let id = await db.getCreator(thxCreatorUrl);
+
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
     expect(

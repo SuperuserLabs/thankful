@@ -99,20 +99,15 @@ export class Database {
   }
 
   initThankfulTeamCreator() {
-    return this.updateCreator(
-      'https://getthankful.io',
-      'Thankful Team',
+    return this.updateCreator('https://getthankful.io', 'Thankful Team', {
       // Erik's address
       // TODO: Change to a multisig wallet
-      {
-        address: '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35',
-        info:
-          'Be thankful for Thankful, donate so we can keep helping people to be thankful!',
-        priority: 1,
-        share: 0.1,
-        id: 0,
-      }
-    );
+      address: '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35',
+      info:
+        'Be thankful for Thankful, donate so we can keep helping people to be thankful!',
+      priority: 1,
+      share: 0.1,
+    });
   }
 
   async getActivity(url) {
@@ -290,9 +285,17 @@ export class Database {
   async updateCreator(
     url,
     name,
-    { urls = [], ignore = null, address = null, priority = null } = {}
+    {
+      urls = [],
+      ignore = null,
+      address = null,
+      priority = null,
+      share = null,
+      info = null,
+    } = {}
   ) {
     let creators = this.db.creators;
+    const withDefault = (maybe, def) => (maybe === null ? def : maybe);
     this.db.transaction('rw', creators, async () => {
       let creator = await creators.get({ url: url });
       if (creator) {
@@ -301,9 +304,11 @@ export class Database {
           id: creator.id,
           url: Array.from(urlSet),
           name: name,
-          ignore: ignore === null ? creator.ignore : ignore,
-          address: address === null ? creator.address : address,
-          priority: priority === null ? creator.priority : priority,
+          ignore: withDefault(ignore, creator.ignore),
+          address: withDefault(address, creator.address),
+          priority: withDefault(priority, creator.priority),
+          share: withDefault(share, creator.share),
+          info: withDefault(info, creator.info),
         };
         return creators.put(creator);
       } else {
@@ -314,6 +319,8 @@ export class Database {
           ignore: !!ignore,
           address: address,
           priority: priority,
+          share: share,
+          info: info,
         };
         return creators.add(creator);
       }

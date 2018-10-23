@@ -49,7 +49,7 @@ export default {
 
         return creators.map(c => {
           let share;
-          if (c.share > 0) {
+          if (c.share) {
             share = c.share;
           } else {
             share = (c.score / totScore) * factor;

@@ -68,7 +68,7 @@ async function rescheduleAlarm() {
       case 'getDonations':
         return db.getDonations(...data);
       case 'getCreators':
-        return db.attributeGithubActivity().then(() => db.getCreators());
+        return db.attributeGithubActivity().then(() => db.getCreators(...data));
       case 'getActivities':
         return db.getActivities(...data);
       case 'logDonation':

@@ -42,7 +42,7 @@ describe('Activity', () => {
     await db.logActivity(url, 13.37);
 
     await db.updateCreator(c_url, 'dummy');
-    let id = await db.getCreator(c_url);
+    let id = (await db.getCreator(c_url)).id;
 
     await db.connectActivityToCreator(url, id);
     await db.logActivity(url + 'qwe', 13.37);
@@ -69,7 +69,7 @@ describe('Activity', () => {
     await db.logActivity(url, 12.5);
 
     await db.updateCreator(c_url, 'dummy');
-    let creatorId = await db.getCreator(c_url);
+    let creatorId = (await db.getCreator(c_url)).id;
 
     await db.connectUrlToCreator(url, c_url);
 
@@ -104,7 +104,7 @@ describe('Creator', () => {
     await db.updateCreator(c_url, c_name);
 
     let creator = await db.getCreator(c_url);
-    expect(creator.url).toBe(c_url);
+    expect(creator.url[0]).toBe(c_url);
     expect(creator.name).toBe(c_name);
   });
 
@@ -113,11 +113,12 @@ describe('Creator', () => {
 
     // Test fetching creator by url
     let creator = await db.getCreator(c_url);
-    expect(creator.url).toBe(c_url);
+    expect(creator.url[0]).toBe(c_url);
     expect(creator.name).toBe(c_name);
 
     await db.logActivity(a_url, 10);
-    let [activity] = db.getActivity(a_url);
+    let activity = await db.getActivity(a_url);
+    expect(activity.url).toBe(a_url);
     await db.connectActivityToCreator(activity.url, creator.id);
 
     let creatorActivity = await db.getCreatorActivity(creator.id);
@@ -134,21 +135,6 @@ describe('Creator', () => {
 
     let result = await db.getCreators({ withDurations: true });
     expect(result[0].duration).toBeCloseTo(duration);
-  });
-
-  it('correctly deletes creator', async () => {
-    let creator = await db.getCreator(c_url);
-    expect(creator).toBeUndefined(creator);
-
-    await db.updateCreator(c_url, c_name);
-
-    creator = await db.getCreator(c_url);
-    expect(creator.url).toBe(c_url);
-    expect(creator.name).toBe(c_name);
-    await creator.delete();
-
-    creator = await db.getCreator(c_url);
-    expect(creator).toBeUndefined(creator);
   });
 });
 
@@ -167,7 +153,7 @@ describe('GitHub activity', () => {
     let activity = await db.getActivity(url);
     let creator = await db.getCreator(c_url);
     expect(activity.creator_id).toEqual(creator.id);
-    expect(creator.url).toEqual(c_url);
+    expect(creator.url[0]).toEqual(c_url);
   });
 
   it('should not attribute non-user pages', async () => {
@@ -211,18 +197,18 @@ describe('Thanks', () => {
     await db.logThank(thxUrlNotCanon, thxTitle);
 
     await db.updateCreator(thxCreatorUrl, thxCreatorName);
-    let id = await db.getCreator(thxCreatorUrl);
+    let creator = await db.getCreator(thxCreatorUrl);
 
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
-    expect(await db.getCreatorThanksAmount(id)).toEqual(2);
+    expect(await db.getCreatorThanksAmount(creator.id)).toEqual(2);
   });
 
   it('Attaches a creator to a thank', async () => {
     await db.logThank(thxUrl, thxTitle);
 
     await db.updateCreator(thxCreatorUrl, thxCreatorName);
-    let id = await db.getCreator(thxCreatorUrl);
+    let id = (await db.getCreator(thxCreatorUrl)).id;
 
     await db.connectThanksToCreator(thxUrlNotCanon, id);
 
@@ -238,7 +224,7 @@ describe('Thanks', () => {
     await db.logThank(thxUrl, thxTitle);
 
     await db.updateCreator(thxCreatorUrl, thxCreatorName);
-    let id = await db.getCreator(thxCreatorUrl);
+    let id = (await db.getCreator(thxCreatorUrl)).id;
 
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 

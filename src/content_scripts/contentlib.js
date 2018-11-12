@@ -54,12 +54,12 @@ export function addPageChangeListener(listener) {
 /**
  * Send message to background.js mapping url to creator
  */
-export function sendCreator(url, creator) {
+export function sendCreator(url, creatorUrl, creatorName) {
   return browser.runtime.sendMessage({
     type: 'creatorFound',
     activity: {
       url: url,
     },
-    creator: creator,
+    creator: { url: creatorUrl, name: creatorName },
   });
 }

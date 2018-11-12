@@ -3,7 +3,7 @@
 import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.js';
 import { valueConstantTicker } from '../lib/calltime.js';
-import { Database, Creator } from '../lib/db.js';
+import { Database } from '../lib/db.js';
 import { getCurrentTab } from '../lib/tabs.js';
 import { initReminders } from '../lib/reminders.js';
 import _ from 'lodash';
@@ -41,17 +41,43 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
-  async function receiveCreator(msg) {
-    console.log('receiveCreator: ' + JSON.stringify(msg));
+  function receiveCreator(msg) {
     if (msg.type !== 'creatorFound') {
+      return false;
+    }
+    return (async () => {
+      console.log('receiveCreator: ' + JSON.stringify(msg));
+      // FIXME: Doing a creator.save() overwrites a preexisting creator object
+      await db.updateCreator(msg.creator.url, msg.creator.name);
+
+      await db.connectUrlToCreator(
+        canonicalizeUrl(msg.activity.url),
+        msg.creator.url
+      );
+    })();
+  }
+
+  function dbListener(msg) {
+    if (!('type' in msg && 'data' in msg)) {
       return;
     }
-    // FIXME: Doing a creator.save() overwrites a preexisting creator object
-    await new Creator(msg.creator.url, msg.creator.name).save();
-    await db.connectUrlToCreator(
-      canonicalizeUrl(msg.activity.url),
-      msg.creator.url
-    );
+    let { type, data } = msg;
+    switch (type) {
+      case 'getDonation':
+        return db.getDonation(...data);
+      case 'getDonations':
+        return db.getDonations(...data);
+      case 'getCreators':
+        return db.attributeGithubActivity().then(() => db.getCreators(...data));
+      case 'getActivities':
+        return db.getActivities(...data);
+      case 'logDonation':
+        return db.logDonation(...data);
+      case 'updateCreator':
+        return db.updateCreator(...data);
+      default:
+        return;
+    }
   }
 
   async function stethoscope() {
@@ -131,7 +157,16 @@ error: ${JSON.stringify(message)}`
 
   browser.tabs.onUpdated.addListener(sendPageChange);
 
+  //let messageHandlers = [receiveCreator, dbListener];
+
   browser.runtime.onMessage.addListener(receiveCreator);
+  browser.runtime.onMessage.addListener(dbListener);
+  //browser.runtime.onMessage.addListener(async msg => {
+  //for (let i in messageHandlers) {
+  //let result = await messageHandlers[i](msg);
+  //if (result) return result;
+  //}
+  //});
 
   browser.idle.onStateChanged.addListener(stethoscope);
 
@@ -144,6 +179,7 @@ error: ${JSON.stringify(message)}`
   });
 
   initReminders(db);
-
   stethoscope();
+
+  db.initThankfulTeamCreator();
 })();

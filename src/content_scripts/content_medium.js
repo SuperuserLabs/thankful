@@ -1,4 +1,3 @@
-import { Creator } from '../lib/models.js';
 import {
   sendCreator,
   addPageChangeListener,
@@ -10,11 +9,11 @@ function crawlPage() {
   return waitForElements(
     ['meta[property=author]', 'link[rel=author]'],
     1000
-  ).then(([c_name, c_url]) => {
+  ).then(([meta, link]) => {
+    let creatorUrl = link.href;
+    let creatorName = meta.content;
     let url = document.location.href;
-    let creator = new Creator(c_url.href, c_name.content);
-    console.info('Found creator: ' + JSON.stringify(creator));
-    sendCreator(url, creator);
+    sendCreator(url, creatorUrl, creatorName);
   });
 }
 

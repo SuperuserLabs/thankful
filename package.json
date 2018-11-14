@@ -100,6 +100,6 @@
     "vue-i18n": "^8.1.0",
     "vuetify": "^1.2.7",
     "vuex": "^3.0.1",
-    "web3": "git://github.com/ethereum/web3.js.git#1.0"
+    "web3": "^0.20.7"
   }
 }

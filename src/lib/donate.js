@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+//import Promise from 'bluebird';
 
 let web3;
 
@@ -17,11 +18,18 @@ export default class Donate {
     await import('bn.js');
     web3 = new Web3(web3Provider);
 
-    return web3.eth.net.getId();
+    //return web3.eth.net.getId();
+    return this.getId();
   }
 
   async getId() {
-    return web3.eth.net.getId();
+    //return web3.eth.net.getId();
+    return new Promise((resolve, reject) => {
+      web3.version.getNetwork((err, net) => {
+        if (err) reject(err);
+        resolve(net);
+      });
+    });
   }
 
   async donateAll(donations) {
@@ -32,7 +40,7 @@ export default class Donate {
   }
 
   isAddress(address) {
-    return web3.utils.isAddress(address);
+    return web3.isAddress(address);
   }
 
   // To test this, get a 0-balance address by taking an actual address and
@@ -86,6 +94,7 @@ export default class Donate {
         failed: false,
       }));
     } catch (error) {
+      console.error('donateone broke', error);
       return {
         creator_id: creator_id,
         usdAmount: usdAmount,
@@ -96,9 +105,7 @@ export default class Donate {
   }
 
   async getMyAddress() {
-    return web3.eth.getAccounts().then(accounts => {
-      return accounts[0];
-    });
+    return web3.eth.accounts[0];
   }
 
   async _usdEthRate() {
@@ -116,9 +123,13 @@ export default class Donate {
   _usdToWei(usdAmount) {
     return this._usdEthRate().then(usdEthRate => {
       const ethAmount = usdAmount.dividedBy(usdEthRate);
-      return ethAmount
-        .multipliedBy(web3.utils.unitMap.ether)
-        .dividedToIntegerBy(1);
+      return (
+        ethAmount
+          //.multipliedBy(web3.utils.unitMap.ether)
+
+          .multipliedBy('1000000000000000000')
+          .dividedToIntegerBy(1)
+      );
     });
   }
 

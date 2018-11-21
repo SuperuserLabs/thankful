@@ -76,9 +76,10 @@ export default class Donate {
       if (!myAcc) {
         throw 'You are not logged in to metamask, please install the extension and/or log in';
       }
-      return new Promise(resolve =>
-        web3.eth
-          .sendTransaction({
+      return new Promise((resolve, reject) => {
+        console.log('starting transaction');
+        web3.eth.sendTransaction(
+          {
             from: myAcc,
             to: addr,
             value: weiAmount,
@@ -86,9 +87,15 @@ export default class Donate {
             // Function seems buggy
             //data: web3.utils.utf8ToHex('💛'),
             data: '0xf09f929b',
-          })
-          .once('transactionHash', resolve)
-      ).then(hash => ({
+          },
+          (err, hash) => {
+            if (err) reject(err);
+            console.log('transaction', hash);
+            resolve(hash);
+          }
+        );
+        //.once('transactionHash', resolve)
+      }).then(hash => ({
         creator_id: creator_id,
         weiAmount: weiAmount,
         usdAmount: usdAmount,

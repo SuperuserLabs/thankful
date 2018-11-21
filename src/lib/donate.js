@@ -35,7 +35,9 @@ export default class Donate {
   async donateAll(donations) {
     const donationPromises = donations
       .filter(d => !!d.address)
-      .map(async d => this._donateOne(d.address, BigNumber(d.funds), d.url));
+      .map(async d =>
+        this._donateOne(d.address, new BigNumber(d.funds), d.url)
+      );
     return donationPromises;
   }
 
@@ -114,7 +116,7 @@ export default class Donate {
         new Request('https://api.coinmarketcap.com/v2/ticker/1027/')
       );
       const ethInfo = await response.json();
-      return BigNumber(ethInfo.data.quotes.USD.price);
+      return new BigNumber(ethInfo.data.quotes.USD.price);
     } catch (err) {
       throw ('Could not get usd/eth exchange rate', err);
     }
@@ -123,11 +125,11 @@ export default class Donate {
   _usdToWei(usdAmount) {
     return this._usdEthRate().then(usdEthRate => {
       const ethAmount = usdAmount.dividedBy(usdEthRate);
+      console.log('ethamount', ethAmount);
       return (
         ethAmount
           //.multipliedBy(web3.utils.unitMap.ether)
-
-          .multipliedBy('1000000000000000000')
+          .mul('1000000000000000000')
           .dividedToIntegerBy(1)
       );
     });

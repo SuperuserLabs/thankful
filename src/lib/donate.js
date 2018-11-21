@@ -97,8 +97,8 @@ export default class Donate {
         //.once('transactionHash', resolve)
       }).then(hash => ({
         creator_id: creator_id,
-        weiAmount: weiAmount,
-        usdAmount: usdAmount,
+        weiAmount: weiAmount.toString(),
+        usdAmount: usdAmount.toString(),
         hash: hash,
         failed: false,
       }));
@@ -143,6 +143,7 @@ export default class Donate {
   }
 
   // Unused but works
+  // Doesn't work now with the old bignumber.js version
   _weiToUsd(weiAmount) {
     return this._usdEthRate().then(usdEthRate => {
       const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);

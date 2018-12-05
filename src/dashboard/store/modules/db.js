@@ -55,7 +55,7 @@ export default {
             share = (c.score / totScore) * factor;
           }
           return {
-            ..._.pick(c, ['name', 'duration', 'url', 'address', 'index']),
+            ..._.pick(c, ['id', 'name', 'duration', 'url', 'address', 'index']),
             share: share,
           };
         });
@@ -123,9 +123,9 @@ export default {
       await state.creators[index].delete();
       commit('remove', { index });
     },
-    async logDonation({ commit }, { creatorUrl, weiAmount, usdAmount, hash }) {
+    async logDonation({ commit }, { creator_id, weiAmount, usdAmount, hash }) {
       let id = await sendMessage('logDonation', [
-        creatorUrl,
+        creator_id,
         weiAmount,
         usdAmount,
         hash,

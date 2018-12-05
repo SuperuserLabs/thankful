@@ -76,6 +76,7 @@ async function rescheduleAlarm() {
       case 'updateCreator':
         return db.updateCreator(...data);
       default:
+        console.error('Unhandled message type: ', type);
         return;
     }
   }

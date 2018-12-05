@@ -1,5 +1,6 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
+import BigNumber from 'bignumber.js';
 
 /*
  * Illegal invocation: https://github.com/axemclion/IndexedDBShim/issues/318
@@ -234,5 +235,69 @@ describe('Thanks', () => {
         .equals(thxUrl)
         .toArray())[0].creator_id
     ).toEqual(id);
+  });
+});
+
+describe('DonationHistory', () => {
+  const db = new Database();
+
+  // The wei/usd ratio is approximately correct here
+  const weiAmount = new BigNumber('100000000000000000');
+  const usdAmount = new BigNumber('10');
+  const txHash =
+    '0xe67578571c996711147b9d728b1507976d19a30c271b08bdc3c490f645d155e1';
+
+  const c_name = 'Bethesda Softworks';
+  const c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('Logs one donation and reads it', async () => {
+    await db.updateCreator(c_url, c_name);
+    const creatorId = (await db.getCreator(c_url)).id;
+
+    const donationId = await db.logDonation(
+      creatorId,
+      weiAmount.toString(),
+      usdAmount.toString(),
+      txHash
+    );
+
+    const donation = await db.getDonation(donationId);
+
+    expect(donation.weiAmount).toEqual(weiAmount.toString());
+    expect(donation.creator_id).not.toBeNull();
+  });
+
+  it('Logs a few donations and reads them', async () => {
+    await db.updateCreator(c_url, c_name);
+    const creatorId = (await db.getCreator(c_url)).id;
+
+    await db.logDonation(
+      creatorId,
+      weiAmount.toString(),
+      usdAmount.toString(),
+      txHash
+    );
+    await db.logDonation(
+      creatorId,
+      weiAmount.mul('2').toString(),
+      usdAmount.mul('2').toString(),
+      '0xe46e63549fc0453da0afa8ac79a87b4baae9a70759a82bee19abd81665b0463b'
+    );
+    await db.logDonation(
+      creatorId,
+      weiAmount.mul('3').toString(),
+      usdAmount.mul('3').toString(),
+      '0x42bd00f4701b7d24dc3e3acd0ee7c7333e57c2b77532f012994bbcefca7cc726'
+    );
+
+    const donations = await db.getDonations();
+
+    expect(donations[1].usdAmount.toString()).toEqual(
+      usdAmount.mul('2').toString()
+    );
   });
 });

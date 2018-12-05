@@ -124,9 +124,12 @@ export default {
       });
     },
     donateAll() {
-      this.$store
-        .dispatch('metamask/donateAll', this.distribution)
-        .catch(e => this.$emit('error', e));
+      this.$store.dispatch('metamask/donateAll', this.distribution).catch(e => {
+        console.error('donateAll (in vue) error:', e);
+        // We're currently not catching the emitting anywhere so we
+        // console.error for now
+        this.$emit('error', e);
+      });
     },
   },
   created() {

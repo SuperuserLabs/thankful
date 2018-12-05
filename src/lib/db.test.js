@@ -268,6 +268,7 @@ describe('DonationHistory', () => {
     const donation = await db.getDonation(donationId);
 
     expect(donation.weiAmount).toEqual(weiAmount.toString());
+    expect(donation.creator_id).not.toBeNull();
   });
 
   it('Logs a few donations and reads them', async () => {

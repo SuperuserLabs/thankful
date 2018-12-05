@@ -241,15 +241,7 @@ export class Database {
   }
 
   async donationWithCreator(donation) {
-    if (donation.creator_id == null) {
-      console.error('Creator id was null: ', donation);
-      donation.name = 'Unknown';
-    } else {
-      donation = _.assign(
-        await this.getCreatorWithId(donation.creator_id),
-        donation
-      );
-    }
+    donation.creator = await this.getCreatorWithId(donation.creator_id);
     return donation;
   }
 

@@ -7,8 +7,8 @@ v-data-table(v-else, :headers="headers", :items="donations", :pagination.sync='p
       a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
           | {{new Date(props.item.date).toLocaleDateString()}}
     td
-      a(:href="props.item.url" target="_blank")
-        | {{props.item.name}}
+      a(:href="props.item.creator.url" target="_blank")
+        | {{props.item.creator.name}}
     td.text-xs-right
       | ${{props.item.usdAmount | fixed(2)}}
 </template>

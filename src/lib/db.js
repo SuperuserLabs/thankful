@@ -129,8 +129,14 @@ export class Database {
     return coll.toArray();
   }
 
+  // TODO: rename to getCreatorWithUrl or something
   async getCreator(url) {
+    // get() gets a creator where the url array contains the url
     return this.db.creators.get({ url: url });
+  }
+
+  async getCreatorWithId(id) {
+    return this.db.creators.get(id);
   }
 
   async getCreators({
@@ -235,8 +241,9 @@ export class Database {
   }
 
   async donationWithCreator(donation) {
+    console.log('withcreator:', donation);
     return _.assign(
-      await this.getCreator(donation.url),
+      await this.getCreatorWithId(donation.creator_id),
       _.update(donation, 'date', date => new Date(date))
     );
   }

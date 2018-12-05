@@ -34,7 +34,9 @@ export default {
   props: {},
   methods: {},
   created() {
+    console.log('loading dons');
     this.$store.dispatch('db/ensureDonations').then(() => {
+      console.log('loaded dons');
       this.loading = false;
     });
   },

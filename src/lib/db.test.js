@@ -1,5 +1,6 @@
 import Dexie from 'dexie';
 import _ from 'lodash';
+import BigNumber from 'bignumber.js';
 
 /*
  * Illegal invocation: https://github.com/axemclion/IndexedDBShim/issues/318
@@ -234,5 +235,38 @@ describe('Thanks', () => {
         .equals(thxUrl)
         .toArray())[0].creator_id
     ).toEqual(id);
+  });
+});
+
+describe('DonationHistory', () => {
+  const db = new Database();
+
+  // The wei/usd ratio is approximately correct here
+  const weiAmount = new BigNumber('100000000000000000');
+  const usdAmount = new BigNumber('10');
+  const txHash =
+    '0xe67578571c996711147b9d728b1507976d19a30c271b08bdc3c490f645d155e1';
+
+  const c_name = 'Bethesda Softworks';
+  const c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('Logs one donation and reads it', async () => {
+    await db.updateCreator(c_url, c_name);
+    const creatorId = (await db.getCreator(c_url)).id;
+
+    const donationId = await db.logDonation(
+      creatorId,
+      weiAmount.toString(),
+      usdAmount.toString(),
+      txHash
+    );
+
+    const donation = await db.getDonation(donationId);
+
+    expect(donation.weiAmount).toEqual(weiAmount.toString());
   });
 });

@@ -241,10 +241,16 @@ export class Database {
   }
 
   async donationWithCreator(donation) {
-    return _.assign(
-      await this.getCreatorWithId(donation.creator_id),
-      _.update(donation, 'date', date => new Date(date))
-    );
+    if (donation.creator_id == null) {
+      console.error('Creator id was null: ', donation);
+      donation.name = 'Unknown';
+    } else {
+      donation = _.assign(
+        await this.getCreatorWithId(donation.creator_id),
+        donation
+      );
+    }
+    return donation;
   }
 
   async getDonations(limit = 100) {

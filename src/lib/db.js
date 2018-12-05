@@ -241,7 +241,6 @@ export class Database {
   }
 
   async donationWithCreator(donation) {
-    console.log('withcreator:', donation);
     return _.assign(
       await this.getCreatorWithId(donation.creator_id),
       _.update(donation, 'date', date => new Date(date))

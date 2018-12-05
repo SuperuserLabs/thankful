@@ -269,4 +269,34 @@ describe('DonationHistory', () => {
 
     expect(donation.weiAmount).toEqual(weiAmount.toString());
   });
+
+  it('Logs a few donations and reads them', async () => {
+    await db.updateCreator(c_url, c_name);
+    const creatorId = (await db.getCreator(c_url)).id;
+
+    await db.logDonation(
+      creatorId,
+      weiAmount.toString(),
+      usdAmount.toString(),
+      txHash
+    );
+    await db.logDonation(
+      creatorId,
+      weiAmount.mul('2').toString(),
+      usdAmount.mul('2').toString(),
+      '0xe46e63549fc0453da0afa8ac79a87b4baae9a70759a82bee19abd81665b0463b'
+    );
+    await db.logDonation(
+      creatorId,
+      weiAmount.mul('3').toString(),
+      usdAmount.mul('3').toString(),
+      '0x42bd00f4701b7d24dc3e3acd0ee7c7333e57c2b77532f012994bbcefca7cc726'
+    );
+
+    const donations = await db.getDonations();
+
+    expect(donations[1].usdAmount.toString()).toEqual(
+      usdAmount.mul('2').toString()
+    );
+  });
 });

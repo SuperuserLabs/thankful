@@ -3,13 +3,14 @@ v-card(height='116px').mt-1
   v-layout
     v-flex
       a(:href="url" target="_blank" style="text-decoration: none !important").headline
-        v-btn(flat large block style="text-transform: none")
+        v-btn(flat large block style="text-transform: none; padding: 0 0.2em 0 0.2em")
           div.headline.pr-1
             font-awesome-icon(v-if='isOnDomain(url, "getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
             font-awesome-icon(v-if='isOnDomain(url, "youtube.com")', :icon="['fab', 'youtube']", color='red')
             font-awesome-icon(v-if='isOnDomain(url, "github.com")', :icon="['fab', 'github']", color='black')
             font-awesome-icon(v-if='isOnDomain(url, "medium.com")', :icon="['fab', 'medium']", color='black')
-          | {{ name }}
+          div(style="text-overflow: ellipsis; overflow-x: hidden;")
+            | {{ name }}
   v-card-actions
     v-layout(row, align-center).ma-0.pl-1.body-1.text--secondary
       span(v-if="duration").pr-1

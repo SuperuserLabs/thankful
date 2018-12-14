@@ -96,6 +96,7 @@
     "lerna": "^3.4.3",
     "material-design-icons-iconfont": "^3.0.3",
     "metamask-extension-provider": "git://github.com/Powersource/metamask-extension-provider.git#patch-1",
+    "moment": "^2.23.0",
     "typeface-roboto": "0.0.54",
     "vue-i18n": "^8.1.0",
     "vuetify": "^1.2.7",

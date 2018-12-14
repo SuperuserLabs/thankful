@@ -7,9 +7,15 @@ div.pt-2
         | List of addresses
       v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
         | Submit new addresses
+
       v-spacer
+
+      v-toolbar-lable
+        | Budget
       v-flex(xs2, md1)
-        v-text-field(v-model="totalAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
+        v-text-field(v-model="budget", type='number', prefix="$", step=1, min=0, single-line, hide-details)
+      v-toolbar-lable
+        | Due: ${{ totalAmount }}
       v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
         | Distribute
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
@@ -56,6 +62,7 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
+import moment from 'moment';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -94,13 +101,21 @@ export default {
       }
       return '';
     },
-    totalAmount: {
+    totalAmount() {
+      // TODO: Get actual time_since_last_donation
+      let last_donation = moment('2018-12-14T12:00:00.000Z');
+      const time_since_donation = moment().diff(last_donation) / 1000;
+      const one_day = 60 * 60 * 24; // 1 day in seconds
+      return Math.floor(
+        10 * (this.$store.state.settings.totalAmount * time_since_donation) / one_day
+      ) / 10;
+    },
+    budget: {
       get() {
         return this.$store.state.settings.totalAmount;
       },
       set(value) {
         this.$store.commit('settings/updateSettings', { totalAmount: value });
-        console.log('saved settings');
       },
     },
     ...mapGetters({

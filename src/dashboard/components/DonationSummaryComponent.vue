@@ -104,9 +104,14 @@ export default {
       let last_donation = moment('2018-12-14T12:00:00.000Z');
       const time_since_donation = moment().diff(last_donation) / 1000;
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
-      return Math.floor(
-        10 * (this.$store.state.settings.totalAmount * time_since_donation) / one_month
-      ) / 10;
+      return (
+        0.1 *
+        Math.floor(
+          (10 *
+            (this.$store.state.settings.totalAmount * time_since_donation)) /
+            one_month
+        )
+      );
     },
     budget: {
       get() {

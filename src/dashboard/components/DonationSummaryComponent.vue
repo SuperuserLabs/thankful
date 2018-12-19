@@ -62,6 +62,7 @@ div.pt-2
 import _ from 'lodash';
 import moment from 'moment';
 import { mapGetters } from 'vuex';
+import { getInstallDate } from '../../lib/util.js';
 
 export default {
   data: function() {
@@ -83,6 +84,7 @@ export default {
           v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
+      lastDonationDate: new Date(),
     };
   },
   computed: {
@@ -100,8 +102,8 @@ export default {
       return '';
     },
     totalAmount() {
-      // TODO: Get actual time_since_last_donation
-      let last_donation = moment('2018-12-14T12:00:00.000Z');
+      const last_donation = this.lastDonationDate;
+      console.log('lastduna', last_donation);
       const time_since_donation = moment().diff(last_donation) / 1000;
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
       return (
@@ -149,8 +151,18 @@ export default {
         this.$emit('error', e);
       });
     },
+    async updateLastDonationDate() {
+      const lastDonation = this.$store.state.db.donations[0];
+      this.lastDonationDate =
+        lastDonation === undefined
+          ? await getInstallDate()
+          : new Date(lastDonation.date);
+    },
   },
-  created() {
+  async created() {
+    await this.$store.dispatch('db/ensureDonations');
+    console.log('state', this.$store.state)
+    await this.updateLastDonationDate()
     this.distribute();
   },
   watch: {

@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import { openDashboardTab } from './tabs.js';
 
 // These variables are in milliseconds
-const donationInterval = 1000 * 60 * 60 * 24 * 7; // One week
+const donationInterval = 1000 * 60 * 60 * 24 * 30; // One month
 const toastInterval = 1000 * 60 * 60 * 24; // 24 hours
 // Could use browser.runtime.connect for faster updates and less frequent
 // polling but that feels like unnecessary complexity
@@ -31,32 +31,10 @@ export function initReminders(db) {
   });
 }
 
-async function getInstallDate() {
-  const installDate = (await browser.storage.local.get('installDate'))
-    .installDate;
-
-  if (installDate === undefined) {
-    const now = new Date();
-    browser.storage.local.set({ installDate: now });
-    return now;
-  } else {
-    return installDate;
-  }
-}
-
-//export async function lastDonationDate(db) {
-//
-//}
-
 // This is outside vuex because we use it in background.js
 export async function isTimeToDonate(db) {
-  return db.getDonations(1).then(([lastDonation]) => {
-    const lastTime =
-      lastDonation === undefined
-        ? getInstallDate()
-        : new Date(lastDonation.date);
-    return new Date() - lastTime > donationInterval;
-  });
+  const lastTime = await db.lastDonationDate();
+  return new Date() - lastTime > donationInterval;
 }
 
 function reminderCheck(db) {

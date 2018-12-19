@@ -1,24 +1,14 @@
 import _ from 'lodash';
-import { Database, Creator } from '../../../lib/db.js';
-
-let db = new Database();
-
-function initThankfulTeamCreator() {
-  const creator = new Creator('https://getthankful.io', 'Thankful Team');
-  // Erik's address
-  // TODO: Change to a multisig wallet
-  creator.address = '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35';
-  creator.info =
-    'Be thankful for Thankful, donate so we can keep helping people to be thankful!';
-  creator.priority = 1;
-  creator.share = 0.1;
-  return creator.save();
-}
+import browser from 'webextension-polyfill';
 
 const scoringFunction = c => {
   const oneHour = 60 * 60;
   return Math.sqrt(c.duration + c.thanksAmount * oneHour);
 };
+
+function sendMessage(type, data) {
+  return browser.runtime.sendMessage({ type, data });
+}
 
 export default {
   namespaced: true,
@@ -59,13 +49,13 @@ export default {
 
         return creators.map(c => {
           let share;
-          if (c.share > 0) {
+          if (c.share) {
             share = c.share;
           } else {
             share = (c.score / totScore) * factor;
           }
           return {
-            ..._.pick(c, ['name', 'duration', 'url', 'address', 'index']),
+            ..._.pick(c, ['id', 'name', 'duration', 'url', 'address', 'index']),
             share: share,
           };
         });
@@ -99,22 +89,19 @@ export default {
       return dispatch('loadDonations');
     },
     async loadDonations({ commit }) {
-      let donations = await db.getDonations();
+      let donations = await sendMessage('getDonations', []);
       commit('setDonations', donations);
       commit('setLoaded', 'donations');
     },
     async loadCreators({ commit }) {
-      await initThankfulTeamCreator();
-      await db.attributeGithubActivity();
-      let creators = await db.getCreators({
-        withDurations: true,
-        withThanksAmount: true,
-      });
+      let creators = await sendMessage('getCreators', [
+        { withDurations: true, withThanksAmount: true },
+      ]);
       commit('setCreators', creators);
       commit('setLoaded', 'creators');
     },
     async loadActivities({ commit }) {
-      let all = await db.getActivities({ limit: -1 });
+      let all = await sendMessage('getActivities', [{ limit: -1 }]);
       commit('setActivities', _.groupBy(all, 'creator'));
       commit('setLoaded', 'activities');
     },
@@ -129,15 +116,21 @@ export default {
       return dispatch('save', { index: index });
     },
     save({ state }, { index }) {
-      return state.creators[index].save();
+      let c = state.creators[index];
+      sendMessage('updateCreator', [c.url[0], c.name, c]);
     },
     async removeCreator({ commit, state }, { index }) {
       await state.creators[index].delete();
       commit('remove', { index });
     },
-    async logDonation({ commit }, { creatorUrl, weiAmount, usdAmount, hash }) {
-      let id = await db.logDonation(creatorUrl, weiAmount, usdAmount, hash);
-      let donation = await db.getDonation(id);
+    async logDonation({ commit }, { creator_id, weiAmount, usdAmount, hash }) {
+      let id = await sendMessage('logDonation', [
+        creator_id,
+        weiAmount,
+        usdAmount,
+        hash,
+      ]);
+      let donation = await sendMessage('getDonation', [id]);
       commit('addDonation', donation);
       return donation;
     },

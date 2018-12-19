@@ -80,7 +80,7 @@ export default {
       return Object.assign(obj, {
         address: this.creator.address || '',
         name: this.creator.name,
-        url: this.creator.url,
+        url: this.creator.url[0],
         duration: this.creator.duration,
         thanksAmount: this.creator.thanksAmount,
       });

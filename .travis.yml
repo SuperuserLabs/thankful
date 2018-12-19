@@ -1,18 +1,25 @@
 language: node_js
 node_js:
-  - "8"
+  - "10"
+
+cache:
+  directories:
+    - "$HOME/.npm"
+
+before_install:
+  - npm install -g npm@6.4
 
 install:
- - make install
+  - make install-ci
 
 script:
- - make lint
- - make test
- - make build
- - make package
+  - make lint
+  - make test
+  - make build
+  - make package
 
 after_success:
- - make clean
+  - make clean
 
 deploy:
   provider: script

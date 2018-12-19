@@ -33,11 +33,9 @@ export default class Donate {
   }
 
   async donateAll(donations) {
-    const donationPromises = donations
-      .filter(d => !!d.address)
-      .map(async d => {
-        return this._donateOne(d.address, new BigNumber(d.funds), d.id);
-      });
+    const donationPromises = donations.filter(d => !!d.address).map(async d => {
+      return this._donateOne(d.address, new BigNumber(d.funds), d.id);
+    });
     return donationPromises;
   }
 

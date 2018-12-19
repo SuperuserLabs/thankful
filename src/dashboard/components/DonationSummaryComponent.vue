@@ -10,16 +10,12 @@ div.pt-2
 
       v-spacer
 
-      //v-toolbar-label
       div
-        | Budget
+        | Budget:
       v-flex(xs2, md1)
-        v-text-field(v-model="budget", type='number', prefix="$", step=1, min=0, single-line, hide-details)
-      //v-toolbar-label
-      div
-        | Due: ${{ totalAmount }}
+        v-text-field(v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details).pt-0
       v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
-        | Distribute
+        | Distribute ${{ totalAmount }}
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td
@@ -107,9 +103,9 @@ export default {
       // TODO: Get actual time_since_last_donation
       let last_donation = moment('2018-12-14T12:00:00.000Z');
       const time_since_donation = moment().diff(last_donation) / 1000;
-      const one_day = 60 * 60 * 24; // 1 day in seconds
+      const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
       return Math.floor(
-        10 * (this.$store.state.settings.totalAmount * time_since_donation) / one_day
+        10 * (this.$store.state.settings.totalAmount * time_since_donation) / one_month
       ) / 10;
     },
     budget: {

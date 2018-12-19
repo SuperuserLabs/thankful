@@ -16,6 +16,12 @@ v-app
           v-btn(icon @click.stop="mini = !mini")
             v-icon chevron_left
 
+      v-list-tile(avatar tag="div" to="/creators")
+        v-list-tile-avatar
+          v-icon person
+        v-list-tile-content
+          v-list-tile-title Creators
+
       v-list-tile(avatar tag="div" to="/activity")
         v-list-tile-avatar
           v-icon history

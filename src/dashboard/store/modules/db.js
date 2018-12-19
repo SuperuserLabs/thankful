@@ -63,7 +63,7 @@ export default {
       return [];
     },
 
-    activityByCreator: state => creatorUrl => state.activities[creatorUrl],
+    activityByCreator: state => creatorId => state.activities[creatorId],
 
     activities: ({ activities }) => onlyUnattributed =>
       onlyUnattributed ? activities.undefined : _.flatten(_.values(activities)),
@@ -102,7 +102,7 @@ export default {
     },
     async loadActivities({ commit }) {
       let all = await sendMessage('getActivities', [{ limit: -1 }]);
-      commit('setActivities', _.groupBy(all, 'creator'));
+      commit('setActivities', _.groupBy(all, 'creator_id'));
       commit('setLoaded', 'activities');
     },
     doUpdateCreator({ commit, dispatch }, { index, updates }) {

@@ -161,7 +161,6 @@ export default {
   },
   async created() {
     await this.$store.dispatch('db/ensureDonations');
-    console.log('state', this.$store.state)
     await this.updateLastDonationDate()
     this.distribute();
   },

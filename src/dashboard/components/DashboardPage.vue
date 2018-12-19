@@ -38,7 +38,7 @@ div
           v-toolbar-title
             | Activity
         v-card-text
-          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.url)", :pagination.sync='pagination')
+          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.id)", :pagination.sync='pagination')
             template(slot='items', slot-scope='props')
               td
                 a(:href="props.item.url")

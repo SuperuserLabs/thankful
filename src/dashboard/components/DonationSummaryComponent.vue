@@ -7,11 +7,15 @@ div.pt-2
         | List of addresses
       v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
         | Submit new addresses
+
       v-spacer
+
+      div
+        | Budget:
       v-flex(xs2, md1)
-        v-text-field(v-model="totalAmount", type='number', prefix="$", step=1, min=0, single-line, hide-details)
+        v-text-field(v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details).pt-0
       v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
-        | Distribute
+        | Distribute ${{ totalAmount }}
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td
@@ -56,7 +60,9 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
+import moment from 'moment';
 import { mapGetters } from 'vuex';
+import { getInstallDate } from '../../lib/util.js';
 
 export default {
   data: function() {
@@ -78,6 +84,7 @@ export default {
           v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
+      lastDonationDate: new Date(),
     };
   },
   computed: {
@@ -94,13 +101,26 @@ export default {
       }
       return '';
     },
-    totalAmount: {
+    totalAmount() {
+      const last_donation = this.lastDonationDate;
+      console.log('lastduna', last_donation);
+      const time_since_donation = moment().diff(last_donation) / 1000;
+      const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
+      return (
+        0.1 *
+        Math.floor(
+          (10 *
+            (this.$store.state.settings.totalAmount * time_since_donation)) /
+            one_month
+        )
+      );
+    },
+    budget: {
       get() {
         return this.$store.state.settings.totalAmount;
       },
       set(value) {
         this.$store.commit('settings/updateSettings', { totalAmount: value });
-        console.log('saved settings');
       },
     },
     ...mapGetters({
@@ -131,8 +151,17 @@ export default {
         this.$emit('error', e);
       });
     },
+    async updateLastDonationDate() {
+      const lastDonation = this.$store.state.db.donations[0];
+      this.lastDonationDate =
+        lastDonation === undefined
+          ? await getInstallDate()
+          : new Date(lastDonation.date);
+    },
   },
-  created() {
+  async created() {
+    await this.$store.dispatch('db/ensureDonations');
+    await this.updateLastDonationDate();
     this.distribute();
   },
   watch: {

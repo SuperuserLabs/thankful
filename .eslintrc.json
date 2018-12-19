@@ -2,8 +2,8 @@
   "plugins": ["prettier", "vue", "jest"],
   "extends": [
     "eslint:recommended",
-    "prettier",
     "plugin:vue/essential",
+    "prettier",
     "plugin:jest/recommended"
   ],
   "rules": {

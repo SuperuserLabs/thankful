@@ -31,14 +31,30 @@ export function initReminders(db) {
   });
 }
 
+async function getInstallDate() {
+  const installDate = (await browser.storage.local.get('installDate'))
+    .installDate;
+
+  if (installDate === undefined) {
+    const now = new Date();
+    browser.storage.local.set({ installDate: now });
+    return now;
+  } else {
+    return installDate;
+  }
+}
+
+//export async function lastDonationDate(db) {
+//
+//}
+
 // This is outside vuex because we use it in background.js
 export async function isTimeToDonate(db) {
   return db.getDonations(1).then(([lastDonation]) => {
-    // When the user hasn't donated yet, we won't know when to remind them
-    // to "donate again". But that might be nice, not telling them to
-    // donate until we know that they *can* donate.
     const lastTime =
-      lastDonation === undefined ? new Date() : new Date(lastDonation.date);
+      lastDonation === undefined
+        ? getInstallDate()
+        : new Date(lastDonation.date);
     return new Date() - lastTime > donationInterval;
   });
 }

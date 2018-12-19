@@ -10,11 +10,13 @@ div.pt-2
 
       v-spacer
 
-      v-toolbar-lable
+      //v-toolbar-label
+      div
         | Budget
       v-flex(xs2, md1)
         v-text-field(v-model="budget", type='number', prefix="$", step=1, min=0, single-line, hide-details)
-      v-toolbar-lable
+      //v-toolbar-label
+      div
         | Due: ${{ totalAmount }}
       v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
         | Distribute

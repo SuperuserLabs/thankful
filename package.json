@@ -14,7 +14,7 @@
     "*.{js,vue}": [
       "eslint"
     ],
-    "*.{js,json,css,md}": [
+    "*.{js,json,css,md,vue,yml}": [
       "prettier --write",
       "git add"
     ]

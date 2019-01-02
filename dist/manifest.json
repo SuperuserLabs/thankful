@@ -25,8 +25,7 @@
       "js": ["content_medium/index.js"]
     }
   ],
-  "content_security_policy":
-    "script-src 'self' 'http://localhost:8098'; object-src 'self'",
+  "content_security_policy": "script-src 'self' 'http://localhost:8098'; object-src 'self'",
   "permissions": [
     "tabs",
     "activeTab",
@@ -34,5 +33,11 @@
     "alarms",
     "idle",
     "notifications"
-  ]
+  ],
+  "applications": {
+    "gecko": {
+      "id": "hello@getthankful.io",
+      "strict_min_version": "42.0"
+    }
+  }
 }

@@ -40,8 +40,7 @@ precommit:
 	make test
 
 clean:
-	git clean -n dist
-	rm -v dist/**/*.{js,html} || true
+	git clean -fdx dist
 
 package:
 	cd dist/ && zip -r ../thankful.zip *

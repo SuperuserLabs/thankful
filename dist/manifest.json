@@ -25,7 +25,8 @@
       "js": ["content_medium/index.js"]
     }
   ],
-  "content_security_policy": "script-src 'self' 'http://localhost:8098'; object-src 'self'",
+  "content_security_policy":
+    "script-src 'self' 'http://localhost:8098'; object-src 'self'",
   "permissions": [
     "tabs",
     "activeTab",

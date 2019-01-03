@@ -1,10 +1,15 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import json
 from pathlib import Path
 
 manifest_file = Path(sys.argv.pop())
-print("Setting version in file: " + str(manifest_file))
+
+if 'TRAVIS_TAG' not in os.environ:
+    print("WARNING: Environment variable TRAVIS_TAG not set, version was not set.")
+    exit(1)
 
 version = os.environ["TRAVIS_TAG"].strip("v")
 
@@ -14,3 +19,5 @@ with manifest_file.open("r") as f:
 
 with manifest_file.open("w") as f:
     json.dump(data, f, indent=2)
+
+print("Version v' + version + ' set successfully in: " + str(manifest_file))

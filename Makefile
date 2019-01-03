@@ -73,15 +73,18 @@ prepublish:
 	make build-production
 	make package
 
+thankful.zip:
+	make prepublish
+
 deploy-travis:
 	make install-ci
 	make publish-amo
 
-publish-amo: prepublish
+publish-amo: thankful.zip
 	env MOZILLA_EXTENSION_ID='{b4bbcd8e-acc0-4044-b09b-1c15d0b66875}' \
 		node scripts/publish-mozilla-addons.js
 
-publish-webstore: prepublish
+publish-webstore: thankful.zip
 	# This will likely not be able to run in CI, see:
 	#	https://github.com/SuperuserLabs/thankful/pull/39#issuecomment-401839665
 	env $$(cat .env-webstore | xargs) \

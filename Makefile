@@ -1,17 +1,4 @@
-build:
-	npm run build
-
-build-production:
-	env PRODUCTION=true npm run build
-
-get-crypto-addresses:
-	node scripts/get_crypto_addresses.js > dist/data/crypto_addresses.json
-
-dev:
-	npm run dev
-
-vue-devtools:
-	npx @vue/devtools
+# Install
 
 install:
 	npm install
@@ -19,17 +6,41 @@ install:
 install-ci:
 	npm ci
 
+
+# Build
+
+build:
+	npm run build
+
+build-production:
+	env PRODUCTION=true npm run build
+
+
+# Dev tools
+
+dev:
+	npm run dev
+
+vue-devtools:
+	npx @vue/devtools
+
+serve:
+	cd dist/ && python3 -m http.server
+
+get-crypto-addresses:
+	node scripts/get_crypto_addresses.js > dist/data/crypto_addresses.json
+
+
+## Testing, linting, and code checking
+
+test:
+	npm run test
+
 lint:
 	npm run lint
 
 lint-fix:
 	npm run precommit
-
-test:
-	npm run test
-
-serve:
-	cd dist/ && python3 -m http.server
 
 typecheck:
 	mypy scripts/
@@ -39,11 +50,20 @@ precommit:
 	make lint-fix
 	make test
 
-clean:
-	git clean -fdx dist
+
+# Package and clean
 
 package:
 	cd dist/ && zip -r ../thankful.zip *
+
+zip-src:
+	git archive -o thankful-src.zip HEAD
+
+clean:
+	-git clean -fdx dist
+
+
+# Deployment
 
 prepublish:
 	make clean
@@ -52,12 +72,13 @@ prepublish:
 	make build-production
 	make package
 
+deploy-travis:
+	make install-ci
+	make publish-amo
+
 publish-amo: prepublish
 	env MOZILLA_EXTENSION_ID='{b4bbcd8e-acc0-4044-b09b-1c15d0b66875}' \
 		node scripts/publish-mozilla-addons.js
-
-zip-src:
-	git archive -o thankful-src.zip HEAD
 
 publish-webstore: prepublish
 	# This will likely not be able to run in CI, see:

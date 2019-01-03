@@ -68,8 +68,8 @@ clean:
 
 prepublish:
 	make clean
-	python3 scripts/set_version.py dist/manifest.json
-	python3 scripts/set_version.py package.json
+	-scripts/set_version.py dist/manifest.json
+	-scripts/set_version.py package.json
 	make build-production
 	make package
 

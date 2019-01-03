@@ -61,6 +61,7 @@ zip-src:
 
 clean:
 	-git clean -fdx dist
+	rm -f thankful.zip
 
 
 # Deployment

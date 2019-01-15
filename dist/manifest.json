@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Thankful",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "description": "Support free culture by automatically sending cryptocurrency to the creators of the content you love.",
   "icons": {
     "64": "icons/handshake.png"
@@ -37,7 +37,7 @@
   "applications": {
     "gecko": {
       "id": "{b4bbcd8e-acc0-4044-b09b-1c15d0b66875}",
-      "strict_min_version": "55.0"
+      "strict_min_version": "57.0"
     }
   }
 }

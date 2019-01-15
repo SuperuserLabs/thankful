@@ -20,7 +20,6 @@ v-app
         | Open dashboard
 </template>
 
-
 <script>
 import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
 import { isTimeToDonate } from '../lib/reminders.js';

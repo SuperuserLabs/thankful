@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Thankful",
   "version": "0.6.6",
-  "description": "",
+  "description": "Support free culture by automatically sending cryptocurrency to the creators of the content you love.",
   "icons": {
     "64": "icons/handshake.png"
   },
@@ -25,7 +25,7 @@
       "js": ["content_medium/index.js"]
     }
   ],
-  "content_security_policy": "script-src 'self' 'http://localhost:8098'; object-src 'self'",
+  "content_security_policy": "script-src 'self'; object-src 'self'",
   "permissions": [
     "tabs",
     "activeTab",
@@ -37,7 +37,7 @@
   "applications": {
     "gecko": {
       "id": "{b4bbcd8e-acc0-4044-b09b-1c15d0b66875}",
-      "strict_min_version": "42.0"
+      "strict_min_version": "55.0"
     }
   }
 }

@@ -34,11 +34,11 @@ v-app
         v-list-tile-content
           v-list-tile-title Donations
 
-  v-toolbar(app color="white")
+  v-toolbar(app dark color="secondary")
     v-btn(icon @click="drawer = !drawer")
       v-icon menu
     v-toolbar-title
-      h1 #[router-link(to="/" style="color: #000; text-decoration: none") Thankful]
+      h1 #[router-link(to="/" style="text-decoration: none; color: inherit") Thankful]
     v-toolbar-items
       div(style="display: flex; align-items: center;")
         div.pl-4

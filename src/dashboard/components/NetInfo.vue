@@ -1,12 +1,12 @@
 <template lang="pug">
-v-chip(:color='netColor', text-color='white')
+v-chip(outline, :color='netColor')
   div(v-if="netId === -1")
-    | You are not connected to an Ethereum Network. Please install this extension: #[a(href='https://metamask.io/') https://metamask.io/].
+    b You are not connected to the Ethereum Network. Please install #[a(href='https://metamask.io/') MetaMask] to donate.
   div(v-else-if="!address")
-    | You are connected to the {{ netName }} but not logged in. Please open
-    | MetaMask and log in.
+    //| You are connected to the {{ netName }} but not logged in.
+    b Please login to MetaMask
   div(v-else)
-    | You are connected to the {{ netName }}
+    b You are connected to the {{ netName }}
 </template>
 <script>
 import { mapGetters, mapState } from 'vuex';

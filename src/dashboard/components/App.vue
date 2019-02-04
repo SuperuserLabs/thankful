@@ -34,17 +34,18 @@ v-app
         v-list-tile-content
           v-list-tile-title Donations
 
-  v-toolbar(app dark color="primary")
+  v-toolbar(app color="white")
     v-btn(icon @click="drawer = !drawer")
       v-icon menu
     v-toolbar-title
-      h1 #[router-link(to="/" style="color: #FFF; text-decoration: none") Thankful]
+      h1 #[router-link(to="/" style="color: #000; text-decoration: none") Thankful]
     v-toolbar-items
-      div.pl-4.pt-3
-        h3 We're in alpha
-        div
-          | We're still figuring things out.
-          | Please report any issues #[a(href='https://github.com/SuperuserLabs/thankful/issues' style="color: #fff; text-decoration: underline") here].
+      div(style="display: flex; align-items: center;")
+        div.pl-4
+          h3 We're in alpha
+          div
+            | We're still figuring things out.
+            | Please report any issues #[a(href='https://github.com/SuperuserLabs/thankful/issues' style="color: #fff; text-decoration: underline") here].
     v-spacer
     v-toolbar-items
 

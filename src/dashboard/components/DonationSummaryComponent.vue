@@ -3,19 +3,23 @@ div.pt-2
   v-card
     v-toolbar(flat, color='white')
       v-toolbar-title.display-1 Donation summary
-      v-btn.ml-4(small, flat, target="_blank", href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing")
-        | List of addresses
-      v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
-        | Submit new addresses
+      div.ml-4(style="display: flex; flex-direction: column;")
+        v-btn(small, flat, target="_blank", href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing",
+              style="margin: 0; padding: 0;")
+          div.pl-2(style="flex-grow: 1")
+            | List of addresses
+        v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform",
+              style="margin: 0; padding: 0;")
+          div.pl-2(style="flex-grow: 1;")
+            | Submit new addresses
 
       v-spacer
 
       div
         | Budget:
-      v-flex(xs2, md1)
-        v-text-field(v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details).pt-0
+      v-text-field(v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details, style="width: 5em").pt-0
       v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
-        | Distribute ${{ totalAmount }}
+        | Distribute ${{ totalAmount.toFixed(2) }}
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td

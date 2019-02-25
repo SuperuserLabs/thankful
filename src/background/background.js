@@ -2,7 +2,7 @@
 
 import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.ts';
-import { valueConstantTicker } from '../lib/calltime.js';
+import { valueConstantTicker } from '../lib/calltime.ts';
 import { Database } from '../lib/db.js';
 import { getCurrentTab } from '../lib/tabs.js';
 import { initReminders } from '../lib/reminders.js';

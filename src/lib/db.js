@@ -2,7 +2,7 @@ import Dexie from 'dexie';
 import _ from 'lodash';
 import { canonicalizeUrl } from './url.ts';
 import isReserved from 'github-reserved-names';
-import { Donation, Thank } from './models.js';
+import { Donation, Thank } from './models.ts';
 
 let _db = undefined;
 

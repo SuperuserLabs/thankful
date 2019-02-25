@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "module": "es2015",
-    "sourceMap": true
+    "module": "commonjs",
+    "sourceMap": true,
+    "lib": ["ESNext", "dom"]
   }
 }

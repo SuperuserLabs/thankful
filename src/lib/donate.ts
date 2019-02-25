@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 let web3;
 
 export default class Donate {
-  async init() {
+  async init(): Promise<Number> {
     const Web3 = (await import('web3')).default;
     const createMetaMaskProvider = (await import('metamask-extension-provider'))
       .default;
@@ -22,7 +22,7 @@ export default class Donate {
     return this.getId();
   }
 
-  async getId() {
+  async getId(): Promise<Number> {
     //return web3.eth.net.getId();
     return new Promise((resolve, reject) => {
       web3.version.getNetwork((err, net) => {
@@ -41,17 +41,16 @@ export default class Donate {
     return donationPromises;
   }
 
-  isAddress(address) {
+  isAddress(address: String): boolean {
     return web3.isAddress(address);
   }
 
   // To test this, get a 0-balance address by taking an actual address and
   // making it lowercase (to get past the checksum) and then changing one
   // letter/number to something else.
-  hasBalance(address) {
-    return web3.eth.getBalance(address).then(balance => {
-      return balance > 0;
-    });
+  async hasBalance(address: String): Promise<boolean> {
+    let balance = await web3.eth.getBalance(address);
+    return balance > 0;
   }
 
   async _donateOne(
@@ -113,11 +112,11 @@ export default class Donate {
     }
   }
 
-  async getMyAddress() {
+  getMyAddress(): String {
     return web3.eth.accounts[0];
   }
 
-  async _usdEthRate() {
+  async _usdEthRate(): Promise<BigNumber> {
     try {
       const response = await fetch(
         new Request('https://api.coinmarketcap.com/v2/ticker/1027/')
@@ -125,11 +124,12 @@ export default class Donate {
       const ethInfo = await response.json();
       return new BigNumber(ethInfo.data.quotes.USD.price);
     } catch (err) {
-      throw ('Could not get usd/eth exchange rate', err);
+      console.error('Could not get USD/ETH exchange rate');
+      throw err;
     }
   }
 
-  _usdToWei(usdAmount) {
+  _usdToWei(usdAmount: BigNumber): BigNumber {
     return this._usdEthRate().then(usdEthRate => {
       const ethAmount = usdAmount.dividedBy(usdEthRate);
       console.log('ethamount', ethAmount);
@@ -144,7 +144,7 @@ export default class Donate {
 
   // Unused but works
   // Doesn't work now with the old bignumber.js version
-  _weiToUsd(weiAmount) {
+  _weiToUsd(weiAmount: BigNumber): BigNumber {
     return this._usdEthRate().then(usdEthRate => {
       const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
       return ethAmount.multipliedBy(usdEthRate);

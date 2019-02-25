@@ -1,10 +1,10 @@
-export function isOnDomain(url, domain) {
+export function isOnDomain(url: string, domain: string): boolean {
   let urla = new URL(url);
   let reg = RegExp(`${domain}$`);
   return reg.test(urla.hostname);
 }
 
-export function canonicalizeUrl(url_str) {
+export function canonicalizeUrl(url_str): string {
   // TODO: When this function is updated to support more sites, we will have to
   // run it on all old database entries to update them. Any way to do this
   // without lots of database upgrades?

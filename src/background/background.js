@@ -1,7 +1,7 @@
 'use strict';
 
 import browser from 'webextension-polyfill';
-import { canonicalizeUrl } from '../lib/url.js';
+import { canonicalizeUrl } from '../lib/url.ts';
 import { valueConstantTicker } from '../lib/calltime.js';
 import { Database } from '../lib/db.js';
 import { getCurrentTab } from '../lib/tabs.js';

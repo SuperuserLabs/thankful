@@ -77,6 +77,8 @@
     "style-loader": "^0.21.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
     "url-loader": "^1.1.1",
     "vue": "^2.5.17",
     "vue-loader": "^15.4.2",

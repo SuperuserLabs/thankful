@@ -1,4 +1,4 @@
-import { canonicalizeUrl } from './url.js';
+import { canonicalizeUrl } from './url.ts';
 
 // In the future, use private fields instead:
 //   https://github.com/tc39/proposal-class-fields

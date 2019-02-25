@@ -61,7 +61,7 @@ v-card(height='116px').mt-1
 </template>
 
 <script>
-import { isOnDomain } from '../../lib/url.js';
+import { isOnDomain } from '../../lib/url.ts';
 
 export default {
   data() {

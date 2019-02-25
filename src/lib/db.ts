@@ -1,16 +1,21 @@
 import Dexie from 'dexie';
 import { concat, map, sumBy } from 'lodash';
 import { canonicalizeUrl } from './url.ts';
+import { isBackgroundPage, isTesting } from './util.ts';
 import { IActivity, IDonation, Donation, IThank, Thank, ICreator, Creator } from './models.ts';
 import isReserved from 'github-reserved-names';
 
-let _db = undefined;
-
-function dbinit(): Database {
-  if (_db === undefined) {
-    _db = new Database();
+// A decorator that will throw an error if the decorated
+// function is called outside of the background script.
+function onlyInBackgroundPage(): any {
+  return function(target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any {
+    if(!isBackgroundPage() && !isTesting()) {
+      descriptor.value = function(...args: any[]) {
+        throw 'Function only allowed to run in background page';
+      }
+    }
+    return descriptor;
   }
-  return _db;
 }
 
 // For how to use Dexie in Typescript, read:
@@ -126,10 +131,12 @@ export class Database extends Dexie {
     });
   }
 
+  @onlyInBackgroundPage()
   async getActivity(url) {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
+  @onlyInBackgroundPage()
   async getActivities({ limit = 1000, withCreators = null } = {}) {
     let coll = this.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
@@ -146,15 +153,18 @@ export class Database extends Dexie {
   }
 
   // TODO: rename to getCreatorWithUrl or something
+  @onlyInBackgroundPage()
   async getCreator(url) {
     // get() gets a creator where the url array contains the url
     return this.creators.get({ url: url });
   }
 
+  @onlyInBackgroundPage()
   async getCreatorWithId(id) {
     return this.creators.get(id);
   }
 
+  @onlyInBackgroundPage()
   async getCreators({
     limit = 100,
     withDurations = false,
@@ -181,6 +191,7 @@ export class Database extends Dexie {
     return creators;
   }
 
+  @onlyInBackgroundPage()
   async getCreatorActivity(creator_id) {
     // Get all activity connected to a certain creator
     return this.activities
@@ -189,6 +200,7 @@ export class Database extends Dexie {
       .toArray();
   }
 
+  @onlyInBackgroundPage()
   async logActivity(url, duration, options = {}) {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
@@ -211,6 +223,7 @@ export class Database extends Dexie {
       });
   }
 
+  @onlyInBackgroundPage()
   async connectThanksToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
     await this.thanks
@@ -222,6 +235,7 @@ export class Database extends Dexie {
       });
   }
 
+  @onlyInBackgroundPage()
   async connectActivityToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
     await this.activities
@@ -233,6 +247,7 @@ export class Database extends Dexie {
       });
   }
 
+  @onlyInBackgroundPage()
   async connectUrlToCreator(url, creator_url) {
     try {
       url = canonicalizeUrl(url);
@@ -246,21 +261,25 @@ export class Database extends Dexie {
     }
   }
 
+  @onlyInBackgroundPage()
   async logDonation(creator_id, weiAmount, usdAmount, hash) {
     return this.donations.add(
       new Donation(creator_id, weiAmount.toString(), usdAmount.toString(), hash)
     );
   }
 
+  @onlyInBackgroundPage()
   async getDonation(id) {
     return this.donations.get(id).then(d => this.donationWithCreator(d));
   }
 
+  @onlyInBackgroundPage()
   async donationWithCreator(donation) {
     donation.creator = await this.getCreatorWithId(donation.creator_id);
     return donation;
   }
 
+  @onlyInBackgroundPage()
   async getDonations(limit = 100) {
     return this.donations
       .reverse()
@@ -274,6 +293,7 @@ export class Database extends Dexie {
       });
   }
 
+  @onlyInBackgroundPage()
   async attributeGithubActivity() {
     try {
       // If getActivities() takes a long time to run, consider using:
@@ -302,6 +322,7 @@ export class Database extends Dexie {
     }
   }
 
+  @onlyInBackgroundPage()
   async updateCreator(
     url,
     name,
@@ -347,6 +368,7 @@ export class Database extends Dexie {
     });
   }
 
+  @onlyInBackgroundPage()
   async logThank(url, title) {
     let activity = await this.activities.get({ url: url });
     let creator_id = activity !== undefined ? activity.creator_id : undefined;
@@ -355,6 +377,7 @@ export class Database extends Dexie {
     });
   }
 
+  @onlyInBackgroundPage()
   async getUrlThanksAmount(url) {
     url = canonicalizeUrl(url);
     return this.thanks
@@ -366,6 +389,7 @@ export class Database extends Dexie {
       });
   }
 
+  @onlyInBackgroundPage()
   async getCreatorThanksAmount(creator_id) {
     return this.thanks
       .where('creator_id')

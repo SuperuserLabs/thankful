@@ -99,6 +99,8 @@
     "@babel/core": "^7.0.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
+    "@types/chrome": "0.0.81",
+    "@types/node": "^11.9.5",
     "bignumber.js": "github:frozeman/bignumber.js-nolookahead",
     "eslint-plugin-jest": "^21.24.1",
     "file-loader": "^2.0.0",

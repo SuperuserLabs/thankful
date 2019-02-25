@@ -2,7 +2,10 @@
   "compilerOptions": {
     "module": "commonjs",
     "sourceMap": true,
-    "lib": ["ESNext", "dom"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["esnext", "dom"],
+    "types": ["chrome", "node", "jest"]
   }
 }

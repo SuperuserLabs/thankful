@@ -62,7 +62,7 @@ div.pt-2
 import _ from 'lodash';
 import moment from 'moment';
 import { mapGetters } from 'vuex';
-import { getInstallDate } from '../../lib/util.js';
+import { getInstallDate } from '../../lib/util.ts';
 
 export default {
   data: function() {

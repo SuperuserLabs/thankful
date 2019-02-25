@@ -6,9 +6,15 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
+
 var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
-let mode = process.env['PRODUCTION'] ? 'production' : 'development';
+const PRODUCTION = 'production';
+const DEVELOPMENT = 'development';
+
+let mode = process.env['PRODUCTION'] ? PRODUCTION : DEVELOPMENT;
 module.exports = {
   //optimization: {
   //splitChunks: {
@@ -18,10 +24,16 @@ module.exports = {
   mode: mode,
   module: {
     rules: [
-      // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       {
+        // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
         test: /\.tsx?$/,
-        loader: 'ts-loader',
+        use: [
+          {
+            loader: 'babel-loader',
+            options: { babelrc: true },
+          },
+          { loader: 'ts-loader' },
+        ],
       },
       {
         test: /\.styl$/,
@@ -32,13 +44,7 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: [
-              require('@babel/plugin-proposal-object-rest-spread'),
-              require('@babel/plugin-syntax-dynamic-import'),
-            ],
-          },
+          options: { babelrc: true },
         },
       },
       {
@@ -88,7 +94,7 @@ module.exports = {
     ],
   },
   entry: {
-    background: ['./src/background/background.js'],
+    background: ['./src/background/background.ts'],
     popup: ['./src/popup/popup.js'],
     dashboard: ['./src/dashboard/dashboard.js'],
     content_youtube: ['./src/content_scripts/content_youtube.js'],
@@ -123,7 +129,8 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: mode, // use 'development' unless process.env.NODE_ENV is defined
     }),
-  ],
+  ].concat(mode === DEVELOPMENT ? [new BundleAnalyzerPlugin()] : []),
+
   devtool: 'cheap-module-source-map',
   optimization: {
     minimizer: [

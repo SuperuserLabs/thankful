@@ -3,7 +3,7 @@ let lastPage = null;
 /*
  * Returns the duration since last called if the value has stayed the same
  */
-export function valueConstantTicker(): (value: any) => number {
+export function valueConstantTicker(): (value?: any) => number {
   let oldValue = null;
   let lastTime = new Date().getTime();
   return value => {

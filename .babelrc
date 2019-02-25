@@ -4,7 +4,7 @@
       "@babel/preset-env",
       {
         "targets": {
-          "esmodules": false
+          "esmodules": true
         }
       }
     ],
@@ -17,7 +17,12 @@
       "transform-imports",
       {
         "vuetify": {
-          "transform": "vuetify/es5/components/${member}"
+          "transform": "vuetify/es5/components/${member}",
+          "preventFullImport": true
+        },
+        "lodash": {
+          "transform": "lodash/${member}",
+          "preventFullImport": true
         },
         "@fortawesome/free-solid-svg-icons": {
           "transform": "@fortawesome/free-solid-svg-icons/${member}",
@@ -30,6 +35,6 @@
       }
     ],
     "@babel/plugin-proposal-object-rest-spread",
-    "@babel/plugin-syntax-dynamic-import"
+    "@babel/plugin-syntax-dynamic-import",
   ]
 }

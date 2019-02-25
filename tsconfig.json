@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "sourceMap": true,
-    "lib": ["ESNext", "dom"]
+    "lib": ["ESNext", "dom"],
+    "esModuleInterop": true
   }
 }

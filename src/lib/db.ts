@@ -1,101 +1,117 @@
 import Dexie from 'dexie';
-import _ from 'lodash';
+import { concat, map, sumBy } from 'lodash';
 import { canonicalizeUrl } from './url.ts';
+import { IActivity, IDonation, Donation, IThank, Thank, ICreator, Creator } from './models.ts';
 import isReserved from 'github-reserved-names';
-import { Donation, Thank } from './models.ts';
 
 let _db = undefined;
 
-function dbinit() {
-  if (_db !== undefined) {
-    return _db;
+function dbinit(): Database {
+  if (_db === undefined) {
+    _db = new Database();
   }
-  let db = new Dexie('Thankful');
-  db.version(1).stores({
-    activity: '&url, title, duration, creator',
-    creator: '&url, name',
-  });
-  db.version(2).stores({
-    donations: '++id, date, url, weiAmount, usdAmount',
-  });
-  db.version(3).stores({
-    creator: '&url, name, ignore',
-  });
-  db.version(4)
-    .stores({
-      thanks: '++id, url, date, title, creator',
-    })
-    .upgrade(trans => {
-      return trans.activity.toArray().then(activities => {
-        trans.activity.clear();
-        activities.forEach(a => {
-          this.logActivity(a.url, a.duration, {
-            title: a.title,
-            creator: a.creator,
+  return _db;
+}
+
+// For how to use Dexie in Typescript, read:
+//  https://dexie.org/docs/Typescript
+//
+export class Database extends Dexie {
+  activities: Dexie.Table<IActivity, number>;
+  creators: Dexie.Table<ICreator, number>;
+  donations: Dexie.Table<IDonation, number>;
+  thanks: Dexie.Table<IThank, number>;
+
+  constructor() {
+    super("Thankful");
+
+    //
+    // Define tables and indexes
+    // (Here's where the implicit table props are dynamically created)
+    //
+    this.version(1).stores({
+      activity: '&url, title, duration, creator',
+      creator: '&url, name',
+    });
+    this.version(2).stores({
+      donations: '++id, date, url, weiAmount, usdAmount',
+    });
+    this.version(3).stores({
+      creator: '&url, name, ignore',
+    });
+    this.version(4)
+      .stores({
+        thanks: '++id, url, date, title, creator',
+      })
+      .upgrade(trans => {
+        return trans['activity'].toArray().then(activities => {
+          trans['activity'].clear();
+          activities.forEach(a => {
+            this.logActivity(a.url, a.duration, {
+              title: a.title,
+              creator: a.creator,
+            });
           });
         });
       });
-    });
-  /* Version 6 upgrade summary:
-   * Drop tables activity and creator to allow better naming and integer primary key.
-   * thanks: 'creator' key (which was the url of a creator) replaced by creator_id
-   * donations: 'url' key (which was the url of a creator) replaced by creator_id
-   * creators: 'url' becomes multi-valued
-   */
-  db.version(5)
-    .stores({
-      activities: '++id, &url, title, duration, creator_id',
-      creators: '++id, *url, name, ignore',
-      thanks: '++id, url, date, title, creator_id',
-      donations: '++id, date, creator_id, weiAmount, usdAmount',
-    })
-    .upgrade(trans =>
-      trans.activity
-        .toArray()
-        .then(activities => trans.activities.bulkAdd(activities))
-        .then(() =>
-          trans.creator
-            .toArray()
-            .then(creators =>
-              trans.creators.bulkAdd(
-                creators.map(c => ({ ...c, url: [c.url] }))
+    /* Version 6 upgrade summary:
+     * Drop tables activity and creator to allow better naming and integer primary key.
+     * thanks: 'creator' key (which was the url of a creator) replaced by creator_id
+     * donations: 'url' key (which was the url of a creator) replaced by creator_id
+     * creators: 'url' becomes multi-valued
+     */
+    this.version(5)
+      .stores({
+        activities: '++id, &url, title, duration, creator_id',
+        creators: '++id, *url, name, ignore',
+        thanks: '++id, url, date, title, creator_id',
+        donations: '++id, date, creator_id, weiAmount, usdAmount',
+      })
+      .upgrade(trans =>
+        trans['activity']
+          .toArray()
+          .then(activities => trans['activities'].bulkAdd(activities))
+          .then(() =>
+            trans['creator']
+              .toArray()
+              .then(creators =>
+                trans['creators'].bulkAdd(
+                  creators.map(c => ({ ...c, url: [c.url] }))
+                )
               )
+          )
+          .then(() =>
+            trans['thanks'].toCollection().modify(t =>
+              trans['creators'].get({ url: t.creator }).then(c => {
+                t.creator_id = c.id;
+                delete t.creator;
+              })
             )
-        )
-        .then(() =>
-          trans.thanks.toCollection().modify(t =>
-            trans.creators.get({ url: t.creator }).then(c => {
-              t.creator_id = c.id;
-              delete t.creator;
-            })
           )
-        )
-        .then(() =>
-          trans.donations.toCollection().modify(d =>
-            trans.creators.get({ url: d.url }).then(c => {
-              d.creator_id = c.id;
-              delete d.url;
-            })
+          .then(() =>
+            trans['donations'].toCollection().modify(d =>
+              trans['creators'].get({ url: d.url }).then(c => {
+                d.creator_id = c.id;
+                delete d.url;
+              })
+            )
           )
-        )
-    );
-  //db.version(6).stores({
-  //activity: null,
-  //creator: null,
-  //});
+      );
+    //this.version(6).stores({
+    //activity: null,
+    //creator: null,
+    //});
 
-  //registerModel(db, Activity, db.activities, 'id');
-  //registerModel(db, Creator, db.creators, 'id');
-  //registerModel(db, Donation, db.donations, 'id');
-  //registerModel(db, Thank, db.thanks, 'id');
+    //registerModel(this, Activity, this.activities, 'id');
+    //registerModel(this, Creator, this.creators, 'id');
+    //registerModel(this, Donation, this.donations, 'id');
+    //registerModel(this, Thank, this.thanks, 'id');
 
-  _db = db;
-  return db;
-}
-
-export class Database {
-  constructor() {
-    this.db = dbinit();
+    // The following lines are needed for it to work across typescipt using babel-preset-typescript:
+    this.activities = this.table("activities");
+    this.creators = this.table("creators");
+    this.donations = this.table("donations");
+    this.thanks = this.table("thanks");
   }
 
   initThankfulTeamCreator() {
@@ -111,11 +127,11 @@ export class Database {
   }
 
   async getActivity(url) {
-    return await this.db.activities.get({ url: canonicalizeUrl(url) });
+    return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
   async getActivities({ limit = 1000, withCreators = null } = {}) {
-    let coll = this.db.activities.orderBy('duration').reverse();
+    let coll = this.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
       if (withCreators) {
         coll = coll.filter(a => a.creator_id !== undefined);
@@ -132,11 +148,11 @@ export class Database {
   // TODO: rename to getCreatorWithUrl or something
   async getCreator(url) {
     // get() gets a creator where the url array contains the url
-    return this.db.creators.get({ url: url });
+    return this.creators.get({ url: url });
   }
 
   async getCreatorWithId(id) {
-    return this.db.creators.get(id);
+    return this.creators.get(id);
   }
 
   async getCreators({
@@ -144,19 +160,19 @@ export class Database {
     withDurations = false,
     withThanksAmount = false,
   } = {}) {
-    let creators = await this.db.creators.limit(limit).toArray();
+    let creators = await this.creators.limit(limit).toArray();
     if (withDurations) {
       await Promise.all(
-        _.map(creators, async c => {
+        map(creators, async c => {
           let activities = await this.getCreatorActivity(c.id);
-          c.duration = _.sumBy(activities, 'duration');
+          c.duration = sumBy(activities, 'duration');
           return c;
         })
       );
     }
     if (withThanksAmount) {
       await Promise.all(
-        _.map(creators, async c => {
+        map(creators, async c => {
           c.thanksAmount = await this.getCreatorThanksAmount(c.id);
           return c;
         })
@@ -167,7 +183,7 @@ export class Database {
 
   async getCreatorActivity(creator_id) {
     // Get all activity connected to a certain creator
-    return this.db.activities
+    return this.activities
       .where('creator_id')
       .equals(creator_id)
       .toArray();
@@ -177,7 +193,7 @@ export class Database {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     url = canonicalizeUrl(url);
-    return this.db.activities
+    return this.activities
       .get({ url: url })
       .then(activity => {
         if (activity === undefined) {
@@ -188,7 +204,7 @@ export class Database {
         }
         activity.duration += duration;
         Object.assign(activity, options);
-        return this.db.activities.put(activity);
+        return this.activities.put(activity);
       })
       .catch(err => {
         throw 'Could not log activity, ' + err;
@@ -197,7 +213,7 @@ export class Database {
 
   async connectThanksToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
-    await this.db.thanks
+    await this.thanks
       .where('url')
       .equals(url)
       .modify({ creator_id: creator_id })
@@ -208,7 +224,7 @@ export class Database {
 
   async connectActivityToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
-    await this.db.activities
+    await this.activities
       .where('url')
       .equals(url)
       .modify({ creator_id: creator_id })
@@ -231,13 +247,13 @@ export class Database {
   }
 
   async logDonation(creator_id, weiAmount, usdAmount, hash) {
-    return this.db.donations.add(
+    return this.donations.add(
       new Donation(creator_id, weiAmount.toString(), usdAmount.toString(), hash)
     );
   }
 
   async getDonation(id) {
-    return this.db.donations.get(id).then(d => this.donationWithCreator(d));
+    return this.donations.get(id).then(d => this.donationWithCreator(d));
   }
 
   async donationWithCreator(donation) {
@@ -246,7 +262,7 @@ export class Database {
   }
 
   async getDonations(limit = 100) {
-    return this.db.donations
+    return this.donations
       .reverse()
       .limit(limit)
       .toArray()
@@ -262,14 +278,14 @@ export class Database {
     try {
       // If getActivities() takes a long time to run, consider using:
       //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
-      const logs = _.concat(
+      const logs = concat(
         await this.getActivities({ withCreators: false }),
-        await this.db.thanks.filter(t => t.creator === undefined).toArray()
+        await this.thanks.filter(t => t.creator_id === undefined).toArray()
       ).filter(a => {
         return a.url.includes('https://github.com/');
       });
 
-      let promises = _.map(logs, async a => {
+      let promises = map(logs, async a => {
         let u = new URL(a.url);
         let user_or_org = u.pathname.split('/')[1];
         if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
@@ -298,15 +314,15 @@ export class Database {
       info = null,
     } = {}
   ) {
-    let creators = this.db.creators;
+    let creators = this.creators;
     const withDefault = (maybe, def) => (maybe === null ? def : maybe);
-    this.db.transaction('rw', creators, async () => {
+    this.transaction('rw', creators, async () => {
       let creator = await creators.get({ url: url });
       if (creator) {
         let urlSet = new Set([...creator.url, ...urls]);
         creator = {
           id: creator.id,
-          url: Array.from(urlSet),
+          url: Array.from(urlSet) as string[],
           name: name,
           ignore: withDefault(ignore, creator.ignore),
           address: withDefault(address, creator.address),
@@ -332,16 +348,16 @@ export class Database {
   }
 
   async logThank(url, title) {
-    let activity = await this.db.activities.get({ url: url });
+    let activity = await this.activities.get({ url: url });
     let creator_id = activity !== undefined ? activity.creator_id : undefined;
-    return this.db.thanks.add(new Thank(url, title, creator_id)).catch(err => {
+    return this.thanks.add(new Thank(url, title, creator_id)).catch(err => {
       throw 'Logging thank failed: ' + err;
     });
   }
 
   async getUrlThanksAmount(url) {
     url = canonicalizeUrl(url);
-    return this.db.thanks
+    return this.thanks
       .where('url')
       .equals(url)
       .count()
@@ -351,7 +367,7 @@ export class Database {
   }
 
   async getCreatorThanksAmount(creator_id) {
-    return this.db.thanks
+    return this.thanks
       .where('creator_id')
       .equals(creator_id)
       .count()

@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import _ from 'lodash';
+import {forEach} from 'lodash';
 import BigNumber from 'bignumber.js';
 
 /*
@@ -11,13 +11,13 @@ setGlobalVars();
 Dexie.dependencies.indexedDB = require('fake-indexeddb');
 Dexie.dependencies.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
-import { Database } from './db.js';
+import { Database } from './db.ts';
 
 async function clearDB(db) {
-  await db.db.creators.clear();
-  await db.db.activities.clear();
-  await db.db.donations.clear();
-  await db.db.thanks.clear();
+  await db.creators.clear();
+  await db.activities.clear();
+  await db.donations.clear();
+  await db.thanks.clear();
 }
 
 describe('Activity', () => {
@@ -53,13 +53,13 @@ describe('Activity', () => {
     expect(acts_all).toHaveLength(3);
 
     let acts_with_creators = await db.getActivities({ withCreators: true });
-    _.forEach(acts_with_creators, a => {
+    forEach(acts_with_creators, a => {
       expect(a.creator_id).not.toEqual(undefined);
     });
     expect(acts_with_creators).toHaveLength(1);
 
     let acts_without_creators = await db.getActivities({ withCreators: false });
-    _.forEach(acts_without_creators, a => {
+    forEach(acts_without_creators, a => {
       expect(a.creator_id).toEqual(undefined);
     });
     expect(acts_without_creators).toHaveLength(2);
@@ -75,7 +75,7 @@ describe('Activity', () => {
     await db.connectUrlToCreator(url, c_url);
 
     expect(
-      (await db.db.activities
+      (await db.activities
         .where('url')
         .equals(url)
         .toArray())[0].creator_id
@@ -214,7 +214,7 @@ describe('Thanks', () => {
     await db.connectThanksToCreator(thxUrlNotCanon, id);
 
     expect(
-      (await db.db.thanks
+      (await db.thanks
         .where('url')
         .equals(thxUrl)
         .toArray())[0].creator_id
@@ -230,7 +230,7 @@ describe('Thanks', () => {
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
     expect(
-      (await db.db.thanks
+      (await db.thanks
         .where('url')
         .equals(thxUrl)
         .toArray())[0].creator_id

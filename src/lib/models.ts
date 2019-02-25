@@ -1,5 +1,7 @@
 import { canonicalizeUrl } from './url.ts';
 
+// TODO: Write tests
+
 // In the future, maybe use private fields instead:?
 //   https://github.com/tc39/proposal-class-fields
 // I thought I could use symbols, but that didn't work out.
@@ -28,7 +30,15 @@ class Model {
   }
 }
 
-export class Activity extends Model {
+export interface IActivity {
+  url: string;
+  title?: string;
+  duration: number;
+  creator_id?: number;
+  creator?: number;
+}
+
+export class Activity extends Model implements IActivity {
   url: string;
   title: string;
   duration: number;
@@ -43,8 +53,20 @@ export class Activity extends Model {
   }
 }
 
+export interface ICreator {
+  id?: number;
+  url: string[];
+  name: string;
+  ignore: boolean;
+  address?: string;
+  share?: number;
+  info?: string;
+  duration?: number;
+  priority?: number;
+}
+
 export class Creator extends Model {
-  url: string;
+  url: string[];
   name: string;
   ignore: boolean;
 
@@ -53,10 +75,18 @@ export class Creator extends Model {
     if (typeof url !== 'string') {
       throw 'url was invalid type';
     }
-    this.url = url;
+    this.url = [url];
     this.name = name;
     this.ignore = ignore;
   }
+}
+
+export interface IDonation {
+  date: string;
+  creator_id: number;
+  weiAmount: string;
+  usdAmount: string;
+  transaction: number;
 }
 
 export class Donation {
@@ -73,6 +103,13 @@ export class Donation {
     this.usdAmount = usdAmount;
     this.transaction = transaction;
   }
+}
+
+export interface IThank {
+  url: string;
+  date: string;
+  title: string;
+  creator_id: number;
 }
 
 export class Thank {

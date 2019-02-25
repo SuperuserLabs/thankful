@@ -8,6 +8,7 @@ export default class Donate {
     const Web3 = (await import('web3')).default;
     const createMetaMaskProvider = (await import('metamask-extension-provider'))
       .default;
+
     const web3Provider = createMetaMaskProvider();
 
     web3Provider.on('error', error => {

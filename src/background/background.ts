@@ -3,10 +3,10 @@
 import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.ts';
 import { valueConstantTicker } from '../lib/calltime.ts';
-import { Database } from '../lib/db.js';
+import { Database } from '../lib/db.ts';
 import { getCurrentTab } from '../lib/tabs.js';
 import { initReminders } from '../lib/reminders.js';
-import _ from 'lodash';
+import { find, difference, intersection, each, unionBy, filter } from 'lodash';
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
@@ -64,17 +64,17 @@ async function rescheduleAlarm() {
     let { type, data } = msg;
     switch (type) {
       case 'getDonation':
-        return db.getDonation(...data);
+        return (<any>db.getDonation)(...data);
       case 'getDonations':
-        return db.getDonations(...data);
+        return (<any>db.getDonations)(...data);
       case 'getCreators':
-        return db.attributeGithubActivity().then(() => db.getCreators(...data));
+        return db.attributeGithubActivity().then(() => (<any>db.getCreators)(...data));
       case 'getActivities':
-        return db.getActivities(...data);
+        return (<any>db.getActivities)(...data);
       case 'logDonation':
-        return db.logDonation(...data);
+        return (<any>db.logDonation)(...data);
       case 'updateCreator':
-        return db.updateCreator(...data);
+        return (<any>db.updateCreator)(...data);
       default:
         console.error('Unhandled message type: ', type);
         return;
@@ -88,8 +88,8 @@ async function rescheduleAlarm() {
         ? [currentTab]
         : [];
       const audibleTabs = await browser.tabs.query({ audible: true });
-      const tabs = _.filter(
-        _.unionBy(currentTabArray, audibleTabs, 'url'),
+      const tabs = filter(
+        unionBy(currentTabArray, audibleTabs, 'url'),
         tab => !tab.incognito
       );
 
@@ -99,13 +99,13 @@ async function rescheduleAlarm() {
         // This is usually indicative of computer being suspended.
         // See: https://github.com/SuperuserLabs/thankful/issues/61
         console.log('suspend detected, resetting timers');
-        _.each(tabTimers, tabTimer => tabTimer());
+        each(tabTimers, tabTimer => tabTimer());
       }
 
       const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
-      const goneUrls = _.difference(Object.keys(tabTimers), currentUrls);
-      const stillUrls = _.intersection(Object.keys(tabTimers), currentUrls);
-      const newUrls = _.difference(currentUrls, Object.keys(tabTimers));
+      const goneUrls = difference(Object.keys(tabTimers), currentUrls);
+      const stillUrls = intersection(Object.keys(tabTimers), currentUrls);
+      const newUrls = difference(currentUrls, Object.keys(tabTimers));
 
       goneUrls.forEach(url => {
         const duration = tabTimers[url]();
@@ -116,14 +116,14 @@ async function rescheduleAlarm() {
       });
       stillUrls.forEach(url => {
         const duration = tabTimers[url]();
-        let title = _.find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
+        let title = find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
         tabTitles[url] = title;
         db.logActivity(url, duration, { title: title });
       });
       newUrls.forEach(url => {
         tabTimers[url] = valueConstantTicker();
         tabTimers[url]();
-        tabTitles[url] = _.find(
+        tabTitles[url] = find(
           tabs,
           tab => canonicalizeUrl(tab.url) === url
         ).title;
@@ -134,8 +134,8 @@ async function rescheduleAlarm() {
     }
   }
 
-  function sendPageChange(tabId, changeInfo, tab) {
-    browser.tabs
+  async function sendPageChange(tabId, changeInfo, tab): Promise<any> {
+    return browser.tabs
       .sendMessage(tabId, {
         type: 'pageChange',
       })

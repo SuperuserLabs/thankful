@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import {forEach} from 'lodash';
+import { forEach } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 /*

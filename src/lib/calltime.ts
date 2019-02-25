@@ -1,8 +1,6 @@
 let lastPage = null;
 
-/*
- * Returns the duration since last called if the value has stayed the same
- */
+// Returns the duration since last called if the value has stayed the same
 export function valueConstantTicker(): (value?: any) => number {
   let oldValue = null;
   let lastTime = new Date().getTime();
@@ -18,8 +16,8 @@ export function valueConstantTicker(): (value?: any) => number {
   };
 }
 
+// Returns the time in seconds since last time the function was called.
 export function sinceLastCall(): number {
-  // Returns the time in seconds since last time the function was called.
   let now = new Date().getTime();
   lastPage = lastPage || now;
 

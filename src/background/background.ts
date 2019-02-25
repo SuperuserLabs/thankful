@@ -55,14 +55,22 @@ async function rescheduleAlarm() {
     })();
   }
 
-  async function dbListener({type, data}: {type: string, data: any}): Promise<any> {
+  async function dbListener({
+    type,
+    data,
+  }: {
+    type: string;
+    data: any;
+  }): Promise<any> {
     switch (type) {
       case 'getDonation':
         return (<any>db.getDonation)(...data);
       case 'getDonations':
         return (<any>db.getDonations)(...data);
       case 'getCreators':
-        return db.attributeGithubActivity().then(() => (<any>db.getCreators)(...data));
+        return db
+          .attributeGithubActivity()
+          .then(() => (<any>db.getCreators)(...data));
       case 'getActivities':
         return (<any>db.getActivities)(...data);
       case 'logDonation':

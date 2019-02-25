@@ -2,25 +2,36 @@ import Dexie from 'dexie';
 import { concat, map, sumBy } from 'lodash';
 import { canonicalizeUrl } from './url.ts';
 import { isBackgroundPage, isTesting } from './util.ts';
-import { IActivity, IDonation, Donation, IThank, Thank, ICreator, Creator } from './models.ts';
+import {
+  IActivity,
+  IDonation,
+  Donation,
+  IThank,
+  Thank,
+  ICreator,
+  Creator,
+} from './models.ts';
 import isReserved from 'github-reserved-names';
 
 // A decorator that will throw an error if the decorated
 // function is called outside of the background script.
 function onlyInBackgroundPage(): any {
-  return function(target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any {
-    if(!isBackgroundPage() && !isTesting()) {
+  return function(
+    target: any,
+    propertyKey: string,
+    descriptor: TypedPropertyDescriptor<any>
+  ): any {
+    if (!isBackgroundPage() && !isTesting()) {
       descriptor.value = function(...args: any[]) {
         throw 'Function only allowed to run in background page';
-      }
+      };
     }
     return descriptor;
-  }
+  };
 }
 
 // For how to use Dexie in Typescript, read:
 //  https://dexie.org/docs/Typescript
-//
 export class Database extends Dexie {
   activities: Dexie.Table<IActivity, number>;
   creators: Dexie.Table<ICreator, number>;
@@ -28,7 +39,7 @@ export class Database extends Dexie {
   thanks: Dexie.Table<IThank, number>;
 
   constructor() {
-    super("Thankful");
+    super('Thankful');
 
     //
     // Define tables and indexes
@@ -113,10 +124,10 @@ export class Database extends Dexie {
     //registerModel(this, Thank, this.thanks, 'id');
 
     // The following lines are needed for it to work across typescipt using babel-preset-typescript:
-    this.activities = this.table("activities");
-    this.creators = this.table("creators");
-    this.donations = this.table("donations");
-    this.thanks = this.table("thanks");
+    this.activities = this.table('activities');
+    this.creators = this.table('creators');
+    this.donations = this.table('donations');
+    this.thanks = this.table('thanks');
   }
 
   initThankfulTeamCreator() {

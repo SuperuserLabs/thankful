@@ -1,5 +1,3 @@
-/*eslint no-undef: 0*/
-
 let browser;
 if (typeof chrome !== 'undefined') {
   browser = require('webextension-polyfill');
@@ -21,7 +19,7 @@ export function isBackgroundPage(): boolean {
 }
 
 export function isTesting() {
-    return process.env.JEST_WORKER_ID !== undefined;
+  return process.env.JEST_WORKER_ID !== undefined;
 }
 
 // TODO: Does this actually return a date? Or sometimes a string?

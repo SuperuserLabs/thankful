@@ -29,9 +29,11 @@
     "url": "https://github.com/SuperuserLabs/thankful/issues"
   },
   "homepage": "https://github.com/SuperuserLabs/thankful#readme",
+  "resolutions": {
+    "babel-core": "7.0.0-bridge.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/plugin-transform-runtime": "^7.1.0",
@@ -41,9 +43,11 @@
     "@fortawesome/free-brands-svg-icons": "^5.4.0",
     "@fortawesome/free-solid-svg-icons": "^5.4.0",
     "@fortawesome/vue-fontawesome": "^0.1.1",
+    "@types/jest": "^24.0.6",
     "@vue/devtools": "^1.1.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
+    "babel-jest": "^23.4.2",
     "babel-loader": "^8.0.4",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-imports": "^1.5.1",
@@ -63,7 +67,7 @@
     "googleapis": "^32.0.0",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^0.14.3",
-    "jest": "^23.6.0",
+    "jest": "^24.0.0",
     "lint-staged": "^7.3.0",
     "lodash": "^4.17.11",
     "lodash-webpack-plugin": "^0.11.5",
@@ -77,6 +81,7 @@
     "style-loader": "^0.21.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
+    "ts-jest": "^24.0.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.3333",
     "url-loader": "^1.1.1",
@@ -91,7 +96,9 @@
     "websocket": "^1.0.28"
   },
   "dependencies": {
+    "@babel/core": "^7.0.0",
     "@babel/polyfill": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
     "bignumber.js": "github:frozeman/bignumber.js-nolookahead",
     "eslint-plugin-jest": "^21.24.1",
     "file-loader": "^2.0.0",

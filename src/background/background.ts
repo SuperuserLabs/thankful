@@ -1,5 +1,3 @@
-'use strict';
-
 import browser from 'webextension-polyfill';
 import { canonicalizeUrl } from '../lib/url.ts';
 import { valueConstantTicker } from '../lib/calltime.ts';
@@ -11,7 +9,7 @@ import { find, difference, intersection, each, unionBy, filter } from 'lodash';
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
  */
-async function isTabActive(tabInfo) {
+async function isTabActive(tabInfo): Promise<boolean> {
   return new Promise(resolve => {
     let detectionIntervalInSeconds = 60;
     if (tabInfo.audible) {
@@ -57,11 +55,7 @@ async function rescheduleAlarm() {
     })();
   }
 
-  function dbListener(msg) {
-    if (!('type' in msg && 'data' in msg)) {
-      return;
-    }
-    let { type, data } = msg;
+  async function dbListener({type, data}: {type: string, data: any}): Promise<any> {
     switch (type) {
       case 'getDonation':
         return (<any>db.getDonation)(...data);
@@ -155,7 +149,6 @@ error: ${JSON.stringify(message)}`
   }
 
   browser.tabs.onUpdated.addListener(stethoscope);
-
   browser.tabs.onUpdated.addListener(sendPageChange);
 
   //let messageHandlers = [receiveCreator, dbListener];

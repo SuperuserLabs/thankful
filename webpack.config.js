@@ -6,8 +6,7 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
+//const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
@@ -129,7 +128,14 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: mode, // use 'development' unless process.env.NODE_ENV is defined
     }),
-  ].concat(mode === DEVELOPMENT ? [new BundleAnalyzerPlugin()] : []),
+    // TODO: Detect if webpack is run with --watch, not if the PRODUCTION env variable is set
+  ].concat(
+    mode === DEVELOPMENT
+      ? [
+          /* new BundleAnalyzerPlugin() */
+        ]
+      : []
+  ),
 
   devtool: 'cheap-module-source-map',
   optimization: {

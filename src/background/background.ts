@@ -1,10 +1,12 @@
 import browser from 'webextension-polyfill';
+import { find, difference, intersection, each, unionBy, filter } from 'lodash';
+
+import { dbListener } from './messaging.ts';
 import { canonicalizeUrl } from '../lib/url.ts';
 import { valueConstantTicker } from '../lib/calltime.ts';
 import { Database } from '../lib/db.ts';
 import { getCurrentTab } from '../lib/tabs.js';
 import { initReminders } from '../lib/reminders.js';
-import { find, difference, intersection, each, unionBy, filter } from 'lodash';
 
 /**
  * Returns true if tab is audible or if user was active last 60 seconds.
@@ -39,6 +41,7 @@ async function rescheduleAlarm() {
   const tabTimers = {};
   const tabTitles = {};
 
+  // TODO: Replace with dbListener stuff
   function receiveCreator(msg) {
     if (msg.type !== 'creatorFound') {
       return false;
@@ -55,34 +58,7 @@ async function rescheduleAlarm() {
     })();
   }
 
-  async function dbListener({
-    type,
-    data,
-  }: {
-    type: string;
-    data: any;
-  }): Promise<any> {
-    switch (type) {
-      case 'getDonation':
-        return (<any>db.getDonation)(...data);
-      case 'getDonations':
-        return (<any>db.getDonations)(...data);
-      case 'getCreators':
-        return db
-          .attributeGithubActivity()
-          .then(() => (<any>db.getCreators)(...data));
-      case 'getActivities':
-        return (<any>db.getActivities)(...data);
-      case 'logDonation':
-        return (<any>db.logDonation)(...data);
-      case 'updateCreator':
-        return (<any>db.updateCreator)(...data);
-      default:
-        console.error('Unhandled message type: ', type);
-        return;
-    }
-  }
-
+  // TODO: Refactor out logging logic into seperate file
   async function stethoscope() {
     try {
       const currentTab = await getCurrentTab();
@@ -156,32 +132,24 @@ error: ${JSON.stringify(message)}`
       });
   }
 
+  // Register tab/idle listeners for logging
+  // TODO: Clean these up
   browser.tabs.onUpdated.addListener(stethoscope);
   browser.tabs.onUpdated.addListener(sendPageChange);
-
-  //let messageHandlers = [receiveCreator, dbListener];
-
-  browser.runtime.onMessage.addListener(receiveCreator);
-  browser.runtime.onMessage.addListener(dbListener);
-  //browser.runtime.onMessage.addListener(async msg => {
-  //for (let i in messageHandlers) {
-  //let result = await messageHandlers[i](msg);
-  //if (result) return result;
-  //}
-  //});
-
-  browser.idle.onStateChanged.addListener(stethoscope);
-
   browser.tabs.onActivated.addListener(stethoscope);
-
+  browser.idle.onStateChanged.addListener(stethoscope);
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
       stethoscope();
     }
   });
 
+  // Register message listeners
+  browser.runtime.onMessage.addListener(receiveCreator);
+  browser.runtime.onMessage.addListener(dbListener);
+
+  // Initialization
   initReminders(db);
   stethoscope();
-
   db.initThankfulTeamCreator();
 })();

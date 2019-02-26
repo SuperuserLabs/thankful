@@ -1,5 +1,8 @@
 import Dexie from 'dexie';
 import { concat, map, sumBy } from 'lodash';
+import isReserved from 'github-reserved-names';
+
+import { default as test, registerListener } from '../background/messaging.ts';
 import { canonicalizeUrl } from './url.ts';
 import { isBackgroundPage, isTesting } from './util.ts';
 import {
@@ -11,23 +14,72 @@ import {
   ICreator,
   Creator,
 } from './models.ts';
-import isReserved from 'github-reserved-names';
+
+// Send a message to the background script worker
+async function _sendMessage(type: string, data: any[]): Promise<any> {
+  let browser = require('webextension-polyfill');
+  console.log('sendMessage');
+  return await browser.runtime.sendMessage({ type, data });
+}
+
+// Doesn't like when you add the descriptor argument for whatever reason ("Unable to resolve signature of method decorator when called as an expression.")
+type TDecorator = (
+  target: any,
+  propertyKey: string,
+  ...args: any[]
+) => PropertyDescriptor;
 
 // A decorator that will throw an error if the decorated
 // function is called outside of the background script.
-function onlyInBackgroundPage(): any {
+function onlyInBackgroundPage(): TDecorator {
   return function(
     target: any,
     propertyKey: string,
-    descriptor: TypedPropertyDescriptor<any>
-  ): any {
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor {
     if (!isBackgroundPage() && !isTesting()) {
-      descriptor.value = function(...args: any[]) {
-        throw 'Function only allowed to run in background page';
+      descriptor.value = function(...args: any[]): any {
+        throw `Function ${propertyKey} only allowed to run in background page`;
       };
     }
     return descriptor;
   };
+}
+
+// Registers a function as callable through messaging, will call using messaging if necessary.
+function messageListener(name?: string): TDecorator {
+  return function(
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor {
+    if (isBackgroundPage() || isTesting()) {
+      // Function initialized in background page, register listener.
+      name = name || propertyKey;
+      //console.log(`Registering ${propertyKey} as message listener named ${name}`)
+      registerListener(descriptor.value, { name });
+    } else {
+      // Function not initialized in background page, redirect to sendMessage.
+      descriptor.value = async function(...args: any[]): Promise<any> {
+        //console.log(args);
+        //console.log(`Calling ${propertyKey} ${args}`);
+        let resp = await _sendMessage(propertyKey, args);
+        //console.log(`Got reply from ${propertyKey}! ${Object.keys(resp)}`);
+        return resp;
+      };
+      //console.log(`Redirected ${propertyKey} to background page (messages)`)
+    }
+    return descriptor;
+  };
+}
+
+let _db: Database | null = null;
+
+export function getDatabase(): Database {
+  if (_db === null) {
+    _db = new Database();
+  }
+  return _db;
 }
 
 // For how to use Dexie in Typescript, read:
@@ -41,10 +93,13 @@ export class Database extends Dexie {
   constructor() {
     super('Thankful');
 
-    //
+    // Only run constructor in background page, non-background requests will be redirected to the background page using messageListener.
+    if (!isBackgroundPage()) {
+      return;
+    }
+
     // Define tables and indexes
     // (Here's where the implicit table props are dynamically created)
-    //
     this.version(1).stores({
       activity: '&url, title, duration, creator',
       creator: '&url, name',
@@ -83,36 +138,24 @@ export class Database extends Dexie {
         thanks: '++id, url, date, title, creator_id',
         donations: '++id, date, creator_id, weiAmount, usdAmount',
       })
-      .upgrade(trans =>
-        trans['activity']
-          .toArray()
-          .then(activities => trans['activities'].bulkAdd(activities))
-          .then(() =>
-            trans['creator']
-              .toArray()
-              .then(creators =>
-                trans['creators'].bulkAdd(
-                  creators.map(c => ({ ...c, url: [c.url] }))
-                )
-              )
-          )
-          .then(() =>
-            trans['thanks'].toCollection().modify(t =>
-              trans['creators'].get({ url: t.creator }).then(c => {
-                t.creator_id = c.id;
-                delete t.creator;
-              })
-            )
-          )
-          .then(() =>
-            trans['donations'].toCollection().modify(d =>
-              trans['creators'].get({ url: d.url }).then(c => {
-                d.creator_id = c.id;
-                delete d.url;
-              })
-            )
-          )
-      );
+      .upgrade(async trans => {
+        let activities = await trans['activity'].toArray();
+        await trans['activities'].bulkAdd(activities);
+        let creators = await trans['creator'].toArray();
+        trans['creators'].bulkAdd(creators.map(c => ({ ...c, url: [c.url] })));
+        await trans['thanks'].toCollection().modify(t =>
+          trans['creators'].get({ url: t.creator }).then(c => {
+            t.creator_id = c.id;
+            delete t.creator;
+          })
+        );
+        await trans['donations'].toCollection().modify(d =>
+          trans['creators'].get({ url: d.url }).then(c => {
+            d.creator_id = c.id;
+            delete d.url;
+          })
+        );
+      });
     //this.version(6).stores({
     //activity: null,
     //creator: null,
@@ -142,12 +185,12 @@ export class Database extends Dexie {
     });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getActivity(url) {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getActivities({ limit = 1000, withCreators = null } = {}) {
     let coll = this.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
@@ -164,23 +207,24 @@ export class Database extends Dexie {
   }
 
   // TODO: rename to getCreatorWithUrl or something
-  @onlyInBackgroundPage()
+  @messageListener()
   async getCreator(url) {
     // get() gets a creator where the url array contains the url
     return this.creators.get({ url: url });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getCreatorWithId(id) {
     return this.creators.get(id);
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getCreators({
     limit = 100,
     withDurations = false,
     withThanksAmount = false,
   } = {}) {
+    await this.attributeGithubActivity();
     let creators = await this.creators.limit(limit).toArray();
     if (withDurations) {
       await Promise.all(
@@ -202,7 +246,7 @@ export class Database extends Dexie {
     return creators;
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getCreatorActivity(creator_id) {
     // Get all activity connected to a certain creator
     return this.activities
@@ -211,7 +255,7 @@ export class Database extends Dexie {
       .toArray();
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async logActivity(url, duration, options = {}) {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
@@ -234,7 +278,7 @@ export class Database extends Dexie {
       });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async connectThanksToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
     await this.thanks
@@ -246,7 +290,7 @@ export class Database extends Dexie {
       });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async connectActivityToCreator(url, creator_id) {
     url = canonicalizeUrl(url);
     await this.activities
@@ -258,7 +302,7 @@ export class Database extends Dexie {
       });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async connectUrlToCreator(url, creator_url) {
     try {
       url = canonicalizeUrl(url);
@@ -272,39 +316,45 @@ export class Database extends Dexie {
     }
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async logDonation(creator_id, weiAmount, usdAmount, hash) {
     return this.donations.add(
       new Donation(creator_id, weiAmount.toString(), usdAmount.toString(), hash)
     );
   }
 
-  @onlyInBackgroundPage()
-  async getDonation(id) {
+  @messageListener()
+  async getDonation(id): Promise<IDonation> {
     return this.donations.get(id).then(d => this.donationWithCreator(d));
   }
 
-  @onlyInBackgroundPage()
-  async donationWithCreator(donation) {
+  @messageListener()
+  async donationWithCreator(donation): Promise<IDonation> {
     donation.creator = await this.getCreatorWithId(donation.creator_id);
     return donation;
   }
 
-  @onlyInBackgroundPage()
-  async getDonations(limit = 100) {
-    return this.donations
-      .reverse()
-      .limit(limit)
-      .toArray()
-      .then(donations =>
-        Promise.all(donations.map(d => this.donationWithCreator(d)))
-      )
-      .catch(err => {
-        console.log("Couldn't get donation history from db:", err);
-      });
+  @messageListener()
+  async getDonations(limit = 100): Promise<Donation[]> {
+    try {
+      let donations = await this.donations
+        .reverse()
+        .limit(limit)
+        .toArray();
+      return await Promise.all(donations.map(d => this.donationWithCreator(d)));
+    } catch (err) {
+      console.log("Couldn't get donation history from db:", err);
+    }
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
+  async lastDonationDate(): Promise<Date> {
+    // TODO: Combine with behavior defined in Vuex to reduce code duplication
+    let donation: IDonation = await this.getDonations(1)[0];
+    return donation !== undefined ? new Date(donation.date) : new Date();
+  }
+
+  @messageListener()
   async attributeGithubActivity() {
     try {
       // If getActivities() takes a long time to run, consider using:
@@ -333,7 +383,7 @@ export class Database extends Dexie {
     }
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async updateCreator(
     url,
     name,
@@ -379,7 +429,7 @@ export class Database extends Dexie {
     });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async logThank(url, title) {
     let activity = await this.activities.get({ url: url });
     let creator_id = activity !== undefined ? activity.creator_id : undefined;
@@ -388,7 +438,7 @@ export class Database extends Dexie {
     });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getUrlThanksAmount(url) {
     url = canonicalizeUrl(url);
     return this.thanks
@@ -400,7 +450,7 @@ export class Database extends Dexie {
       });
   }
 
-  @onlyInBackgroundPage()
+  @messageListener()
   async getCreatorThanksAmount(creator_id) {
     return this.thanks
       .where('creator_id')

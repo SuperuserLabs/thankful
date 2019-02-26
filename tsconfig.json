@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "target": "ES6",
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost"],
+    "types": ["chrome", "node", "jest"],
+    "module": "CommonJS",
     "sourceMap": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "lib": ["esnext", "dom"],
-    "types": ["chrome", "node", "jest"]
+    "emitDecoratorMetadata": true
   }
 }

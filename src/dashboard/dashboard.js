@@ -41,8 +41,6 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
   Vue.filter('friendlyShortDuration', formatSecsShort);
   Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
 
-  console.error('testing');
-
   new Vue({
     el: '#dashboard',
     store,

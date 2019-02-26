@@ -13,11 +13,15 @@ var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const PRODUCTION = 'production';
 const DEVELOPMENT = 'development';
 
-// Cleans up log spam from mini-css-extract-plugin
-// From https://github.com/webpack-contrib/mini-css-extract-plugin/issues/168#issuecomment-420095982
+// Cleans up log spam from mini-css-extract-plugin and the like.
+// Based on: https://github.com/webpack-contrib/mini-css-extract-plugin/issues/168#issuecomment-420095982
 class CleanUpStatsPlugin {
+  constructor(name) {
+    this.name = name;
+  }
+
   shouldPickStatChild(child) {
-    return child.name.indexOf('mini-css-extract-plugin') !== 0;
+    return child.name.indexOf(this.name) !== 0;
   }
 
   apply(compiler) {
@@ -148,7 +152,8 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: mode, // use 'development' unless process.env.NODE_ENV is defined
     }),
-    new CleanUpStatsPlugin(),
+    new CleanUpStatsPlugin('mini-css-extract-plugin'),
+    new CleanUpStatsPlugin('html-webpack-plugin'),
     // TODO: Detect if webpack is run with --watch, not if the PRODUCTION env variable is set
   ].concat(
     mode === DEVELOPMENT

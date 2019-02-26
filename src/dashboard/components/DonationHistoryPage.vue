@@ -3,14 +3,14 @@ div.container
   v-toolbar(flat, color='white')
     v-toolbar-title Donation history
   v-card.p-2.bt-0(no-body)
-    donation-history-component
+    donation-history
 </template>
 <script>
-import DonationHistoryComponent from './DonationHistoryComponent.vue';
+import DonationHistory from './DonationHistory.vue';
 
 export default {
   components: {
-    'donation-history-component': DonationHistoryComponent,
+    'donation-history': DonationHistory,
   },
   data: () => ({}),
 };

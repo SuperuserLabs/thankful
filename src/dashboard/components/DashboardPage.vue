@@ -69,14 +69,13 @@ div
 
       v-layout(row)
         v-flex(xs12)
-          donation-summary-component(ref='donationSummary', @error="errfun('Donating failed')($event)")
+          donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
 </template>
 
 <script>
 import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
-import DonationHistoryComponent from './DonationHistoryComponent.vue';
-import DonationSummaryComponent from './DonationSummaryComponent.vue';
+import DonationSummary from './DonationSummary.vue';
 import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
@@ -85,8 +84,7 @@ export default {
   components: {
     'creator-card': CreatorCard,
     'activity-component': ActivityComponent,
-    'donation-history-component': DonationHistoryComponent,
-    'donation-summary-component': DonationSummaryComponent,
+    'donation-summary': DonationSummary,
   },
   data: () => ({
     valid: true,

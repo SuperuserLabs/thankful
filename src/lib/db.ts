@@ -2,7 +2,7 @@ import Dexie from 'dexie';
 import { concat, map, sumBy } from 'lodash';
 import isReserved from 'github-reserved-names';
 
-import { default as test, registerListener } from '../background/messaging.ts';
+import { registerListener } from '../background/messaging.ts';
 import { canonicalizeUrl } from './url.ts';
 import { isBackgroundPage, isTesting } from './util.ts';
 import {

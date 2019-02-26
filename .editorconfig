@@ -15,7 +15,7 @@ charset = utf-8
 indent_size = 4
 
 # 2 spaces for Ruby, HTML and CSS/SASS
-[*.{js,json,rb,html,css,scss,sass,less,vue}]
+[*.{js,json,rb,html,css,scss,sass,less,vue,ts}]
 indent_size = 2
 insert_final_newline = false
 

@@ -1,17 +1,15 @@
-'use strict';
-
 import browser from 'webextension-polyfill';
-import { canonicalizeUrl } from '../lib/url.js';
-import { valueConstantTicker } from '../lib/calltime.js';
-import { Database } from '../lib/db.js';
+import { find, difference, intersection, each, unionBy, filter } from 'lodash';
+
+import { dbListener } from './messaging.ts';
+import { canonicalizeUrl } from '../lib/url.ts';
+import { valueConstantTicker } from '../lib/calltime.ts';
+import { getDatabase } from '../lib/db.ts';
 import { getCurrentTab } from '../lib/tabs.js';
 import { initReminders } from '../lib/reminders.js';
-import _ from 'lodash';
 
-/**
- * Returns true if tab is audible or if user was active last 60 seconds.
- */
-async function isTabActive(tabInfo) {
+// Returns true if tab is audible or if user was active last 60 seconds.
+async function isTabActive(tabInfo): Promise<boolean> {
   return new Promise(resolve => {
     let detectionIntervalInSeconds = 60;
     if (tabInfo.audible) {
@@ -24,8 +22,8 @@ async function isTabActive(tabInfo) {
   });
 }
 
+// Cancels any preexisting heartbeat alarm and then schedules a new one.
 async function rescheduleAlarm() {
-  // Cancels any preexisting heartbeat alarm and then schedules a new one.
   browser.alarms
     .clear('heartbeat')
     .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
@@ -34,13 +32,14 @@ async function rescheduleAlarm() {
 (function() {
   rescheduleAlarm();
 
-  const db = new Database();
+  const db = getDatabase();
   let noContentScript = {};
 
   const pollTimer = valueConstantTicker(); // tracks time since last poll
   const tabTimers = {};
   const tabTitles = {};
 
+  // TODO: Replace with dbListener stuff
   function receiveCreator(msg) {
     if (msg.type !== 'creatorFound') {
       return false;
@@ -57,30 +56,7 @@ async function rescheduleAlarm() {
     })();
   }
 
-  function dbListener(msg) {
-    if (!('type' in msg && 'data' in msg)) {
-      return;
-    }
-    let { type, data } = msg;
-    switch (type) {
-      case 'getDonation':
-        return db.getDonation(...data);
-      case 'getDonations':
-        return db.getDonations(...data);
-      case 'getCreators':
-        return db.attributeGithubActivity().then(() => db.getCreators(...data));
-      case 'getActivities':
-        return db.getActivities(...data);
-      case 'logDonation':
-        return db.logDonation(...data);
-      case 'updateCreator':
-        return db.updateCreator(...data);
-      default:
-        console.error('Unhandled message type: ', type);
-        return;
-    }
-  }
-
+  // TODO: Refactor out logging logic into seperate file
   async function stethoscope() {
     try {
       const currentTab = await getCurrentTab();
@@ -88,8 +64,8 @@ async function rescheduleAlarm() {
         ? [currentTab]
         : [];
       const audibleTabs = await browser.tabs.query({ audible: true });
-      const tabs = _.filter(
-        _.unionBy(currentTabArray, audibleTabs, 'url'),
+      const tabs = filter(
+        unionBy(currentTabArray, audibleTabs, 'url'),
         tab => !tab.incognito
       );
 
@@ -99,13 +75,13 @@ async function rescheduleAlarm() {
         // This is usually indicative of computer being suspended.
         // See: https://github.com/SuperuserLabs/thankful/issues/61
         console.log('suspend detected, resetting timers');
-        _.each(tabTimers, tabTimer => tabTimer());
+        each(tabTimers, tabTimer => tabTimer());
       }
 
       const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
-      const goneUrls = _.difference(Object.keys(tabTimers), currentUrls);
-      const stillUrls = _.intersection(Object.keys(tabTimers), currentUrls);
-      const newUrls = _.difference(currentUrls, Object.keys(tabTimers));
+      const goneUrls = difference(Object.keys(tabTimers), currentUrls);
+      const stillUrls = intersection(Object.keys(tabTimers), currentUrls);
+      const newUrls = difference(currentUrls, Object.keys(tabTimers));
 
       goneUrls.forEach(url => {
         const duration = tabTimers[url]();
@@ -116,14 +92,14 @@ async function rescheduleAlarm() {
       });
       stillUrls.forEach(url => {
         const duration = tabTimers[url]();
-        let title = _.find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
+        let title = find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
         tabTitles[url] = title;
         db.logActivity(url, duration, { title: title });
       });
       newUrls.forEach(url => {
         tabTimers[url] = valueConstantTicker();
         tabTimers[url]();
-        tabTitles[url] = _.find(
+        tabTitles[url] = find(
           tabs,
           tab => canonicalizeUrl(tab.url) === url
         ).title;
@@ -134,53 +110,46 @@ async function rescheduleAlarm() {
     }
   }
 
-  function sendPageChange(tabId, changeInfo, tab) {
-    browser.tabs
-      .sendMessage(tabId, {
+  async function sendPageChange(tabId, changeInfo, tab): Promise<any> {
+    let r_specialPages = /(about|moz-extension):/;
+    if (r_specialPages.test(tab.url)) {
+      return;
+    }
+    try {
+      await browser.tabs.sendMessage(tabId, {
         type: 'pageChange',
-      })
-      .then(() => {
-        delete noContentScript[tabId];
-      })
-      .catch(message => {
-        if (!(tabId in noContentScript)) {
-          noContentScript[tabId] = true;
-          console.log(
-            `Error when sending message to content script (maybe not running on this url):
-url: ${tab.url}
-error: ${JSON.stringify(message)}`
-          );
-        }
       });
+      delete noContentScript[tabId];
+    } catch (msg) {
+      if (!(tabId in noContentScript)) {
+        noContentScript[tabId] = true;
+        console.log(
+          `Error when sending message to content script (maybe not running on this url):
+url: ${tab.url}
+error: ${JSON.stringify(msg)}`
+        );
+      }
+    }
   }
 
+  // Register tab/idle listeners for logging
+  // TODO: Clean these up
   browser.tabs.onUpdated.addListener(stethoscope);
-
   browser.tabs.onUpdated.addListener(sendPageChange);
-
-  //let messageHandlers = [receiveCreator, dbListener];
-
-  browser.runtime.onMessage.addListener(receiveCreator);
-  browser.runtime.onMessage.addListener(dbListener);
-  //browser.runtime.onMessage.addListener(async msg => {
-  //for (let i in messageHandlers) {
-  //let result = await messageHandlers[i](msg);
-  //if (result) return result;
-  //}
-  //});
-
-  browser.idle.onStateChanged.addListener(stethoscope);
-
   browser.tabs.onActivated.addListener(stethoscope);
-
+  browser.idle.onStateChanged.addListener(stethoscope);
   browser.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'heartbeat') {
       stethoscope();
     }
   });
 
+  // Register message listeners
+  browser.runtime.onMessage.addListener(receiveCreator);
+  browser.runtime.onMessage.addListener(dbListener);
+
+  // Initialization
   initReminders(db);
   stethoscope();
-
   db.initThankfulTeamCreator();
 })();

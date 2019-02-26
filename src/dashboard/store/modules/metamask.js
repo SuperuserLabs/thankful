@@ -27,7 +27,7 @@ export default {
   },
   actions: {
     async initialize({ dispatch }) {
-      let module = await import(/* webpackChunkName: "donate" */ '../../../lib/donate.js');
+      let module = await import(/* webpackChunkName: "donate" */ '../../../lib/donate.ts');
       donate = new module.default();
       await donate.init();
       dispatch('update');

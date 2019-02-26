@@ -1,14 +1,12 @@
 import _ from 'lodash';
-import browser from 'webextension-polyfill';
+import { getDatabase } from '../../../lib/db.ts';
 
 const scoringFunction = c => {
   const oneHour = 60 * 60;
   return Math.sqrt(c.duration + c.thanksAmount * oneHour);
 };
 
-function sendMessage(type, data) {
-  return browser.runtime.sendMessage({ type, data });
-}
+let db = getDatabase();
 
 export default {
   namespaced: true,
@@ -89,19 +87,20 @@ export default {
       return dispatch('loadDonations');
     },
     async loadDonations({ commit }) {
-      let donations = await sendMessage('getDonations', []);
+      let donations = await db.getDonations();
       commit('setDonations', donations);
       commit('setLoaded', 'donations');
     },
     async loadCreators({ commit }) {
-      let creators = await sendMessage('getCreators', [
-        { withDurations: true, withThanksAmount: true },
-      ]);
+      let creators = await db.getCreators({
+        withDurations: true,
+        withThanksAmount: true,
+      });
       commit('setCreators', creators);
       commit('setLoaded', 'creators');
     },
     async loadActivities({ commit }) {
-      let all = await sendMessage('getActivities', [{ limit: -1 }]);
+      let all = await db.getActivities({ limit: -1 });
       commit('setActivities', _.groupBy(all, 'creator_id'));
       commit('setLoaded', 'activities');
     },
@@ -117,20 +116,15 @@ export default {
     },
     save({ state }, { index }) {
       let c = state.creators[index];
-      sendMessage('updateCreator', [c.url[0], c.name, c]);
+      db.updateCreator(c.url[0], c.name, c);
     },
     async removeCreator({ commit, state }, { index }) {
       await state.creators[index].delete();
       commit('remove', { index });
     },
     async logDonation({ commit }, { creator_id, weiAmount, usdAmount, hash }) {
-      let id = await sendMessage('logDonation', [
-        creator_id,
-        weiAmount,
-        usdAmount,
-        hash,
-      ]);
-      let donation = await sendMessage('getDonation', [id]);
+      let id = await db.logDonation(creator_id, weiAmount, usdAmount, hash);
+      let donation = await db.getDonation(id);
       commit('addDonation', donation);
       return donation;
     },

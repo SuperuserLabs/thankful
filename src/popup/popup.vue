@@ -12,7 +12,7 @@ v-app
 
       p.text-xs-center
         | Thanks for this page: {{ this.thanksAmount }}
-      
+
       p.text-xs-center.pb-0(v-if="this.shouldDonate")
         | Now is a good time to donate, click below to get started. 👇
 
@@ -75,7 +75,7 @@ export default {
     },
   },
   created() {
-    import(/* webpackChunkName: "db" */ '../lib/db')
+    import(/* webpackChunkName: "db" */ '../lib/db.ts')
       .then(module => (db = new module.Database()))
       .then(() => {
         this.loading = false;

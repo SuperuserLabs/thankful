@@ -76,7 +76,7 @@ div
 import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationSummary from './DonationSummary.vue';
-import { Creator } from '../../lib/models.js';
+import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
 

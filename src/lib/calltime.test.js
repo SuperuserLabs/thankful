@@ -1,5 +1,5 @@
 import assert from 'assert';
-import * as calltime from './calltime.js';
+import * as calltime from './calltime.ts';
 
 describe('sinceLastCall', () => {
   it('returns zero on first call', () =>

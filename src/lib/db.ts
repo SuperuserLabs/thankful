@@ -46,7 +46,8 @@ function onlyInBackgroundPage(): TDecorator {
   };
 }
 
-// Registers a function as callable through messaging, will call using messaging if necessary.
+// Registers a function as callable through messaging,
+// will call using messaging if necessary.
 function messageListener(name?: string): TDecorator {
   return function(
     target: any,
@@ -56,18 +57,12 @@ function messageListener(name?: string): TDecorator {
     if (isBackgroundPage() || isTesting()) {
       // Function initialized in background page, register listener.
       name = name || propertyKey;
-      //console.log(`Registering ${propertyKey} as message listener named ${name}`)
       registerListener(descriptor.value, { name });
     } else {
       // Function not initialized in background page, redirect to sendMessage.
       descriptor.value = async function(...args: any[]): Promise<any> {
-        //console.log(args);
-        //console.log(`Calling ${propertyKey} ${args}`);
-        let resp = await _sendMessage(propertyKey, args);
-        //console.log(`Got reply from ${propertyKey}! ${Object.keys(resp)}`);
-        return resp;
+        return await _sendMessage(propertyKey, args);
       };
-      //console.log(`Redirected ${propertyKey} to background page (messages)`)
     }
     return descriptor;
   };
@@ -94,7 +89,7 @@ export class Database extends Dexie {
     super('Thankful');
 
     // Only run constructor in background page, non-background requests will be redirected to the background page using messageListener.
-    if (!isBackgroundPage()) {
+    if (!isBackgroundPage() && !isTesting()) {
       return;
     }
 
@@ -114,14 +109,13 @@ export class Database extends Dexie {
       .stores({
         thanks: '++id, url, date, title, creator',
       })
-      .upgrade(trans => {
-        return trans['activity'].toArray().then(activities => {
-          trans['activity'].clear();
-          activities.forEach(a => {
-            this.logActivity(a.url, a.duration, {
-              title: a.title,
-              creator: a.creator,
-            });
+      .upgrade(async trans => {
+        let activities = await trans['activity'].toArray();
+        trans['activity'].clear();
+        activities.forEach(a => {
+          this.logActivity(a.url, a.duration, {
+            title: a.title,
+            creator: a.creator,
           });
         });
       });
@@ -141,14 +135,17 @@ export class Database extends Dexie {
       .upgrade(async trans => {
         let activities = await trans['activity'].toArray();
         await trans['activities'].bulkAdd(activities);
+
         let creators = await trans['creator'].toArray();
         trans['creators'].bulkAdd(creators.map(c => ({ ...c, url: [c.url] })));
+
         await trans['thanks'].toCollection().modify(t =>
           trans['creators'].get({ url: t.creator }).then(c => {
             t.creator_id = c.id;
             delete t.creator;
           })
         );
+
         await trans['donations'].toCollection().modify(d =>
           trans['creators'].get({ url: d.url }).then(c => {
             d.creator_id = c.id;
@@ -156,15 +153,6 @@ export class Database extends Dexie {
           })
         );
       });
-    //this.version(6).stores({
-    //activity: null,
-    //creator: null,
-    //});
-
-    //registerModel(this, Activity, this.activities, 'id');
-    //registerModel(this, Creator, this.creators, 'id');
-    //registerModel(this, Donation, this.donations, 'id');
-    //registerModel(this, Thank, this.thanks, 'id');
 
     // The following lines are needed for it to work across typescipt using babel-preset-typescript:
     this.activities = this.table('activities');
@@ -173,7 +161,8 @@ export class Database extends Dexie {
     this.thanks = this.table('thanks');
   }
 
-  initThankfulTeamCreator() {
+  @messageListener()
+  async initThankfulTeamCreator() {
     return this.updateCreator('https://getthankful.io', 'Thankful Team', {
       // Erik's address
       // TODO: Change to a multisig wallet
@@ -186,12 +175,14 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getActivity(url) {
+  async getActivity(url): Promise<IActivity> {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
   @messageListener()
-  async getActivities({ limit = 1000, withCreators = null } = {}) {
+  async getActivities({ limit = 1000, withCreators = null } = {}): Promise<
+    IActivity[]
+  > {
     let coll = this.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
       if (withCreators) {
@@ -208,13 +199,13 @@ export class Database extends Dexie {
 
   // TODO: rename to getCreatorWithUrl or something
   @messageListener()
-  async getCreator(url) {
+  async getCreator(url): Promise<ICreator> {
     // get() gets a creator where the url array contains the url
     return this.creators.get({ url: url });
   }
 
   @messageListener()
-  async getCreatorWithId(id) {
+  async getCreatorWithId(id): Promise<ICreator> {
     return this.creators.get(id);
   }
 
@@ -223,7 +214,7 @@ export class Database extends Dexie {
     limit = 100,
     withDurations = false,
     withThanksAmount = false,
-  } = {}) {
+  } = {}): Promise<ICreator[]> {
     await this.attributeGithubActivity();
     let creators = await this.creators.limit(limit).toArray();
     if (withDurations) {
@@ -247,7 +238,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getCreatorActivity(creator_id) {
+  async getCreatorActivity(creator_id): Promise<IActivity[]> {
     // Get all activity connected to a certain creator
     return this.activities
       .where('creator_id')
@@ -439,7 +430,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getUrlThanksAmount(url) {
+  async getUrlThanksAmount(url): Promise<number> {
     url = canonicalizeUrl(url);
     return this.thanks
       .where('url')
@@ -451,7 +442,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getCreatorThanksAmount(creator_id) {
+  async getCreatorThanksAmount(creator_id): Promise<number> {
     return this.thanks
       .where('creator_id')
       .equals(creator_id)

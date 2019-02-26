@@ -4,13 +4,11 @@ import { find, difference, intersection, each, unionBy, filter } from 'lodash';
 import { dbListener } from './messaging.ts';
 import { canonicalizeUrl } from '../lib/url.ts';
 import { valueConstantTicker } from '../lib/calltime.ts';
-import { Database } from '../lib/db.ts';
+import { getDatabase } from '../lib/db.ts';
 import { getCurrentTab } from '../lib/tabs.js';
 import { initReminders } from '../lib/reminders.js';
 
-/**
- * Returns true if tab is audible or if user was active last 60 seconds.
- */
+// Returns true if tab is audible or if user was active last 60 seconds.
 async function isTabActive(tabInfo): Promise<boolean> {
   return new Promise(resolve => {
     let detectionIntervalInSeconds = 60;
@@ -24,8 +22,8 @@ async function isTabActive(tabInfo): Promise<boolean> {
   });
 }
 
+// Cancels any preexisting heartbeat alarm and then schedules a new one.
 async function rescheduleAlarm() {
-  // Cancels any preexisting heartbeat alarm and then schedules a new one.
   browser.alarms
     .clear('heartbeat')
     .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
@@ -34,7 +32,7 @@ async function rescheduleAlarm() {
 (function() {
   rescheduleAlarm();
 
-  const db = new Database();
+  const db = getDatabase();
   let noContentScript = {};
 
   const pollTimer = valueConstantTicker(); // tracks time since last poll
@@ -113,23 +111,25 @@ async function rescheduleAlarm() {
   }
 
   async function sendPageChange(tabId, changeInfo, tab): Promise<any> {
-    return browser.tabs
-      .sendMessage(tabId, {
+    let r_specialPages = /(about|moz-extension):/;
+    if (r_specialPages.test(tab.url)) {
+      return;
+    }
+    try {
+      await browser.tabs.sendMessage(tabId, {
         type: 'pageChange',
-      })
-      .then(() => {
-        delete noContentScript[tabId];
-      })
-      .catch(message => {
-        if (!(tabId in noContentScript)) {
-          noContentScript[tabId] = true;
-          console.log(
-            `Error when sending message to content script (maybe not running on this url):
-url: ${tab.url}
-error: ${JSON.stringify(message)}`
-          );
-        }
       });
+      delete noContentScript[tabId];
+    } catch (msg) {
+      if (!(tabId in noContentScript)) {
+        noContentScript[tabId] = true;
+        console.log(
+          `Error when sending message to content script (maybe not running on this url):
+url: ${tab.url}
+error: ${JSON.stringify(msg)}`
+        );
+      }
+    }
   }
 
   // Register tab/idle listeners for logging

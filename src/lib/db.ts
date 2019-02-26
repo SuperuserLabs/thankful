@@ -18,7 +18,6 @@ import {
 // Send a message to the background script worker
 async function _sendMessage(type: string, data: any[]): Promise<any> {
   let browser = require('webextension-polyfill');
-  console.log('sendMessage');
   return await browser.runtime.sendMessage({ type, data });
 }
 

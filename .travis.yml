@@ -24,3 +24,11 @@ deploy:
   on:
     tags: true
     branch: master
+
+notifications:
+  slack:
+    rooms:
+      # For the #thankful room
+      - secure: pDgYC0wZN3pi9mASk2T/1WM/nV+yGJv0XBJe72xxxhRA4jehixPVJXolACSIjiqv4FBTnYOxYd0DOAbzUie0MDQsRJUYGpZAauMTJ4nV3rw4HuX1EZyZeKfL8UVgwqiFdQw5V18+MTJQy59SDa2N50T5cGeQ2HZE0nzKTZjbTAwzfJIF6qTj/d7iQGkdW2viHE0ywV3NzSbXR/OZS0IhnCjo4W7YtW9MBcrr85iDi6KRdgDGbvF8wiLw5Er4xej7wGwGaHOkigeMI7hf/h1+W8HKu5ja0cXnUd0OdG+b5vP3XgbigiELj9bJ3Yztf66qjS6inLxwMDAkdP5+2RQxOLfG+TFVZ4LWPwiUTFz/bi7GhLt5FEBwSCIGR0BltJJ9TK1VjiD1nn8zEHGRNR05YzMTakWgUtt86IM+hpdIxNJvtfEANoCIwf0JeuDqHbef3Og21Fm379nBCYeC2TwnxRC/4pVj7Wrfo7Nvh0JRF8Zx6ZvacA17vDro8sml8Es7+F8qowQCQqsGe2eb0P84QqaxE47E9UtyT/neeTTxx+qEbOsuhlsGvEdBppHAA65X34YcV9S+rdOki3pgFBZL4mGU83/qvClyyQy+jl8hvenvaWDZBn5ERyiv9Oqa2oNcAeZzuhmj4Zhyf/psCXiTKojQURBCO9oB+r/MhJNFOGc=
+    on_success: change
+    on_failure: always

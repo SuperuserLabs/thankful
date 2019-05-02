@@ -13,7 +13,7 @@ div.pt-2
                         @open="currentAddressValue = props.item.address",
                         @save="updateAddress(props.item.index, currentAddressValue )")
             div.text--secondary.subheading
-              span(v-if="props.item.address" style="font-family: monospace") {{ props.item.address }}
+              span(v-if="props.item.address" style="font-family: monospace").body-1 {{ props.item.address | trim(24) }}
               span(v-else, style="color: #CCC !important") Missing address, click to edit
 
             div.mt-3.title(slot="input")
@@ -23,12 +23,14 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
-        td.text-xs-right
-          v-edit-dialog(large,
+        td
+          v-edit-dialog.text-xs-right(large,
                         lazy,
                         @open="currentFundsValue = props.item.funds"
                         @save="props.item.funds = parseFloat(currentFundsValue)")
-            div ${{ props.item.funds | fixed(2) }}
+            div
+              v-slider(color="green", :value="80 * props.item.funds / highestAmount", readonly, :label="props.item.funds | fixed(2) | prepend('$')", inverse-label)
+              //| ${{ props.item.funds | fixed(2) }}
             div.mt-3.title(slot="input")
               | Change donation
             v-text-field(slot="input",
@@ -42,42 +44,7 @@ div.pt-2
                         single-line,
                         autofocus)
 
-  v-card.pa-2.my-4
-    v-card-title.display-1.pb-0
-      | Budget
-    v-card-text
-      b Not sure how much to support with?
-      br
-      | Start with something sustainable, like $10 a month (about what you pay for Spotify or Netflix).
-      br
-      span.text--secondary (You're getting more bang for your buck: Thankful is a much more effective way of supporting creators compared to Spotify or Netflix)
-
-    v-layout.row
-      v-flex.xs4
-        v-subheader Support per month
-      v-flex.xs8
-        //v-text-field(value="10.00", prefix="$", suffi="/month", )
-        v-text-field(outline, v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
-        // label="Monthly time budget",
-    v-layout.row(style="opacity: 0.3")
-      v-flex.xs4
-        v-subheader
-          | Support per "thank you"
-          br
-          | (Coming soon)
-      v-flex.xs8
-        //v-text-field(
-          label="Money sent with each thank you",
-          value="10.00",
-          prefix="$")
-        v-text-field(outline, disabled, style="secondary", v-model="thanks_amount", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
-
-    v-card-actions.justify-end
-      //v-flex(style="align-items: center; justify-content: center;")
-      v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
-        | Redistribute ${{ totalAmount.toFixed(2) }}
-
-  v-card.my-2
+  v-card.my-3
     v-card-title.display-1.pb-0
       | Missing addresses
     v-card-text
@@ -90,6 +57,41 @@ div.pt-2
         | List of addresses
       v-btn(outline, color="blue", target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
         | Submit new addresses
+
+  v-card.my-3
+    v-card-title.display-1.pb-0
+      | Budget
+    v-card-text
+      b Not sure how much to support with?
+      br
+      | Start with something sustainable, like $10 a month (about what you pay for Spotify or Netflix).
+      br
+      span.text--secondary (You're getting more bang for your buck: Thankful is a much more effective way of supporting creators compared to Spotify or Netflix)
+
+    v-layout.row
+      v-flex.xs4
+        v-subheader Support per month
+      v-flex.xs8.pr-3
+        //v-text-field(value="10.00", prefix="$", suffi="/month", )
+        v-text-field(outline, v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
+        // label="Monthly time budget",
+    v-layout.row(style="opacity: 0.3")
+      v-flex.xs4
+        v-subheader
+          | Support per "thank you"
+          br
+          | (Coming soon)
+      v-flex.xs8.pr-3
+        //v-text-field(
+          label="Money sent with each thank you",
+          value="10.00",
+          prefix="$")
+        v-text-field(outline, disabled, style="secondary", v-model="thanks_amount", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
+
+    v-card-actions.justify-end
+      //v-flex(style="align-items: center; justify-content: center;")
+      v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
+        | Redistribute ${{ totalAmount.toFixed(2) }}
 
   div.text-xs-center.pt-2.pb-3
     v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
@@ -155,6 +157,9 @@ export default {
         )
       );
     },
+    highestAmount() {
+      return _.max(_.map(this.distribution, c => c.funds));
+    },
     budget: {
       get() {
         return this.$store.state.settings.totalAmount;
@@ -211,3 +216,17 @@ export default {
   },
 };
 </script>
+
+<style>
+/* TODO: Use SCSS (needs Webpack loader)
+   Fix as described here: https://github.com/vuetifyjs/vuetify/issues/4450#issuecomment-425608189
+  */
+.text-xs-right .v-menu__activator {
+  display: block;
+  justify-content: right;
+}
+
+.text-xs-right .v-menu__activator a {
+  width: 100%;
+}
+</style>

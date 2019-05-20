@@ -40,6 +40,9 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
   Vue.filter('friendlyDuration', formatSecs);
   Vue.filter('friendlyShortDuration', formatSecsShort);
   Vue.filter('fixed', (v, precision) => parseFloat(v).toFixed(precision));
+  Vue.filter('prepend', (v, text) => text + v);
+  Vue.filter('append', (v, text) => v + text);
+  Vue.filter('trim', (v, chars) => v.substr(0, chars || 5) + '...');
 
   new Vue({
     el: '#dashboard',

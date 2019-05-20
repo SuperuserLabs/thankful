@@ -1,25 +1,8 @@
 <template lang="pug">
 div.pt-2
   v-card
-    v-toolbar(flat, color='white')
-      v-toolbar-title.display-1 Donation summary
-      div.ml-4(style="display: flex; flex-direction: column;")
-        v-btn(small, flat, target="_blank", href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing",
-              style="margin: 0; padding: 0;")
-          div.pl-2(style="flex-grow: 1")
-            | List of addresses
-        v-btn(small, flat, target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform",
-              style="margin: 0; padding: 0;")
-          div.pl-2(style="flex-grow: 1;")
-            | Submit new addresses
-
-      v-spacer
-
-      div
-        | Budget:
-      v-text-field(v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details, style="width: 5em").pt-0
-      v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
-        | Distribute ${{ totalAmount.toFixed(2) }}
+    v-card-title.display-1
+      | Donation summary
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', hide-actions)
       template(slot='items', slot-scope='props')
         td
@@ -29,7 +12,10 @@ div.pt-2
                         lazy,
                         @open="currentAddressValue = props.item.address",
                         @save="updateAddress(props.item.index, currentAddressValue )")
-            div(style="font-family: monospace").text--secondary.subheading {{ props.item.address }}
+            div.text--secondary.subheading
+              span(v-if="props.item.address" style="font-family: monospace").body-1 {{ props.item.address | trim(24) }}
+              span(v-else, style="color: #CCC !important") Missing address, click to edit
+
             div.mt-3.title(slot="input")
               | Change address
             v-text-field(slot="input",
@@ -37,16 +23,19 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
-        td.text-xs-right
-          v-edit-dialog(large,
+        td
+          v-edit-dialog.text-xs-right(large,
                         lazy,
                         @open="currentFundsValue = props.item.funds"
                         @save="props.item.funds = parseFloat(currentFundsValue)")
-            div {{ props.item.funds | fixed(2) }}
+            div
+              v-slider(color="green", :value="80 * props.item.funds / highestAmount", readonly, :label="props.item.funds | fixed(2) | prepend('$')", inverse-label)
+              //| ${{ props.item.funds | fixed(2) }}
             div.mt-3.title(slot="input")
               | Change donation
             v-text-field(slot="input",
                         type="number",
+                        hint="Your monthly budget",
                         step="0.1",
                         min="0",
                         :rules="rules.fundsInput",
@@ -54,6 +43,55 @@ div.pt-2
                         prefix="$",
                         single-line,
                         autofocus)
+
+  v-card.my-3
+    v-card-title.display-1.pb-0
+      | Missing addresses
+    v-card-text
+      | To donate, you have to manually fill in the creator addresses. (We're working on making this easier, sorry for the inconvenience)
+      br
+      | The below are links to known addresses, and a form to submit missing addresses. In the future, a database with known addresses will be loaded automatically.
+
+    v-card-actions.justify-end
+      v-btn(outline, target="_blank", href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing")
+        | List of addresses
+      v-btn(outline, color="blue", target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
+        | Submit new addresses
+
+  v-card.my-3
+    v-card-title.display-1.pb-0
+      | Budget
+    v-card-text
+      b Not sure how much to support with?
+      br
+      | Start with something sustainable, like $10 a month (about what you pay for Spotify or Netflix).
+      br
+      span.text--secondary (You're getting more bang for your buck: Thankful is a much more effective way of supporting creators compared to Spotify or Netflix)
+
+    v-layout.row
+      v-flex.xs4
+        v-subheader Support per month
+      v-flex.xs8.pr-3
+        //v-text-field(value="10.00", prefix="$", suffi="/month", )
+        v-text-field(outline, v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
+        // label="Monthly time budget",
+    v-layout.row(style="opacity: 0.3")
+      v-flex.xs4
+        v-subheader
+          | Support per "thank you"
+          br
+          | (Coming soon)
+      v-flex.xs8.pr-3
+        //v-text-field(
+          label="Money sent with each thank you",
+          value="10.00",
+          prefix="$")
+        v-text-field(outline, disabled, style="secondary", v-model="thanks_amount", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
+
+    v-card-actions.justify-end
+      //v-flex(style="align-items: center; justify-content: center;")
+      v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
+        | Redistribute ${{ totalAmount.toFixed(2) }}
 
   div.text-xs-center.pt-2.pb-3
     v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
@@ -119,6 +157,9 @@ export default {
         )
       );
     },
+    highestAmount() {
+      return _.max(_.map(this.distribution, c => c.funds));
+    },
     budget: {
       get() {
         return this.$store.state.settings.totalAmount;
@@ -175,3 +216,17 @@ export default {
   },
 };
 </script>
+
+<style>
+/* TODO: Use SCSS (needs Webpack loader)
+   Fix as described here: https://github.com/vuetifyjs/vuetify/issues/4450#issuecomment-425608189
+  */
+.text-xs-right .v-menu__activator {
+  display: block;
+  justify-content: right;
+}
+
+.text-xs-right .v-menu__activator a {
+  width: 100%;
+}
+</style>

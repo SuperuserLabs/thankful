@@ -10,6 +10,14 @@ const DonationHistoryPage = () =>
   import(/* webpackChunkName: "donation_history_page" */ './components/DonationHistoryPage.vue');
 const CreatorList = () =>
   import(/* webpackChunkName: "creator_list_page" */ './components/CreatorList.vue');
+const OnboardingPage = () =>
+  import(/* webpackChunkName: "welcome_page" */ './components/OnboardingPage.vue');
+const OnboardingWelcome = () =>
+  import(/* webpackChunkName: "welcome_page" */ './components/OnboardingWelcome.vue');
+const OnboardingThankful = () =>
+  import(/* webpackChunkName: "explain_page" */ './components/OnboardingThankful.vue');
+const OnboardingDonate = () =>
+  import(/* webpackChunkName: "donate_page" */ './components/OnboardingDonate.vue');
 
 const DevPage = () =>
   import(/* webpackChunkName: "dev_page" */ './components/DevPage.vue');
@@ -21,6 +29,15 @@ let routes = [
   { path: '/activity', component: ActivityPage },
   { path: '/donations', component: DonationHistoryPage },
   { path: '/creators', component: CreatorList },
+  {
+    path: '/onboarding',
+    component: OnboardingPage,
+    children: [
+      { path: 'welcome', component: OnboardingWelcome },
+      { path: 'thankful', component: OnboardingThankful },
+      { path: 'donate', component: OnboardingDonate },
+    ],
+  },
 ];
 
 if (process.env.NODE_ENV === 'development') {

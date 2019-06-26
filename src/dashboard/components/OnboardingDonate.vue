@@ -1,31 +1,36 @@
 <template lang="pug">
 div
-  span At the end of each month, the amount you set below will be distributed to creators you love.
-
-  input(type="radio", id="one", value="One", v-model="picked")
-  label(for="one") One
-  input(type="radio", id="two", value="Two", v-model="picked")
-  label(for="two") Two
-  p Picked:
-  | {{ picked }}
+  p At the end of each month, the amount you set below will be distributed to creators you love.
 
   v-layout(row)
-    v-flex.px-4
-      v-btn-toggle(v-model="donation_amount", style="width: 100%")
-        v-btn(value="10", block) 10
-    v-flex.px-4
-      v-btn-toggle(v-model="donation_amount", style="width: 100%")
-        v-btn(value="20", block) 20
-    v-flex.px-4
-      v-btn-toggle(v-model="donation_amount", style="width: 100%")
-        v-btn(value="50", block) 50
+    v-flex(shrink)
+      span Select one of the following:
+    v-flex.px-3(shrink)
+      v-btn-toggle(v-model="budget", style="width: 4em")
+        v-btn(value="10", block, large, color="primary") $10
+    v-flex.px-3(shrink)
+      v-btn-toggle(v-model="budget", style="width: 4em")
+        v-btn(value="20", block, large, color="primary") $20
+    v-flex.px-3(shrink)
+      v-btn-toggle(v-model="budget", style="width: 4em")
+        v-btn(value="50", block, large, color="primary") $50
+  span Or enter a custom amount:
+  v-text-field(v-model="budget", type=number, color=primary, style="width: 8em", prepend-icon="attach_money")
+
 </template>
 
 <script>
 export default {
-  data: () => ({
-    picked: 'One',
-    donation_amount: 1,
-  }),
+  computed: {
+    budget: {
+      get() {
+        console.log(this.$store.state.settings.totalAmount);
+        return this.$store.state.settings.totalAmount;
+      },
+      set(value) {
+        this.$store.commit('settings/updateSettings', { totalAmount: value });
+      },
+    },
+  },
 };
 </script>

@@ -73,7 +73,7 @@ div.pt-2
         v-subheader Support per month
       v-flex.xs8.pr-3
         //v-text-field(value="10.00", prefix="$", suffi="/month", )
-        v-text-field(outline, v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
+        v-text-field(outline, v-model="budget_per_month", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
         // label="Monthly time budget",
     v-layout.row(style="opacity: 0.3")
       v-flex.xs4
@@ -86,7 +86,7 @@ div.pt-2
           label="Money sent with each thank you",
           value="10.00",
           prefix="$")
-        v-text-field(outline, disabled, style="secondary", v-model="thanks_amount", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
+        v-text-field(outline, disabled, style="secondary", v-model="budget_per_thanks", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
 
     v-card-actions.justify-end
       //v-flex(style="align-items: center; justify-content: center;")
@@ -145,27 +145,37 @@ export default {
     },
     totalAmount() {
       const last_donation = this.lastDonationDate;
-      console.log('lastduna', last_donation);
+      console.log('last donation was made: ', last_donation);
       const time_since_donation = moment().diff(last_donation) / 1000;
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
       return (
         0.1 *
         Math.floor(
-          (10 *
-            (this.$store.state.settings.totalAmount * time_since_donation)) /
-            one_month
+          (10 * (this.budget_per_month * time_since_donation)) / one_month
         )
       );
     },
     highestAmount() {
       return _.max(_.map(this.distribution, c => c.funds));
     },
-    budget: {
+    budget_per_month: {
       get() {
-        return this.$store.state.settings.totalAmount;
+        return this.$store.state.settings.budget_per_month;
       },
       set(value) {
-        this.$store.commit('settings/updateSettings', { totalAmount: value });
+        this.$store.commit('settings/updateSettings', {
+          budget_per_month: value,
+        });
+      },
+    },
+    budget_per_thanks: {
+      get() {
+        return this.$store.state.settings.budget_per_thanks;
+      },
+      set(value) {
+        this.$store.commit('settings/updateSettings', {
+          budget_per_thanks: value,
+        });
       },
     },
     ...mapGetters({

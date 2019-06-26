@@ -4,7 +4,8 @@ export default {
   namespaced: true,
 
   state: {
-    totalAmount: 10,
+    budget_per_month: 20,
+    budget_per_thanks: 1,
   },
 
   getters: {},

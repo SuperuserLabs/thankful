@@ -16,6 +16,8 @@ const OnboardingWelcome = () =>
   import(/* webpackChunkName: "welcome_page" */ './components/OnboardingWelcome.vue');
 const OnboardingDonate = () =>
   import(/* webpackChunkName: "donate_page" */ './components/OnboardingDonate.vue');
+const OnboardingMetamask = () =>
+  import(/* webpackChunkName: "metamask_page" */ './components/OnboardingMetamask.vue');
 
 const DevPage = () =>
   import(/* webpackChunkName: "dev_page" */ './components/DevPage.vue');
@@ -33,6 +35,7 @@ let routes = [
     children: [
       { path: 'welcome', component: OnboardingWelcome },
       { path: 'donate', component: OnboardingDonate },
+      { path: 'metamask', component: OnboardingMetamask },
     ],
   },
 ];

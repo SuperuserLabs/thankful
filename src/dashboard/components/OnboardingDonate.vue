@@ -12,6 +12,9 @@ div
   span Or enter a custom amount:
   v-text-field(v-model="budget", type=number, color=primary, style="width: 8em", prepend-icon="attach_money")
 
+  router-link(to="/onboarding/metamask")
+    v-btn(color="primary") Continue
+
 </template>
 
 <script>

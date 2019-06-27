@@ -6,6 +6,7 @@ export default {
   state: {
     budget_per_month: 20,
     budget_per_thanks: 1,
+    onboarding_done: false,
   },
 
   getters: {},

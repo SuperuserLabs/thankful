@@ -34,12 +34,6 @@ v-app
         v-list-tile-content
           v-list-tile-title Donations
 
-      v-list-tile(avatar tag="div" to="/onboarding/welcome")
-        v-list-tile-avatar
-          v-icon help_outline
-        v-list-tile-content
-          v-list-tile-title Help
-
   v-toolbar(app dark color="secondary")
     v-btn(icon @click="drawer = !drawer")
       v-icon menu

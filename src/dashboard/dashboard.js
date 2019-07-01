@@ -51,6 +51,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     i18n,
     render: h => h(App),
     created: function() {
+      console.log('created');
       this.$store.dispatch('settings/loadSettings');
       this.$store.dispatch('metamask/initialize');
     },

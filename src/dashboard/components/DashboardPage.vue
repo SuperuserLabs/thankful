@@ -48,8 +48,14 @@ div
     v-snackbar(v-model='showSnackbar', top) {{ snackMessage }}
       v-btn(color="pink", flat, @click="undo()") Undo
     v-container(grid-list-md)
-      v-flex(xs12).mb-3
-        div.display-1 Your favorite creators
+      v-layout(row)
+        v-flex(xs12).mb-6
+          div.display-1 Your favorite creators
+        v-flex(grow)
+        v-flex(shrink)
+          v-btn(flat, right, small, @click="addCreator()")
+            v-icon add
+            | Add creator
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
@@ -60,12 +66,6 @@ div
                        @activity="activity(creator)",
                        @ignore="ignore(creator)"
                        )
-        v-flex(xs12, sm6, md3)
-          v-card(hover, @click.native="addCreator()", height='116px')
-            v-container.text-xs-center
-              v-icon(x-large) add
-              div.text--secondary.title
-                | Add creator
 
       v-layout(row)
         v-flex(xs12)

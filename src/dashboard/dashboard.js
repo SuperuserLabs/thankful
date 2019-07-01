@@ -51,20 +51,8 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     i18n,
     render: h => h(App),
     created: function() {
-      console.log('created');
       this.$store.dispatch('settings/loadSettings');
       this.$store.dispatch('metamask/initialize');
-    },
-    mounted: function() {
-      console.log(this.$store.state.settings.onboarding_done);
-      if (this.$store.state.settings.onboarding_done) {
-        console.log('mounted');
-        let routeData = this.$router.resolve({
-          name: '/onboarding/welcome',
-          query: {},
-        });
-        window.open(routeData.href, '_blank');
-      }
     },
   });
 })();

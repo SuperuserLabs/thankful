@@ -15,7 +15,6 @@ export default {
     updateSettings(state, settings) {
       Object.assign(state, settings);
       let serialized_state = JSON.parse(JSON.stringify(state));
-      console.log('Updated settings:', serialized_state);
       browser.storage.local.set({ settings: serialized_state });
     },
   },
@@ -23,7 +22,6 @@ export default {
   actions: {
     async loadSettings({ commit }) {
       let settings = (await browser.storage.local.get('settings')).settings;
-      console.log('Loaded settings:', settings);
       commit('updateSettings', settings);
     },
   },

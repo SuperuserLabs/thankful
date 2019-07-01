@@ -14,6 +14,9 @@ const CreatorList = () =>
 const DevPage = () =>
   import(/* webpackChunkName: "dev_page" */ './components/DevPage.vue');
 
+const CheckoutPage = () =>
+  import(/* webpackChunkName: "dev_page" */ './components/CheckoutPage.vue');
+
 Vue.use(VueRouter);
 
 let routes = [
@@ -21,6 +24,7 @@ let routes = [
   { path: '/activity', component: ActivityPage },
   { path: '/donations', component: DonationHistoryPage },
   { path: '/creators', component: CreatorList },
+  { path: '/checkout', component: CheckoutPage },
 ];
 
 if (process.env.NODE_ENV === 'development') {

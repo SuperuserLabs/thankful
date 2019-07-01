@@ -1,6 +1,6 @@
 <template lang="pug">
-  div
-    donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
+v-container
+  donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
 </template>
 
 <script>

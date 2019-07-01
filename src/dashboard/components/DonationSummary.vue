@@ -69,7 +69,7 @@ div.pt-2
 <script>
 import _ from 'lodash';
 import moment from 'moment';
-import { mapGetters } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { getInstallDate } from '../../lib/util.ts';
 
 export default {
@@ -96,6 +96,7 @@ export default {
     };
   },
   computed: {
+    ...mapState('settings', ['budget_per_month']),
     total() {
       return _.sumBy(this.distribution, 'funds');
     },
@@ -108,9 +109,6 @@ export default {
         return 'Please log in to MetaMask to be able to donate';
       }
       return '';
-    },
-    totalAmount() {
-      return this.$store.state.settings.totalAmount;
     },
     timeSinceLastDonation() {
       const last = this.lastDonationDate;
@@ -155,7 +153,7 @@ export default {
       this.distribution = this.creators.map(c => {
         return {
           ...c,
-          funds: parseFloat((c.share * this.totalAmount).toFixed(2)),
+          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
         };
       });
     },

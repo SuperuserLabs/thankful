@@ -1,5 +1,6 @@
 <template lang="pug">
-router-view
+v-container
+  router-view
 </template>
 
 <script></script>

@@ -68,7 +68,6 @@ export default {
         .catch(err => console.error('Could not get shouldDonate:', err));
     },
     openDashboard() {
-      console.log(this.$store.state.settings.onboarding_done);
       if (this.$store.state.settings.onboarding_done) {
         openDashboardTab();
       } else {

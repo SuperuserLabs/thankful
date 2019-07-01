@@ -10,14 +10,15 @@ const DonationHistoryPage = () =>
   import(/* webpackChunkName: "donation_history_page" */ './components/DonationHistoryPage.vue');
 const CreatorList = () =>
   import(/* webpackChunkName: "creator_list_page" */ './components/CreatorList.vue');
+
 const OnboardingPage = () =>
-  import(/* webpackChunkName: "onboarding_page" */ './components/OnboardingPage.vue');
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingPage.vue');
 const OnboardingWelcome = () =>
-  import(/* webpackChunkName: "welcome_page" */ './components/OnboardingWelcome.vue');
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingWelcome.vue');
 const OnboardingDonate = () =>
-  import(/* webpackChunkName: "donate_page" */ './components/OnboardingDonate.vue');
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingDonate.vue');
 const OnboardingMetamask = () =>
-  import(/* webpackChunkName: "metamask_page" */ './components/OnboardingMetamask.vue');
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingMetamask.vue');
 
 const DevPage = () =>
   import(/* webpackChunkName: "dev_page" */ './components/DevPage.vue');

@@ -58,46 +58,12 @@ div.pt-2
       v-btn(outline, color="blue", target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
         | Submit new addresses
 
-  v-card.my-3
-    v-card-title.display-1.pb-0
-      | Budget
-    v-card-text
-      b Not sure how much to support with?
-      br
-      | Start with something sustainable, like $10 a month (about what you pay for Spotify or Netflix).
-      br
-      span.text--secondary (You're getting more bang for your buck: Thankful is a much more effective way of supporting creators compared to Spotify or Netflix)
-
-    v-layout.row
-      v-flex.xs4
-        v-subheader Support per month
-      v-flex.xs8.pr-3
-        //v-text-field(value="10.00", prefix="$", suffi="/month", )
-        v-text-field(outline, v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
-        // label="Monthly time budget",
-    v-layout.row(style="opacity: 0.3")
-      v-flex.xs4
-        v-subheader
-          | Support per "thank you"
-          br
-          | (Coming soon)
-      v-flex.xs8.pr-3
-        //v-text-field(
-          label="Money sent with each thank you",
-          value="10.00",
-          prefix="$")
-        v-text-field(outline, disabled, style="secondary", v-model="thanks_amount", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
-
-    v-card-actions.justify-end
-      //v-flex(style="align-items: center; justify-content: center;")
-      v-btn(large, outline, color="primary", @click="distribute(totalAmount)")
-        | Redistribute ${{ totalAmount.toFixed(2) }}
-
   div.text-xs-center.pt-2.pb-3
-    v-btn(v-if="!buttonError", large, outline, color='primary', v-on:click="donateAll()")
-      | Send your thanks! (${{ total.toFixed(2) }})
-    v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
-      | {{ buttonError }}
+    router-link(to="/checkout")
+      v-btn(v-if="!buttonError", large, outline, color='primary')
+        | Send your thanks! (${{ total.toFixed(2) }})
+      v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
+        | {{ buttonError }}
 </template>
 
 <script>
@@ -144,29 +110,24 @@ export default {
       return '';
     },
     totalAmount() {
+      return this.$store.state.settings.totalAmount;
+    },
+    timeSinceLastDonation() {
       const last_donation = this.lastDonationDate;
       console.log('lastduna', last_donation);
-      const time_since_donation = moment().diff(last_donation) / 1000;
+      return moment().diff(last_donation) / 1000;
+    },
+    monthlyAmount() {
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
       return (
         0.1 *
         Math.floor(
-          (10 *
-            (this.$store.state.settings.totalAmount * time_since_donation)) /
-            one_month
+          (10 * (this.totalAmount * this.time_since_donation)) / one_month
         )
       );
     },
     highestAmount() {
       return _.max(_.map(this.distribution, c => c.funds));
-    },
-    budget: {
-      get() {
-        return this.$store.state.settings.totalAmount;
-      },
-      set(value) {
-        this.$store.commit('settings/updateSettings', { totalAmount: value });
-      },
     },
     ...mapGetters({
       isAddress: 'metamask/isAddress',
@@ -180,20 +141,20 @@ export default {
         updates: { address: address },
       });
     },
-    distribute() {
-      this.distribution = this.creators.map(c => {
-        return {
-          ...c,
-          funds: parseFloat((c.share * this.totalAmount).toFixed(2)),
-        };
-      });
-    },
     donateAll() {
       this.$store.dispatch('metamask/donateAll', this.distribution).catch(e => {
         console.error('donateAll (in vue) error:', e);
         // We're currently not catching the emitting anywhere so we
         // console.error for now
         this.$emit('error', e);
+      });
+    },
+    distribute() {
+      this.distribution = this.creators.map(c => {
+        return {
+          ...c,
+          funds: parseFloat((c.share * this.totalAmount).toFixed(2)),
+        };
       });
     },
     async updateLastDonationDate() {

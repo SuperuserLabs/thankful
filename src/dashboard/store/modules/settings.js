@@ -4,7 +4,9 @@ export default {
   namespaced: true,
 
   state: {
-    totalAmount: 10,
+    budget_per_month: 20,
+    budget_per_thanks: 1,
+    onboarding_done: false,
   },
 
   getters: {},
@@ -12,7 +14,8 @@ export default {
   mutations: {
     updateSettings(state, settings) {
       Object.assign(state, settings);
-      browser.storage.local.set({ settings: state });
+      let serialized_state = JSON.parse(JSON.stringify(state));
+      browser.storage.local.set({ settings: serialized_state });
     },
   },
 

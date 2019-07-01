@@ -14,7 +14,7 @@
         v-subheader Support per month
       v-flex.xs8.pr-3
         //v-text-field(value="10.00", prefix="$", suffi="/month", )
-        v-text-field(outline, v-model="budget", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
+        v-text-field(outline, v-model="budget_per_month", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
         // label="Monthly time budget",
     v-layout.row(style="opacity: 0.3")
       v-flex.xs4
@@ -27,12 +27,12 @@
           label="Money sent with each thank you",
           value="10.00",
           prefix="$")
-        v-text-field(outline, disabled, style="secondary", v-model="thanks_amount", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
+        v-text-field(outline, disabled, style="secondary", v-model="budget_per_thanks", type='number', prefix="$", suffix="/thanks", step=1, min=0, single-line, hide-details)
 
     v-card-actions.justify-end
       //v-flex(style="align-items: center; justify-content: center;")
-      v-btn(large, outline, color="primary", @click="this.$emit('updateBudget', budget)")
-        | Redistribute ${{ budget }}
+      v-btn(large, outline, color="primary")
+        | Redistribute ${{ budget_per_month.toFixed(2) }}
 </template>
 
 <script>
@@ -43,12 +43,24 @@ export default {
     return {};
   },
   computed: {
-    budget: {
+    budget_per_month: {
       get() {
-        return this.$store.state.settings.totalAmount;
+        return this.$store.state.settings.budget_per_month;
       },
       set(value) {
-        this.$store.commit('settings/updateSettings', { totalAmount: value });
+        this.$store.commit('settings/updateSettings', {
+          budget_per_month: value,
+        });
+      },
+    },
+    budget_per_thanks: {
+      get() {
+        return this.$store.state.settings.budget_per_thanks;
+      },
+      set(value) {
+        this.$store.commit('settings/updateSettings', {
+          budget_per_thanks: value,
+        });
       },
     },
   },

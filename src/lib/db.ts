@@ -338,10 +338,10 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async lastDonationDate(): Promise<Date> {
+  async lastDonationDate(): Promise<Date | null> {
     // TODO: Combine with behavior defined in Vuex to reduce code duplication
     let donation: IDonation = await this.getDonations(1)[0];
-    return donation !== undefined ? new Date(donation.date) : new Date();
+    return donation !== undefined ? new Date(donation.date) : null;
   }
 
   @messageListener()

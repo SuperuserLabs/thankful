@@ -113,16 +113,18 @@ export default {
       return this.$store.state.settings.totalAmount;
     },
     timeSinceLastDonation() {
-      const last_donation = this.lastDonationDate;
-      console.log('lastduna', last_donation);
-      return moment().diff(last_donation) / 1000;
+      const last = this.lastDonationDate;
+      const time_since = moment().diff(last) / 1000;
+      console.log('last donation was', last, ', ', time_since, 'seconds ago');
+      return time_since;
     },
     monthlyAmount() {
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
       return (
         0.1 *
         Math.floor(
-          (10 * (this.totalAmount * this.time_since_donation)) / one_month
+          (10 * (this.budget_per_month * this.timeSinceLastDonation)) /
+            one_month
         )
       );
     },

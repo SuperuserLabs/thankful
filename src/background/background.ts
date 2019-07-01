@@ -148,6 +148,15 @@ error: ${JSON.stringify(msg)}`
   browser.runtime.onMessage.addListener(receiveCreator);
   browser.runtime.onMessage.addListener(dbListener);
 
+  // Register on-install listeners
+  browser.runtime.onInstalled.addListener(details => {
+    if (details.reason == 'install') {
+      browser.tabs.create({
+        url: 'dashboard/index.html#/onboarding/welcome',
+      });
+    }
+  });
+
   // Initialization
   initReminders(db);
   stethoscope();

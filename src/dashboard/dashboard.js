@@ -50,7 +50,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     router,
     i18n,
     render: h => h(App),
-    created() {
+    created: function() {
       this.$store.dispatch('settings/loadSettings');
       this.$store.dispatch('metamask/initialize');
     },

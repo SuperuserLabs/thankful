@@ -23,6 +23,7 @@ v-app
 <script>
 import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
 import { isTimeToDonate } from '../lib/reminders.js';
+import browser from 'webextension-polyfill';
 
 let db;
 
@@ -67,7 +68,13 @@ export default {
         .catch(err => console.error('Could not get shouldDonate:', err));
     },
     openDashboard() {
-      openDashboardTab();
+      if (this.$store.state.settings.onboarding_done) {
+        openDashboardTab();
+      } else {
+        browser.tabs.create({
+          url: '../dashboard/index.html#/onboarding/welcome',
+        });
+      }
     },
     refresh() {
       this.refreshThanksCount();

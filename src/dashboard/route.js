@@ -11,6 +11,15 @@ const DonationHistoryPage = () =>
 const CreatorList = () =>
   import(/* webpackChunkName: "creator_list_page" */ './components/CreatorList.vue');
 
+const OnboardingPage = () =>
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingPage.vue');
+const OnboardingWelcome = () =>
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingWelcome.vue');
+const OnboardingDonate = () =>
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingDonate.vue');
+const OnboardingMetamask = () =>
+  import(/* webpackChunkName: "onboarding_page" */ './components/onboarding/OnboardingMetamask.vue');
+
 const DevPage = () =>
   import(/* webpackChunkName: "dev_page" */ './components/DevPage.vue');
 
@@ -21,6 +30,15 @@ let routes = [
   { path: '/activity', component: ActivityPage },
   { path: '/donations', component: DonationHistoryPage },
   { path: '/creators', component: CreatorList },
+  {
+    path: '/onboarding',
+    component: OnboardingPage,
+    children: [
+      { path: 'welcome', component: OnboardingWelcome },
+      { path: 'donate', component: OnboardingDonate },
+      { path: 'metamask', component: OnboardingMetamask },
+    ],
+  },
 ];
 
 if (process.env.NODE_ENV === 'development') {

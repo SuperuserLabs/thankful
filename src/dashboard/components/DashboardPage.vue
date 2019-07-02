@@ -71,6 +71,7 @@ div
         v-flex(xs12)
           donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
           budget-card
+          missing-addresses-card
 </template>
 
 <script>
@@ -78,6 +79,7 @@ import CreatorCard from './CreatorCard.vue';
 import ActivityComponent from './ActivityComponent.vue';
 import DonationSummary from './DonationSummary.vue';
 import BudgetCard from './BudgetCard.vue';
+import MissingAddressesCard from './MissingAddressesCard.vue';
 import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
@@ -88,6 +90,7 @@ export default {
     'activity-component': ActivityComponent,
     'donation-summary': DonationSummary,
     'budget-card': BudgetCard,
+    'missing-addresses-card': MissingAddressesCard,
   },
   data: () => ({
     valid: true,

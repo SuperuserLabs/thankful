@@ -1,8 +1,8 @@
 <template lang="pug">
 div.container
-  v-toolbar(flat, color='white')
-    v-toolbar-title Donation history
-  v-card.p-2.bt-0(no-body)
+  v-card
+    v-toolbar(flat, color='white')
+      v-toolbar-title Donation history
     donation-history
 </template>
 <script>

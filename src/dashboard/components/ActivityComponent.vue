@@ -1,7 +1,7 @@
 <template lang="pug">
 v-layout(v-if='loading', row, justify-center, align-center).pa-5
   v-progress-circular(indeterminate, :size='50')
-v-data-table(v-else, :headers="headers", :items="items(unattributed)", :pagination.sync='pagination', hide-actions)
+v-data-table(v-else, :headers="headers", :items="items(unattributed)", :pagination.sync='pagination')
   template(slot='items', slot-scope='props')
     td(style="text-overflow:ellipsis; max-width: 0; overflow: hidden; white-space: nowrap;")
       a(:href="props.item.url", target="_blank")
@@ -19,7 +19,7 @@ export default {
       { text: 'Page', value: 'title', width: '80%' },
       { text: 'Duration', value: 'duration', width: '20%' },
     ],
-    pagination: { sortBy: 'duration', descending: true, rowsPerPage: -1 },
+    pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
     loading: true,
   }),
   computed: {

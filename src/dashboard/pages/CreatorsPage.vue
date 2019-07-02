@@ -1,6 +1,13 @@
 <template lang="pug">
 v-container
-  creator-list
+  v-card
+    v-toolbar(flat color="white")
+      v-toolbar-title
+        | Creators
+      v-spacer
+      v-toolbar-items
+        |
+    creator-list
 </template>
 
 <script>

@@ -4,7 +4,7 @@ v-container
 </template>
 
 <script>
-import DonationSummary from './DonationSummary.vue';
+import DonationSummary from '../components/DonationSummary.vue';
 
 export default {
   components: {

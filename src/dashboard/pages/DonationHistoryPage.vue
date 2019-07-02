@@ -6,7 +6,7 @@ div.container
     donation-history
 </template>
 <script>
-import DonationHistory from './DonationHistory.vue';
+import DonationHistory from '../components/DonationHistory.vue';
 
 export default {
   components: {

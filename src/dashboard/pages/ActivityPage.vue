@@ -9,7 +9,7 @@ v-container
       activity-component(:unattributed='unattributed', ref='activity')
 </template>
 <script>
-import ActivityComponent from './ActivityComponent.vue';
+import ActivityComponent from '../components/ActivityComponent.vue';
 
 export default {
   components: {

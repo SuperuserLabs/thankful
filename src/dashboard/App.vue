@@ -56,7 +56,7 @@ v-app
       router-view
 </template>
 <script>
-import NetInfo from './NetInfo.vue';
+import NetInfo from './components/NetInfo.vue';
 
 export default {
   components: {

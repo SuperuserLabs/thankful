@@ -75,11 +75,11 @@ div
 </template>
 
 <script>
-import CreatorCard from './CreatorCard.vue';
-import ActivityComponent from './ActivityComponent.vue';
-import DonationSummary from './DonationSummary.vue';
-import BudgetCard from './BudgetCard.vue';
-import MissingAddressesCard from './MissingAddressesCard.vue';
+import CreatorCard from '../components/CreatorCard.vue';
+import ActivityComponent from '../components/ActivityComponent.vue';
+import DonationSummary from '../components/DonationSummary.vue';
+import BudgetCard from '../components/BudgetCard.vue';
+import MissingAddressesCard from '../components/MissingAddressesCard.vue';
 import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';

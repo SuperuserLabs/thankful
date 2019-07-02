@@ -1,5 +1,6 @@
 <template lang="pug">
 div
+    // Edit creator dialog
     v-dialog(v-model="dialog.edit", max-width='500px', @input='newCreator = false')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -23,6 +24,8 @@ div
                 | {{ editedCreator.info }}
           v-layout(row, justify-end)
             v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
+
+    // Creator activity dialog
     v-dialog(v-model="dialog.activity", max-width='800px')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -36,9 +39,13 @@ div
                   | {{ props.item.title || props.item.url }}
               td.text-right
                 | {{ props.item.duration | friendlyDuration }}
+
+    // Snackbar, for 'undo ignore' and stuff
     v-snackbar(v-model='showSnackbar', bottom) {{ snackMessage }}
       v-btn(color="pink", flat, @click="undo()") Undo
+
     v-container(grid-list-md)
+      // Favorite creators
       v-layout(row)
         v-flex(xs12).mb-6
           div.display-1 Your favorite creators
@@ -58,6 +65,7 @@ div
                        @ignore="ignore(creator)"
                        )
 
+      // Donation summary + budget
       v-layout(row)
         v-flex(xs12)
           donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")

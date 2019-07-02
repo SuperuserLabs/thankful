@@ -1,0 +1,41 @@
+<template lang="pug">
+div
+  // For testing notifications:
+  //v-btn(@click="errfun('Name')('Some message...')")
+
+  a(v-on:click='toTop()', v-if='notifications.length > 0', style='position:fixed;bottom:20px;right:100px;z-index:100')
+    v-icon(color='warning', x-large) warning
+
+  v-container(v-show="notifications.length > 0")
+    v-alert(v-for="(msg, index) in notifications", :key='index', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.index)')
+      b(v-if="msg.title")
+        | {{ msg.title }}:&nbsp;
+      | {{ msg.text }}
+</template>
+
+<script>
+import { mapGetters } from 'vuex';
+
+export default {
+  computed: {
+    ...mapGetters({
+      notifications: 'notifications/active',
+    }),
+  },
+  methods: {
+    hideNotification(index) {
+      this.$store.commit('notifications/hide', index);
+    },
+    errfun(title) {
+      return message => {
+        console.error(`${title}: ${message}`);
+        this.$store.commit('notifications/insert', {
+          title,
+          text: message,
+          type: 'error',
+        });
+      };
+    },
+  },
+};
+</script>

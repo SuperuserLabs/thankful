@@ -35,6 +35,13 @@
         | Redistribute ${{ budget_per_month.toFixed(2) }}
 </template>
 
+<style>
+/* This is needed to fix weird behavior of prefix */
+.v-text-field__prefix {
+  margin-top: 0 !important;
+}
+</style>
+
 <script>
 import { mapGetters } from 'vuex';
 

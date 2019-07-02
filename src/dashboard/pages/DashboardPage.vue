@@ -1,14 +1,5 @@
 <template lang="pug">
 div
-  a(v-on:click='toTop()', v-if='notifications.length > 0', style='position:fixed;bottom:20px;right:100px;z-index:100')
-    v-icon(color='warning', x-large) warning
-  div
-    // For testing notifications:
-    // v-btn(@click="errfun('lol')('lol')")
-    v-alert(v-for="(msg, index) in notifications", :key='index', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.index)')
-      b(v-if="msg.title")
-        | {{ msg.title }}:&nbsp;
-      | {{ msg.text }}
     v-dialog(v-model="dialog.edit", max-width='500px', @input='newCreator = false')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -45,7 +36,7 @@ div
                   | {{ props.item.title || props.item.url }}
               td.text-right
                 | {{ props.item.duration | friendlyDuration }}
-    v-snackbar(v-model='showSnackbar', top) {{ snackMessage }}
+    v-snackbar(v-model='showSnackbar', bottom) {{ snackMessage }}
       v-btn(color="pink", flat, @click="undo()") Undo
     v-container(grid-list-md)
       v-layout(row)
@@ -119,22 +110,9 @@ export default {
     }),
   },
   methods: {
-    hideNotification(index) {
-      this.$store.commit('notifications/hide', index);
-    },
     toTop() {
       document.body.scrollTop = 0; // For Safari
       document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-    },
-    errfun(title) {
-      return message => {
-        console.error(`${title}: ${message}`);
-        this.$store.commit('notifications/insert', {
-          title,
-          text: message,
-          type: 'error',
-        });
-      };
     },
     addCreator() {
       let c = new Creator('', '');

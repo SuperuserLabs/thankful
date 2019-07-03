@@ -20,4 +20,4 @@ with manifest_file.open("r") as f:
 with manifest_file.open("w") as f:
     json.dump(data, f, indent=2)
 
-print("Version v' + version + ' set successfully in: " + str(manifest_file))
+print(f"Version v{version} set successfully in: {manifest_file}")

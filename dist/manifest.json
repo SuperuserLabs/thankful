@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Thankful",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "description": "Support free culture by automatically sending cryptocurrency to the creators of the content you love.",
   "icons": {
     "64": "icons/handshake.png"

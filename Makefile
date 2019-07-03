@@ -70,6 +70,7 @@ prepublish:
 	make clean
 	-scripts/set_version.py dist/manifest.json
 	-scripts/set_version.py package.json
+	npm run precommit
 	make build-production
 	make package
 

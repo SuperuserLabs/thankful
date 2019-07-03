@@ -1,6 +1,6 @@
 {
   "name": "thankful",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "description": "Thankful",
   "main": "index.js",
   "scripts": {

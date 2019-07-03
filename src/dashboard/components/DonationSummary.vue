@@ -44,12 +44,11 @@ div.pt-2
                         single-line,
                         autofocus)
 
-  div.text-xs-center.pt-2.pb-3
-    router-link(to="/checkout")
-      v-btn(v-if="!buttonError", large, outline, color='primary')
-        | Send your thanks! (${{ total.toFixed(2) }})
-      v-btn(v-else, disabled, large, outline, color='primary', v-on:click="donateAll()")
-        | {{ buttonError }}
+  div.text-xs-center.pt-2.pb-3(v-if="checkout")
+    v-btn(v-if="!buttonError", large, color='primary' @click="donateAll()")
+      | Send your thanks! (${{ total.toFixed(2) }})
+    v-btn(v-else disabled large outline color='primary')
+      | {{ buttonError }}
 </template>
 
 <script>
@@ -59,6 +58,7 @@ import { mapState, mapGetters } from 'vuex';
 import { getInstallDate } from '../../lib/util.ts';
 
 export default {
+  props: ['checkout'],
   data: function() {
     return {
       editMode: false,

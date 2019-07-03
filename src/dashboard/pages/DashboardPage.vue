@@ -69,6 +69,12 @@ div
       v-layout(row)
         v-flex(xs12)
           donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
+
+          div.text-xs-center.pt-2.pb-3
+            router-link(to="/checkout")
+              v-btn(large color="primary")
+                | Review & donate
+
           missing-addresses-card
 </template>
 

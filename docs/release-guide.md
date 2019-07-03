@@ -2,12 +2,13 @@
 
 How to make a release:
 
-- Make sure tests pass.
-- Create and checkout a branch for the new version.
+- Make sure tests pass and do some basic usage testing.
+- Create and checkout a branch for the new version named: dev/vX.Y.Z
 - Run `env TRAVIS_TAG=<version> make prepublish` and make sure it succeeds.
 - Commit the changed files (`package.json` and `dist/manifest.json`).
 - Create a PR, merge when checks have passed.
 - Create a release/tag on GitHub.
+  - This will automatically deploy it to Mozilla Addons
 - Check out the master branch.
 - Publish to Chrome webstore (not automated)
   - First time only:

@@ -63,6 +63,11 @@ export default {
           icon: 'favorite',
           link: '/donations',
         },
+        {
+          text: 'Settings',
+          icon: 'settings',
+          link: '/settings',
+        },
       ],
     };
   },

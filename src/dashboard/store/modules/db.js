@@ -29,7 +29,7 @@ export default {
       creators = creators.slice(0, 12);
 
       // Move Thankful to end
-      if (creators[0].name === 'Thankful Team') {
+      if (creators.length > 0 && creators[0].name === 'Thankful Team') {
         creators.push(creators.shift());
       }
 

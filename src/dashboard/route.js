@@ -9,7 +9,9 @@ const ActivityPage = () =>
 const DonationHistoryPage = () =>
   import(/* webpackChunkName: "donation_history_page" */ './pages/DonationHistoryPage.vue');
 const CreatorsPage = () =>
-  import(/* webpackChunkName: "creator_list_page" */ './pages/CreatorsPage.vue');
+  import(/* webpackChunkName: "creators_page" */ './pages/CreatorsPage.vue');
+const SettingsPage = () =>
+  import(/* webpackChunkName: "settings_page" */ './pages/SettingsPage.vue');
 
 const OnboardingPage = () =>
   import(/* webpackChunkName: "onboarding_page" */ './pages/onboarding/OnboardingPage.vue');
@@ -24,7 +26,7 @@ const DevPage = () =>
   import(/* webpackChunkName: "dev_page" */ './pages/DevPage.vue');
 
 const CheckoutPage = () =>
-  import(/* webpackChunkName: "dev_page" */ './pages/CheckoutPage.vue');
+  import(/* webpackChunkName: "checkout_page" */ './pages/CheckoutPage.vue');
 
 Vue.use(VueRouter);
 
@@ -33,6 +35,7 @@ let routes = [
   { path: '/activity', component: ActivityPage },
   { path: '/donations', component: DonationHistoryPage },
   { path: '/creators', component: CreatorsPage },
+  { path: '/settings', component: SettingsPage },
   { path: '/checkout', component: CheckoutPage },
   {
     path: '/onboarding',

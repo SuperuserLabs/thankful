@@ -9,14 +9,14 @@
       br
       span.text--secondary (You're getting more bang for your buck: Thankful is a much more effective way of supporting creators compared to Spotify or Netflix)
 
-    v-layout.row
+    v-layout.mb-2
       v-flex.xs4
         v-subheader Support per month
       v-flex.xs8.pr-3
         //v-text-field(value="10.00", prefix="$", suffi="/month", )
         v-text-field(outline, v-model="budget_per_month", type='number', prefix="$", suffix="/month", step=1, min=0, single-line, hide-details)
         // label="Monthly time budget",
-    v-layout.row(style="opacity: 0.3")
+    v-layout(style="opacity: 0.3")
       v-flex.xs4
         v-subheader
           | Support per "thank you"
@@ -31,8 +31,11 @@
 
     v-card-actions.justify-end
       //v-flex(style="align-items: center; justify-content: center;")
-      v-btn(large, outline, color="primary")
-        | Redistribute ${{ budget_per_month.toFixed(2) }}
+      v-tooltip(bottom)
+        template(v-slot:activator="{ on }")
+          v-btn(large, outline, color="primary", v-on="on")
+            | Redistribute ${{ budget_per_month | toFixed(2) }}
+        span This will reset any custom amounts you've set on creators
 </template>
 
 <style>

@@ -65,11 +65,10 @@ div
                        @ignore="ignore(creator)"
                        )
 
-      // Donation summary + budget
+      // Donation summary
       v-layout(row)
         v-flex(xs12)
           donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
-          budget-card
           missing-addresses-card
 </template>
 
@@ -77,7 +76,6 @@ div
 import CreatorCard from '../components/CreatorCard.vue';
 import ActivityComponent from '../components/ActivityComponent.vue';
 import DonationSummary from '../components/DonationSummary.vue';
-import BudgetCard from '../components/BudgetCard.vue';
 import MissingAddressesCard from '../components/MissingAddressesCard.vue';
 import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
@@ -88,7 +86,6 @@ export default {
     'creator-card': CreatorCard,
     'activity-component': ActivityComponent,
     'donation-summary': DonationSummary,
-    'budget-card': BudgetCard,
     'missing-addresses-card': MissingAddressesCard,
   },
   data: () => ({

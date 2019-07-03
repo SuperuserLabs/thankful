@@ -26,7 +26,14 @@ export default {
         ['priority', 'score'],
         ['asc', 'desc']
       );
-      return creators.slice(0, 12);
+      creators = creators.slice(0, 12);
+
+      // Move Thankful to end
+      if (creators.length > 0 && creators[0].name === 'Thankful Team') {
+        creators.push(creators.shift());
+      }
+
+      return creators;
     },
     creatorsNotIgnored(state, getters) {
       let creators = _.filter(getters.creators, c => c.ignore !== true);

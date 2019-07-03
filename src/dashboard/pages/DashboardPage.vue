@@ -1,14 +1,6 @@
 <template lang="pug">
 div
-  a(v-on:click='toTop()', v-if='notifications.length > 0', style='position:fixed;bottom:20px;right:100px;z-index:100')
-    v-icon(color='warning', x-large) warning
-  div
-    // For testing notifications:
-    // v-btn(@click="errfun('lol')('lol')")
-    v-alert(v-for="(msg, index) in notifications", :key='index', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.index)')
-      b(v-if="msg.title")
-        | {{ msg.title }}:&nbsp;
-      | {{ msg.text }}
+    // Edit creator dialog
     v-dialog(v-model="dialog.edit", max-width='500px', @input='newCreator = false')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -32,6 +24,8 @@ div
                 | {{ editedCreator.info }}
           v-layout(row, justify-end)
             v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
+
+    // Creator activity dialog
     v-dialog(v-model="dialog.activity", max-width='800px')
       v-card(tile)
         v-toolbar(card dark color="primary")
@@ -45,11 +39,21 @@ div
                   | {{ props.item.title || props.item.url }}
               td.text-right
                 | {{ props.item.duration | friendlyDuration }}
-    v-snackbar(v-model='showSnackbar', top) {{ snackMessage }}
+
+    // Snackbar, for 'undo ignore' and stuff
+    v-snackbar(v-model='showSnackbar', bottom) {{ snackMessage }}
       v-btn(color="pink", flat, @click="undo()") Undo
+
     v-container(grid-list-md)
-      v-flex(xs12).mb-3
-        div.display-1 Your favorite creators
+      // Favorite creators
+      v-layout(row)
+        v-flex(xs12).mb-6
+          div.display-1 Your favorite creators
+        v-flex(grow)
+        v-flex(shrink)
+          v-btn(flat, right, small, @click="addCreator()")
+            v-icon add
+            | Add creator
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
@@ -60,22 +64,19 @@ div
                        @activity="activity(creator)",
                        @ignore="ignore(creator)"
                        )
-        v-flex(xs12, sm6, md3)
-          v-card(hover, @click.native="addCreator()", height='116px')
-            v-container.text-xs-center
-              v-icon(x-large) add
-              div.text--secondary.title
-                | Add creator
 
+      // Donation summary
       v-layout(row)
         v-flex(xs12)
           donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
+          missing-addresses-card
 </template>
 
 <script>
-import CreatorCard from './CreatorCard.vue';
-import ActivityComponent from './ActivityComponent.vue';
-import DonationSummary from './DonationSummary.vue';
+import CreatorCard from '../components/CreatorCard.vue';
+import ActivityComponent from '../components/ActivityComponent.vue';
+import DonationSummary from '../components/DonationSummary.vue';
+import MissingAddressesCard from '../components/MissingAddressesCard.vue';
 import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
@@ -85,6 +86,7 @@ export default {
     'creator-card': CreatorCard,
     'activity-component': ActivityComponent,
     'donation-summary': DonationSummary,
+    'missing-addresses-card': MissingAddressesCard,
   },
   data: () => ({
     valid: true,
@@ -113,23 +115,6 @@ export default {
     }),
   },
   methods: {
-    hideNotification(index) {
-      this.$store.commit('notifications/hide', index);
-    },
-    toTop() {
-      document.body.scrollTop = 0; // For Safari
-      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-    },
-    errfun(title) {
-      return message => {
-        console.error(`${title}: ${message}`);
-        this.$store.commit('notifications/insert', {
-          title,
-          text: message,
-          type: 'error',
-        });
-      };
-    },
     addCreator() {
       let c = new Creator('', '');
       c.priority = 2;

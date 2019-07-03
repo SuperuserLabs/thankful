@@ -32,7 +32,13 @@ v-card(height='116px').mt-1
             // Times you've thanked this creators content
             | {{ $t('tip.thanks_creator') }}
     v-spacer
+    v-tooltip(bottom left)
+      v-btn(slot="activator", icon, @click='$emit("ignore")')
+        v-icon clear
+      span
+        | {{ $t('tip.ignore') }}
     v-menu(bottom left)
+
       v-btn(slot="activator" icon)
         v-icon more_vert
 
@@ -47,7 +53,7 @@ v-card(height='116px').mt-1
           template(slot='activator')
             v-list-tile(@click='$emit("ignore")')
               v-list-tile-action
-                v-icon visibility_off
+                v-icon clear
               v-list-tile-content
                 v-list-tile-title
                   | Ignore

@@ -9,14 +9,37 @@ v-data-table(v-else, :headers="headers", :items="creators", :pagination.sync='pa
     td
       | {{ props.item.duration | friendlyDuration }}
     td
-      v-btn(icon, @click='ignore(props.item)')
-        v-icon(v-show='!props.item.ignore') visibility
-        v-icon(v-show='props.item.ignore') visibility_off
-    td
-      v-icon(v-show='props.item.priority == 2') star
-      v-icon(v-show='props.item.priority == 1') heart
-    td
-      v-btn(color='warning', @click='remove(props.item)') Delete
+      v-layout(row)
+        v-flex
+        v-flex(shrink)
+          v-icon(v-show='props.item.priority == 2') star
+          v-icon(v-show='props.item.priority == 1') heart
+
+          v-tooltip(bottom)
+            template(v-slot:activator="{ on }")
+              v-btn(@click='' icon v-on="on")
+                v-icon(color="#aaa") history
+            span Show activity (not implemented)
+
+          v-tooltip(bottom)
+            template(v-slot:activator="{ on }")
+              v-btn(@click='' icon v-on="on")
+                v-icon(color="#aaa") edit
+            span Edit (not implemented)
+
+          v-tooltip(bottom)
+            template(v-slot:activator="{ on }")
+              v-btn(icon, @click='ignore(props.item)' v-on="on")
+                v-icon(v-show='!props.item.ignore') visibility
+                v-icon(v-show='props.item.ignore' color="#AAA") visibility_off
+            span(v-show='!props.item.ignore') Ignore
+            span(v-show='props.item.ignore') Un-ignore
+
+          v-tooltip(bottom)
+            template(v-slot:activator="{ on }")
+              v-btn(@click='remove(props.item)' icon v-on="on")
+                v-icon delete
+            span Delete
 </template>
 
 <script>
@@ -26,13 +49,11 @@ export default {
   data: () => ({
     loading: true,
     headers: [
-      { text: 'Creator', value: 'name', width: '500px' },
+      { text: 'Creator', value: 'name' },
       { text: 'Duration', value: 'duration' },
-      { text: 'Ignored', value: 'ignore', width: '50px' },
-      { text: 'Favorite', value: 'priority', width: '50px' },
-      { text: 'Remove', value: 'name', sortable: false, width: '200px' },
+      { text: '', value: 'actions', sortable: false },
     ],
-    pagination: { sortBy: 'duration', descending: true, rowsPerPage: -1 },
+    pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
   }),
   props: {
     limit: { default: Infinity, type: Number },

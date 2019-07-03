@@ -33,8 +33,8 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     messages, // set locale messages
   });
 
+  const App = (await import('./App.vue')).default;
   const router = (await import('./route.js')).default;
-  const App = (await import('./components/App.vue')).default;
   const store = (await import('./store')).default;
 
   Vue.filter('friendlyDuration', formatSecs);

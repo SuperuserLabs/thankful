@@ -1,5 +1,11 @@
 <template lang="pug">
 v-container
+  v-card.mb-2
+    v-btn(@click="enableDemoMode()")
+      | Enable demo mode
+    v-btn(@click="logStore()")
+      | Log store to console
+
   v-card
     v-layout(row)
       v-flex(xs3)
@@ -31,6 +37,12 @@ export default {
     data: {},
   }),
   methods: {
+    logStore() {
+      console.log(this.$store.state.db);
+    },
+    enableDemoMode() {
+      this.$store.commit('db/demomode');
+    },
     onFileChange($event) {
       const files = $event.target.files || $event.dataTransfer.files;
       if (files) {

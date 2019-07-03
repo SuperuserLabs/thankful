@@ -138,6 +138,36 @@ export default {
   },
 
   mutations: {
+    demomode(state) {
+      state.activities = [
+        {
+          id: 1,
+          creator_id: 1,
+          title: 'dotfiles',
+          url: 'https://github.com/ErikBjare/dotfiles',
+          duration: 120,
+        },
+      ];
+
+      state.creators = [
+        {
+          id: 1,
+          name: 'Erik Bjäreholt',
+          url: ['https://github.com/ErikBjare'],
+          priority: 0,
+          duration: _.sum(
+            _.map(
+              _.filter(state.activities, a => a.creator_id === 1),
+              a => a.duration
+            )
+          ),
+        },
+      ];
+
+      state.loaded['creators'] = true;
+      state.loaded['activities'] = true;
+      state.loaded['donations'] = true;
+    },
     addDonation(state, donation) {
       state.donations.push(donation);
     },

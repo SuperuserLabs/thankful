@@ -34,7 +34,7 @@
       v-tooltip(bottom)
         template(v-slot:activator="{ on }")
           v-btn(large, outline, color="primary", v-on="on")
-            | Redistribute ${{ budget_per_month | toFixed(2) }}
+            | Redistribute ${{ budget_per_month | fixed(2) }}
         span This will reset any custom amounts you've set on creators
 </template>
 

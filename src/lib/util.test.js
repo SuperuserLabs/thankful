@@ -1,13 +1,13 @@
-import { isWebExtension, isNode } from './util';
+let util = require('./util');
 
 describe('isNode', () => {
   it('checks is running as Node (usually tests)', () => {
-    expect(isNode()).toBe(true);
+    expect(util.isNode()).toBe(true);
   });
 });
 
 describe('isWebExtension', () => {
   it('checks is running as WebExtension', () => {
-    expect(isWebExtension()).toBe(false);
+    expect(util.isWebExtension()).toBe(false);
   });
 });

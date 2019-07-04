@@ -7,7 +7,7 @@ v-stepper(v-model="step", vertical)
   v-stepper-step(step=1, :complete="completed_step > 1")
     | Install MetaMask
   v-stepper-content(step=1)
-    b Get MetaMask for your browser at #[a(href='https://metamask.io/') metamask.io]
+    b Get MetaMask for your browser at #[a(href='https://metamask.io/' target="_blank") metamask.io]
 
   v-stepper-step(step=2, :complete="completed_step > 2")
     | Log in to MetaMask

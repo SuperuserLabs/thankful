@@ -13,8 +13,13 @@ function addCreator(obj) {
   obj.duration = _.sum(
     _.map(_.filter(state.activities, a => a.creator_id === obj.id), 'duration')
   );
+  obj.priority = obj.priority || 0;
+  obj.thanksAmount = obj.thanksAmount || 0;
+  obj.share = obj.share || null;
   state.creators.push(obj);
 }
+
+// Add activity
 
 addActivity({
   id: 1,
@@ -40,6 +45,8 @@ addActivity({
   duration: 8,
 });
 
+// Add creators
+
 addCreator({
   id: 1,
   name: 'Thankful Team',
@@ -53,7 +60,6 @@ addCreator({
   name: 'Erik Bjäreholt',
   address: '0x497A128cf7C1Dc455Df618eA833e3ed78E49466E',
   url: ['https://github.com/ErikBjare'],
-  priority: 0,
 });
 
 addCreator({
@@ -61,7 +67,6 @@ addCreator({
   name: 'Dwight Lidman',
   address: '0xFad9Ba550BCaFC73754a4E5d0a2f61b9BEedE71c',
   url: ['https://github.com/dwilid'],
-  priority: 0,
 });
 
 addCreator({
@@ -69,7 +74,6 @@ addCreator({
   name: 'Patrik Laurell',
   address: '0xbcEf85708670FA0127C484Ac649724B8028Ea08b',
   url: ['https://github.com/patrik-laurell'],
-  priority: 0,
 });
 
 export default state;

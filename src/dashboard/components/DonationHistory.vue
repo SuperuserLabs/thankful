@@ -4,11 +4,16 @@ v-layout(v-if='loading', row, justify-center, align-center).pa-5
 v-data-table(v-else, :headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
   template(slot='items', slot-scope='props')
     td
-      a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
-          | {{new Date(props.item.date).toLocaleDateString()}}
+        | {{new Date(props.item.date).toLocaleDateString()}}
     td
       a(:href="props.item.creator.url" target="_blank")
         | {{props.item.creator.name}}
+    td.text-xs-right
+      // TODO: Don't hardcore the ropsten etherscan URL, detect which network Metamask is using
+      a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
+        small(style="font-family: monospace; font-size: 65%")
+          v-icon(small) link
+          | &nbsp;{{props.item.transaction | trim(12)}}
     td.text-xs-right
       | ${{props.item.usdAmount | fixed(2)}}
 </template>
@@ -19,7 +24,8 @@ export default {
     loading: true,
     headers: [
       { text: 'Date', value: 'date' },
-      { text: 'Creator', value: 'name' },
+      { text: 'Creator', value: 'creator.name' },
+      { text: 'Transaction ID', value: 'transaction', align: 'right' },
       { text: 'Amount', value: 'usdAmount', align: 'right' },
     ],
     pagination: {

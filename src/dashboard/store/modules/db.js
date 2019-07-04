@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import demodata from '../../demodata.js';
 import { getDatabase } from '../../../lib/db.ts';
 
 const scoringFunction = c => {
@@ -138,6 +139,14 @@ export default {
   },
 
   mutations: {
+    demomode(state) {
+      state.activities = demodata.activities;
+      state.creators = demodata.creators;
+
+      state.loaded['creators'] = true;
+      state.loaded['activities'] = true;
+      state.loaded['donations'] = true;
+    },
     addDonation(state, donation) {
       state.donations.push(donation);
     },

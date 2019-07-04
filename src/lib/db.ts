@@ -179,21 +179,37 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getActivities({ limit = 1000, withCreators = null } = {}): Promise<
-    IActivity[]
-  > {
+  async getActivities({
+    limit = 1000,
+    withCreators = false,
+    withThanks = false,
+  } = {}): Promise<IActivity[]> {
     let coll = this.activities.orderBy('duration').reverse();
-    if (withCreators !== null) {
-      if (withCreators) {
-        coll = coll.filter(a => a.creator_id !== undefined);
-      } else {
-        coll = coll.filter(a => a.creator_id === undefined);
-      }
+    if (withCreators) {
+      coll = coll.filter(a => a.creator_id !== undefined);
+    } else {
+      coll = coll.filter(a => a.creator_id === undefined);
     }
     if (limit && limit >= 0) {
       coll = coll.limit(limit);
     }
-    return coll.toArray();
+
+    let activities = await coll.toArray();
+    if (withThanks) {
+      // Populate the activities with their number of thanks
+      // TODO: This might be super slow
+      activities = await Promise.all(
+        map(activities, async activity => {
+          activity.thanks = await this.thanks
+            .where('url')
+            .anyOf(activity.url)
+            .count();
+          return activity;
+        })
+      );
+    }
+
+    return activities;
   }
 
   // TODO: rename to getCreatorWithUrl or something

@@ -108,7 +108,7 @@ export default {
       commit('setLoaded', 'creators');
     },
     async loadActivities({ commit }) {
-      let all = await db.getActivities({ limit: -1 });
+      let all = await db.getActivities({ limit: -1, withThanks: true });
       commit('setActivities', _.groupBy(all, 'creator_id'));
       commit('setLoaded', 'activities');
     },

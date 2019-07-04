@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import demodata from '../../demodata.js';
 import { getDatabase } from '../../../lib/db.ts';
 
 const scoringFunction = c => {
@@ -139,30 +140,8 @@ export default {
 
   mutations: {
     demomode(state) {
-      state.activities = [
-        {
-          id: 1,
-          creator_id: 1,
-          title: 'dotfiles',
-          url: 'https://github.com/ErikBjare/dotfiles',
-          duration: 120,
-        },
-      ];
-
-      state.creators = [
-        {
-          id: 1,
-          name: 'Erik Bjäreholt',
-          url: ['https://github.com/ErikBjare'],
-          priority: 0,
-          duration: _.sum(
-            _.map(
-              _.filter(state.activities, a => a.creator_id === 1),
-              a => a.duration
-            )
-          ),
-        },
-      ];
+      state.activities = demodata.activities;
+      state.creators = demodata.creators;
 
       state.loaded['creators'] = true;
       state.loaded['activities'] = true;

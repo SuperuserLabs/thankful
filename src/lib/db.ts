@@ -269,7 +269,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async connectThanksToCreator(url, creator_id) {
+  async connectThanksToCreator(url: string, creator_id: number) {
     url = canonicalizeUrl(url);
     await this.thanks
       .where('url')
@@ -281,7 +281,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async connectActivityToCreator(url, creator_id) {
+  async connectActivityToCreator(url: string, creator_id: number) {
     url = canonicalizeUrl(url);
     await this.activities
       .where('url')
@@ -307,9 +307,15 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async logDonation(creator_id, weiAmount, usdAmount, hash) {
+  async logDonation(creator_id, weiAmount, usdAmount, hash, net_id) {
     return this.donations.add(
-      new Donation(creator_id, weiAmount.toString(), usdAmount.toString(), hash)
+      new Donation(
+        creator_id,
+        weiAmount.toString(),
+        usdAmount.toString(),
+        hash,
+        net_id
+      )
     );
   }
 

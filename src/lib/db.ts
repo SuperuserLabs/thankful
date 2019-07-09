@@ -178,6 +178,12 @@ export class Database extends Dexie {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
+  // Get activities from database
+  //
+  // Options:
+  //   withCreators = null    Includes all activity, without creator set
+  //   withCreators = true    Only includes activity with an attributed creator, and sets creator_id
+  //   withCreators = false   Only includes activity without an attributed creator
   @messageListener()
   async getActivities({ limit = 1000, withCreators = null } = {}): Promise<
     IActivity[]
@@ -194,6 +200,14 @@ export class Database extends Dexie {
       coll = coll.limit(limit);
     }
     return coll.toArray();
+  }
+
+  @messageListener()
+  async deleteUnattributedActivities(): Promise<number> {
+    let deleteCount = await this.activities
+      .filter(a => a.creator_id === undefined)
+      .delete();
+    return deleteCount;
   }
 
   // TODO: rename to getCreatorWithUrl or something

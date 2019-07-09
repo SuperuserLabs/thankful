@@ -181,14 +181,18 @@ export class Database extends Dexie {
   @messageListener()
   async getActivities({
     limit = 1000,
-    withCreators = false,
+    withCreators = null,
     withThanks = false,
   } = {}): Promise<IActivity[]> {
     let coll = this.activities.orderBy('duration').reverse();
-    if (withCreators) {
-      coll = coll.filter(a => a.creator_id !== undefined);
-    } else {
-      coll = coll.filter(a => a.creator_id === undefined);
+    if (withCreators !== null) {
+      coll = coll.filter(a => {
+        if (withCreators) {
+          return a.creator_id !== undefined;
+        } else {
+          return a.creator_id === undefined;
+        }
+      });
     }
     if (limit && limit >= 0) {
       coll = coll.limit(limit);

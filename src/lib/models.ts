@@ -91,17 +91,18 @@ export interface IDonation {
 }
 
 export interface IDonationRequest {
-  id: Number;
-  address: String;
-  funds: Number;
+  id: number;
+  address: string;
+  funds: number;
 }
 
 export interface IDonationSuccess {
-  creator_id: Number;
-  txid: BigNumber;
-  address: String;
-  weiAmount: Number;
-  usdAmount: Number;
+  creator_id: number;
+  tx_id: string;
+  net_id: number;
+  address: string;
+  weiAmount: number;
+  usdAmount: number;
 }
 
 export class Donation {
@@ -110,13 +111,15 @@ export class Donation {
   weiAmount: string;
   usdAmount: string;
   transaction: number;
+  net_id?: number;
 
-  constructor(creator_id, weiAmount, usdAmount, transaction) {
+  constructor(creator_id, weiAmount, usdAmount, transaction, net_id: number) {
     this.date = new Date().toISOString();
     this.creator_id = creator_id;
     this.weiAmount = weiAmount;
     this.usdAmount = usdAmount;
     this.transaction = transaction;
+    this.net_id = net_id;
   }
 }
 

@@ -21,10 +21,10 @@ export default class Donate {
     web3 = new Web3(web3Provider);
 
     //return web3.eth.net.getId();
-    return this.getId();
+    return this.getNetId();
   }
 
-  async getId(): Promise<Number> {
+  async getNetId(): Promise<number> {
     //return web3.eth.net.getId();
     return new Promise((resolve, reject) => {
       web3.version.getNetwork((err, net) => {
@@ -92,9 +92,10 @@ export default class Donate {
       return {
         address: donation.address,
         creator_id: donation.id,
+        tx_id: txid.toString(),
+        net_id: await this.getNetId(),
         weiAmount: weiAmount.toString(),
         usdAmount: usdAmount.toString(),
-        txid: txid,
       };
     } catch (err) {
       console.error('donateone broke', err);

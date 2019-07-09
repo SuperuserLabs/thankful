@@ -43,7 +43,7 @@ export default {
     },
     async update({ commit }) {
       try {
-        let id = await donate.getId();
+        let id = await donate.getNetId();
         commit('setNetId', id);
         let addr = await donate.getMyAddress();
         if (addr !== undefined) {
@@ -66,11 +66,11 @@ export default {
         .map(async d => {
           commit('addPendingDonation', d);
           try {
-            let donation = await donate.donate(d);
+            let donationCompleted = await donate.donate(d);
             commit('completePendingDonation', d);
-            console.log('pendingDonation', d);
-            console.log('completedDonation', donation);
-            return dispatch('db/logDonation', donation, { root: true });
+            return dispatch('db/logDonation', donationCompleted, {
+              root: true,
+            });
           } catch (err) {
             commit('failPendingDonation', d);
             throw err;
@@ -93,6 +93,7 @@ export default {
     },
     addPendingDonation(state, donation) {
       state.pendingDonations[donation.creator_id] = donation;
+      state.pendingDonations[donation.creator_id].status = 'pending';
     },
     completePendingDonation(state, donation) {
       state.pendingDonations[donation.creator_id].status = 'completed';

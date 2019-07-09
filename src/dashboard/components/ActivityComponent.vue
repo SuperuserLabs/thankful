@@ -9,7 +9,7 @@ v-data-table(v-else, :headers="headers", :items="items(unattributed)", :paginati
     td.text-right
       | {{ props.item.duration | friendlyDuration }}
     td.text-right
-      | {{ props.item.thanks }}
+      | {{ props.item.thanks || '' }}
 </template>
 
 <script>

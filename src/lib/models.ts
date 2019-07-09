@@ -37,6 +37,7 @@ export interface IActivity {
   duration: number;
   creator_id?: number;
   creator?: number;
+  thanks?: number;
 }
 
 export class Activity extends Model implements IActivity {

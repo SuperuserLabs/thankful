@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { concat, map, sumBy } from 'lodash';
+import { concat, map, sumBy, countBy } from 'lodash';
 import isReserved from 'github-reserved-names';
 
 import { registerListener } from '../background/messaging.ts';
@@ -201,16 +201,11 @@ export class Database extends Dexie {
     let activities = await coll.toArray();
     if (withThanks) {
       // Populate the activities with their number of thanks
-      // TODO: This might be super slow
-      activities = await Promise.all(
-        map(activities, async activity => {
-          activity.thanks = await this.thanks
-            .where('url')
-            .anyOf(activity.url)
-            .count();
-          return activity;
-        })
-      );
+      let thanksPerUrl = countBy(await this.thanks.toArray(), t => t.url);
+      activities = activities.map(a => {
+        a.thanks = thanksPerUrl[a.url] || 0;
+        return a;
+      });
     }
 
     return activities;

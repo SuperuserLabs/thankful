@@ -24,6 +24,7 @@ v-container
             v-icon(v-else-if="d.status === 'completed'") check_circle
           v-list-tile-content
             v-list-tile-title(v-text="d.name")
+      p {{ JSON.stringify(pendingDonations) }}
     v-stepper-content(step="3")
       h3 All done! Now just keep surfin' baby.
 </template>

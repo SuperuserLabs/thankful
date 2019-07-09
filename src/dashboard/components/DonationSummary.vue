@@ -24,25 +24,31 @@ div.pt-2
                         single-line,
                         autofocus)
         td
-          v-edit-dialog.text-xs-right(large,
-                        lazy,
-                        @open="currentFundsValue = props.item.funds"
-                        @save="props.item.funds = parseFloat(currentFundsValue)")
-            div
-              v-slider(color="green", :value="80 * props.item.funds / highestAmount", readonly, :label="props.item.funds | fixed(2) | prepend('$')", inverse-label)
-              //| ${{ props.item.funds | fixed(2) }}
-            div.mt-3.title(slot="input")
-              | Change donation
-            v-text-field(slot="input",
-                        type="number",
-                        hint="Your monthly budget",
-                        step="0.1",
-                        min="0",
-                        :rules="rules.fundsInput",
-                        v-model="currentFundsValue",
-                        prefix="$",
-                        single-line,
-                        autofocus)
+          div
+            v-slider(
+              color="green",
+              :value="100 * props.item.funds / total",
+              :label="props.item.funds | fixed(2) | prepend('$')",
+              inverse-label,
+              @change="(x) => changeDonationAmount(props.item, x)",
+              max="100")
+//        td
+//          v-edit-dialog.text-xs-right(large,
+//                        lazy,
+//                        @open="currentFundsValue = props.item.funds"
+//                        @save="props.item.funds = parseFloat(currentFundsValue)")
+//          div.mt-3.title(slot="input")
+//            | Change donation
+//          v-text-field(slot="input",
+//                      type="number",
+//                      hint="Your monthly budget",
+//                      step="0.1",
+//                      min="0",
+//                      :rules="rules.fundsInput",
+//                      v-model="currentFundsValue",
+//                      prefix="$",
+//                      single-line,
+//                      autofocus)
 
   div.text-xs-center.pt-2.pb-3(v-if="checkout")
     v-btn(v-if="!buttonError", large, color='primary' @click="donateAll()")
@@ -84,7 +90,8 @@ export default {
   computed: {
     ...mapState('settings', ['budget_per_month']),
     total() {
-      return _.sumBy(this.distribution, 'funds');
+      return this.budget_per_month;
+      // return _.sumBy(this.distribution, 'funds');
     },
     buttonError() {
       let { netId, address } = this.$store.state.metamask;
@@ -121,6 +128,35 @@ export default {
     }),
   },
   methods: {
+    changeDonationAmount(creator, new_value) {
+      console.log('creator', creator.id);
+      console.log('new_value', new_value);
+      const dist =
+        Object.keys(this.$store.state.metamask.distribution).length > 0
+          ? this.$store.state.metamask.distribution
+          : this.creators.reduce((obj, c) => {
+              obj[c.id] = c.share;
+              return obj;
+            }, {});
+      console.log('dist', dist);
+      const redist_targets = _.omit(dist, [creator.id]);
+      console.log('redist_targets', redist_targets);
+      console.log(Object.values(redist_targets));
+      const unchanged_share_sum = _.sum(Object.values(redist_targets));
+      console.log('unchanged_share_sum', unchanged_share_sum);
+      const change = new_value / 100 - creator.share;
+      console.log('change', change);
+      var new_dist = _.mapValues(
+        redist_targets,
+        share => share - (change * share) / unchanged_share_sum
+      );
+      new_dist[creator.id] = new_value / 100;
+      console.log('new_dist', new_dist);
+      console.log(_.sum(Object.values(new_dist)));
+      // TODO: check for floating point error
+      this.$store.commit('metamask/distribute', new_dist);
+      this.distribute();
+    },
     updateAddress(index, address) {
       this.$store.dispatch('db/doUpdateCreator', {
         index: index,
@@ -136,10 +172,18 @@ export default {
       });
     },
     distribute() {
+      const store_dist = this.$store.state.metamask.distribution;
+      console.log(store_dist);
       this.distribution = this.creators.map(c => {
         return {
           ...c,
-          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
+          funds: parseFloat(
+            (
+              (Object.keys(store_dist).length > 0
+                ? store_dist[c.id]
+                : c.share) * this.budget_per_month
+            ).toFixed(2)
+          ),
         };
       });
     },

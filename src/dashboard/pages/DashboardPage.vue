@@ -73,7 +73,7 @@ div
           div.text-xs-center.pt-2.pb-3
             router-link(to="/checkout")
               v-btn(large color="primary")
-                | Review & donate
+                | Review & donate ${{ this.budget_per_month }} 
 
           missing-addresses-card
 </template>
@@ -85,7 +85,7 @@ import DonationSummary from '../components/DonationSummary.vue';
 import MissingAddressesCard from '../components/MissingAddressesCard.vue';
 import { Creator } from '../../lib/models.ts';
 import _ from 'lodash';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   components: {
@@ -113,6 +113,7 @@ export default {
     newCreator: false,
   }),
   computed: {
+    ...mapState('settings', ['budget_per_month']),
     ...mapGetters({
       creators: 'db/favoriteCreators',
       activityByCreator: 'db/activityByCreator',

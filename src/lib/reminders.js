@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 import { openDashboardTab } from './tabs.js';
-import { timeSinceDonation } from './util.ts';
+import { secondsSinceDonation } from './util.ts';
 
 // These variables are in milliseconds
 const donationInterval = 1000 * 60 * 60 * 24 * 30; // One month
@@ -34,7 +34,7 @@ export function initReminders(db) {
 
 // This is outside vuex because we use it in background.js
 export async function isTimeToDonate(db) {
-  return (await timeSinceDonation(db)) > donationInterval;
+  return 1000 * (await secondsSinceDonation(db)) > donationInterval;
 }
 
 function reminderCheck(db) {

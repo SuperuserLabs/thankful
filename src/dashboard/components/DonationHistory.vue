@@ -9,8 +9,7 @@ v-data-table(v-else, :headers="headers", :items="donations", :pagination.sync='p
       a(:href="props.item.creator.url" target="_blank")
         | {{props.item.creator.name}}
     td.text-xs-right
-      // TODO: Don't hardcore the ropsten etherscan URL, detect which network Metamask is using
-      a(:href="'https://ropsten.etherscan.io/tx/' + props.item.transaction" target="_blank")
+      a(:href="networks[props.item.net_id || 3].explorer_url + props.item.transaction" target="_blank")
         small(style="font-family: monospace; font-size: 65%")
           v-icon(small) link
           | &nbsp;{{props.item.transaction | trim(12)}}
@@ -19,8 +18,11 @@ v-data-table(v-else, :headers="headers", :items="donations", :pagination.sync='p
 </template>
 <script>
 import { mapState } from 'vuex';
+import networks from '../../lib/networks.js';
+
 export default {
   data: () => ({
+    networks: networks,
     loading: true,
     headers: [
       { text: 'Date', value: 'date' },

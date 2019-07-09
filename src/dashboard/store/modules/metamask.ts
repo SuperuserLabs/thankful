@@ -4,13 +4,7 @@ import {
   IDonationSuccess,
 } from '../../../lib/models';
 
-let networks = {
-  '-1': { color: 'warning' },
-  1: { name: 'Main Ethereum Network', color: 'green' },
-  3: { name: 'Ropsten Test Network', color: 'red' },
-  4: { name: 'Rinkeby Test Network', color: 'orange' },
-  42: { name: 'Kovan Test Network', color: 'purple' },
-};
+import networks from '../../../lib/networks';
 
 import Donate from '../../../lib/donate.ts';
 let donate: Donate;

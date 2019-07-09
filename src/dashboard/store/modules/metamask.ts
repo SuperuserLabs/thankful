@@ -21,7 +21,7 @@ export default {
   state: {
     netId: -1,
     address: null,
-    pendingDonations: [],
+    pendingDonations: {},
   },
   getters: {
     netName(state) {
@@ -58,21 +58,24 @@ export default {
       }
     },
     donateAll(
-      { dispatch, commit },
+      { state, dispatch, commit },
       donationRequests: IDonationRequest[]
     ): Promise<IDonation>[] {
-      donationRequests = donationRequests.filter(d => !!d.address);
-      return donationRequests.map(async d => {
-        let idx = commit('addPendingDonation', d);
-        try {
-          let donation = await donate.donate(d);
-          commit('completePendingDonation', idx);
-          return dispatch('db/logDonation', donation, { root: true });
-        } catch (err) {
-          commit('failPendingDonation', idx);
-          throw err;
-        }
-      });
+      return donationRequests
+        .filter(d => !!d.address)
+        .map(async d => {
+          commit('addPendingDonation', d);
+          try {
+            let donation = await donate.donate(d);
+            commit('completePendingDonation', d);
+            console.log('pendingDonation', d);
+            console.log('completedDonation', donation);
+            return dispatch('db/logDonation', donation, { root: true });
+          } catch (err) {
+            commit('failPendingDonation', d);
+            throw err;
+          }
+        });
     },
   },
   mutations: {
@@ -89,15 +92,13 @@ export default {
       state.netId = -1;
     },
     addPendingDonation(state, donation) {
-      let length = state.pendingDonations.push(donation);
-      let idx = length - 1;
-      return idx;
+      state.pendingDonations[donation.creator_id] = donation;
     },
-    completePendingDonation(state, idx) {
-      state.pendingDonations[idx].status = 'completed';
+    completePendingDonation(state, donation) {
+      state.pendingDonations[donation.creator_id].status = 'completed';
     },
-    failPendingDonation(state, idx) {
-      state.pendingDonations[idx].status = 'failed';
+    failPendingDonation(state, donation) {
+      state.pendingDonations[donation.creator_id].status = 'failed';
     },
   },
 };

@@ -92,7 +92,6 @@ export interface IDonation {
 
 export interface IDonationRequest {
   id: Number;
-  creator_id: Number;
   address: String;
   funds: Number;
 }

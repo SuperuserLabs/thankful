@@ -91,7 +91,7 @@ export default class Donate {
 
       return {
         address: donation.address,
-        creator_id: donation.creator_id,
+        creator_id: donation.id,
         weiAmount: weiAmount.toString(),
         usdAmount: usdAmount.toString(),
         txid: txid,

@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { IDonationRequest, IDonationSuccess } from './models.ts';
 //import Promise from 'bluebird';
 
 let web3;
@@ -20,10 +21,10 @@ export default class Donate {
     web3 = new Web3(web3Provider);
 
     //return web3.eth.net.getId();
-    return this.getId();
+    return this.getNetId();
   }
 
-  async getId(): Promise<Number> {
+  async getNetId(): Promise<number> {
     //return web3.eth.net.getId();
     return new Promise((resolve, reject) => {
       web3.version.getNetwork((err, net) => {
@@ -31,15 +32,6 @@ export default class Donate {
         resolve(net);
       });
     });
-  }
-
-  async donateAll(donations) {
-    const donationPromises = donations
-      .filter(d => !!d.address)
-      .map(async d => {
-        return this._donateOne(d.address, new BigNumber(d.funds), d.id);
-      });
-    return donationPromises;
   }
 
   isAddress(address: String): boolean {
@@ -54,62 +46,60 @@ export default class Donate {
     return balance > 0;
   }
 
-  async _donateOne(
-    addr,
-    usdAmount,
-    creator_id,
+  async donate(
+    donation: IDonationRequest,
     // A basic transaction should only need 21k but we have some margin because
     // of the data we attach. Also, unused gas is refunded.
     gasLimit = 1e5
-  ) {
+  ): Promise<IDonationSuccess> {
     try {
-      if (!this.isAddress(addr)) {
-        throw `Not an address: ${addr}`;
+      if (!this.isAddress(donation.address)) {
+        throw `Not an address: ${donation.address}`;
       }
       // TODO: Re-enable this when we have some better way of telling the user
       // than by completely stopping them from donating
       //if (!(await this.hasBalance(addr))) {
       //  throw 'Address looks inactive (0 balance)';
       //}
+      const usdAmount = new BigNumber(donation.funds);
       const weiAmount = await this._usdToWei(usdAmount);
       const myAcc = await this.getMyAddress();
       if (!myAcc) {
         throw 'You are not logged in to metamask, please install the extension and/or log in';
       }
-      return new Promise((resolve, reject) => {
+
+      let txid = await new Promise((resolve, reject) => {
         console.log('starting transaction');
         web3.eth.sendTransaction(
           {
             from: myAcc,
-            to: addr,
+            to: donation.address,
             value: weiAmount,
             gas: gasLimit,
             // Function seems buggy
             //data: web3.utils.utf8ToHex('💛'),
             data: '0xf09f929b',
           },
-          (err, hash) => {
+          (err, txid) => {
             if (err) reject(err);
-            console.log('transaction', hash);
-            resolve(hash);
+            console.log('transaction', txid);
+            resolve(txid);
           }
         );
         //.once('transactionHash', resolve)
-      }).then(hash => ({
-        creator_id: creator_id,
+      });
+
+      return {
+        address: donation.address,
+        creator_id: donation.id,
+        tx_id: txid.toString(),
+        net_id: await this.getNetId(),
         weiAmount: weiAmount.toString(),
         usdAmount: usdAmount.toString(),
-        hash: hash,
-        failed: false,
-      }));
-    } catch (error) {
-      console.error('donateone broke', error);
-      return {
-        creator_id: creator_id,
-        usdAmount: usdAmount,
-        failed: true,
-        error: error,
       };
+    } catch (err) {
+      console.error('donateone broke', err);
+      throw err;
     }
   }
 

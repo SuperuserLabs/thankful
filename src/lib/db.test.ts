@@ -250,6 +250,8 @@ describe('DonationHistory', () => {
   const c_name = 'Bethesda Softworks';
   const c_url = 'https://www.youtube.com/channel/UCvZHe-SP3xC7DdOk4Ri8QBw';
 
+  const net_id = 1;
+
   beforeEach(async () => {
     await clearDB(db);
   });
@@ -262,7 +264,8 @@ describe('DonationHistory', () => {
       creatorId,
       weiAmount.toString(),
       usdAmount.toString(),
-      txHash
+      txHash,
+      net_id
     );
 
     const donation = await db.getDonation(donationId);
@@ -279,19 +282,22 @@ describe('DonationHistory', () => {
       creatorId,
       weiAmount.toString(),
       usdAmount.toString(),
-      txHash
+      txHash,
+      net_id
     );
     await db.logDonation(
       creatorId,
       weiAmount.mul('2').toString(),
       usdAmount.mul('2').toString(),
-      '0xe46e63549fc0453da0afa8ac79a87b4baae9a70759a82bee19abd81665b0463b'
+      '0xe46e63549fc0453da0afa8ac79a87b4baae9a70759a82bee19abd81665b0463b',
+      net_id
     );
     await db.logDonation(
       creatorId,
       weiAmount.mul('3').toString(),
       usdAmount.mul('3').toString(),
-      '0x42bd00f4701b7d24dc3e3acd0ee7c7333e57c2b77532f012994bbcefca7cc726'
+      '0x42bd00f4701b7d24dc3e3acd0ee7c7333e57c2b77532f012994bbcefca7cc726',
+      net_id
     );
 
     const donations = await db.getDonations();

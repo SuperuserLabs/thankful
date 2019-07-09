@@ -1,4 +1,5 @@
 import { canonicalizeUrl } from './url.ts';
+import BigNumber from 'bignumber.js';
 
 // TODO: Write tests
 
@@ -87,6 +88,21 @@ export interface IDonation {
   weiAmount: string;
   usdAmount: string;
   transaction: number;
+}
+
+export interface IDonationRequest {
+  id: Number;
+  creator_id: Number;
+  address: String;
+  funds: Number;
+}
+
+export interface IDonationSuccess {
+  creator_id: Number;
+  txid: BigNumber;
+  address: String;
+  weiAmount: Number;
+  usdAmount: Number;
 }
 
 export class Donation {

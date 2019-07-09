@@ -1,3 +1,9 @@
+import {
+  IDonation,
+  IDonationRequest,
+  IDonationSuccess,
+} from '../../../lib/models';
+
 let networks = {
   '-1': { color: 'warning' },
   1: { name: 'Main Ethereum Network', color: 'green' },
@@ -5,7 +11,9 @@ let networks = {
   4: { name: 'Rinkeby Test Network', color: 'orange' },
   42: { name: 'Kovan Test Network', color: 'purple' },
 };
-let donate;
+
+import Donate from '../../../lib/donate.ts';
+let donate: Donate;
 
 export default {
   namespaced: true,
@@ -27,8 +35,7 @@ export default {
   },
   actions: {
     async initialize({ dispatch }) {
-      let module = await import(/* webpackChunkName: "donate" */ '../../../lib/donate.ts');
-      donate = new module.default();
+      donate = new Donate();
       await donate.init();
       dispatch('update');
       setInterval(() => dispatch('update'), 5000);
@@ -49,15 +56,17 @@ export default {
         commit('unsetAddress');
       }
     },
-    async donateAll({ dispatch }, donations) {
-      let all = await donate.donateAll(donations);
-      return all.map(async d => {
-        let donation = await d;
-        if (donation.failed) {
-          throw donation.err;
+    donateAll(
+      { dispatch },
+      donations: IDonationRequest[]
+    ): Promise<IDonation>[] {
+      return donate.donateAll(donations).map(async pendingDonation => {
+        try {
+          let donation = await pendingDonation;
+          return dispatch('db/logDonation', donation, { root: true });
+        } catch (err) {
+          throw err;
         }
-
-        return dispatch('db/logDonation', donation, { root: true });
       });
     },
   },

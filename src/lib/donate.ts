@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { IDonationRequest, IDonationSuccess } from './models.ts';
 //import Promise from 'bluebird';
 
 let web3;
@@ -33,7 +34,7 @@ export default class Donate {
     });
   }
 
-  async donateAll(donations) {
+  donateAll(donations: IDonationRequest[]): Promise<IDonationSuccess>[] {
     const donationPromises = donations
       .filter(d => !!d.address)
       .map(async d => {
@@ -61,7 +62,7 @@ export default class Donate {
     // A basic transaction should only need 21k but we have some margin because
     // of the data we attach. Also, unused gas is refunded.
     gasLimit = 1e5
-  ) {
+  ): Promise<IDonationSuccess> {
     try {
       if (!this.isAddress(addr)) {
         throw `Not an address: ${addr}`;
@@ -76,7 +77,8 @@ export default class Donate {
       if (!myAcc) {
         throw 'You are not logged in to metamask, please install the extension and/or log in';
       }
-      return new Promise((resolve, reject) => {
+
+      let txid = await new Promise((resolve, reject) => {
         console.log('starting transaction');
         web3.eth.sendTransaction(
           {
@@ -88,28 +90,25 @@ export default class Donate {
             //data: web3.utils.utf8ToHex('💛'),
             data: '0xf09f929b',
           },
-          (err, hash) => {
+          (err, txid) => {
             if (err) reject(err);
-            console.log('transaction', hash);
-            resolve(hash);
+            console.log('transaction', txid);
+            resolve(txid);
           }
         );
         //.once('transactionHash', resolve)
-      }).then(hash => ({
+      });
+
+      return {
+        address: addr,
         creator_id: creator_id,
         weiAmount: weiAmount.toString(),
         usdAmount: usdAmount.toString(),
-        hash: hash,
-        failed: false,
-      }));
-    } catch (error) {
-      console.error('donateone broke', error);
-      return {
-        creator_id: creator_id,
-        usdAmount: usdAmount,
-        failed: true,
-        error: error,
+        txid: txid,
       };
+    } catch (err) {
+      console.error('donateone broke', err);
+      throw err;
     }
   }
 

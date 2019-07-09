@@ -21,6 +21,7 @@ export default {
   state: {
     netId: -1,
     address: null,
+    pendingDonations: [],
   },
   getters: {
     netName(state) {
@@ -57,14 +58,18 @@ export default {
       }
     },
     donateAll(
-      { dispatch },
-      donations: IDonationRequest[]
+      { dispatch, commit },
+      donationRequests: IDonationRequest[]
     ): Promise<IDonation>[] {
-      return donate.donateAll(donations).map(async pendingDonation => {
+      donationRequests = donationRequests.filter(d => !!d.address);
+      return donationRequests.map(async d => {
+        let idx = commit('addPendingDonation', d);
         try {
-          let donation = await pendingDonation;
+          let donation = await donate.donate(d);
+          commit('completePendingDonation', idx);
           return dispatch('db/logDonation', donation, { root: true });
         } catch (err) {
+          commit('failPendingDonation', idx);
           throw err;
         }
       });
@@ -82,6 +87,17 @@ export default {
     },
     unsetNetId(state) {
       state.netId = -1;
+    },
+    addPendingDonation(state, donation) {
+      let length = state.pendingDonations.push(donation);
+      let idx = length - 1;
+      return idx;
+    },
+    completePendingDonation(state, idx) {
+      state.pendingDonations[idx].status = 'completed';
+    },
+    failPendingDonation(state, idx) {
+      state.pendingDonations[idx].status = 'failed';
     },
   },
 };

@@ -116,6 +116,12 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    extensions: ['.js', '.ts', '.vue'],
+    alias: {
+      ['~']: path.resolve(__dirname, 'src'),
+    },
+  },
   entry: {
     background: ['./src/background/background.ts'],
     popup: ['./src/popup/popup.js'],

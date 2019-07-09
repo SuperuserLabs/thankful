@@ -2,11 +2,11 @@ import browser from 'webextension-polyfill';
 import { find, difference, intersection, each, unionBy, filter } from 'lodash';
 
 import { dbListener } from './messaging.ts';
-import { canonicalizeUrl } from '../lib/url.ts';
-import { valueConstantTicker } from '../lib/calltime.ts';
-import { getDatabase } from '../lib/db.ts';
-import { getCurrentTab } from '../lib/tabs.js';
-import { initReminders } from '../lib/reminders.js';
+import { canonicalizeUrl } from '~/lib/url.ts';
+import { valueConstantTicker } from '~/lib/calltime.ts';
+import { getDatabase } from '~/lib/db.ts';
+import { getCurrentTab } from '~/lib/tabs.js';
+import { initReminders } from '~/lib/reminders.js';
 
 // Returns true if tab is audible or if user was active last 60 seconds.
 async function isTabActive(tabInfo): Promise<boolean> {

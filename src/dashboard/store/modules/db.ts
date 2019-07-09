@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import demodata from '../../demodata.js';
-import { getDatabase } from '../../../lib/db.ts';
-import { IDonation, IDonationSuccess } from '../../../lib/models.ts';
+import demodata from '../../demodata';
+import { getDatabase } from '~/lib/db';
+import { IDonation, IDonationSuccess } from '~/lib/models';
 
 const scoringFunction = c => {
   const oneHour = 60 * 60;

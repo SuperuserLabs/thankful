@@ -79,11 +79,11 @@ div
 </template>
 
 <script>
-import CreatorCard from '../components/CreatorCard.vue';
-import ActivityComponent from '../components/ActivityComponent.vue';
-import DonationSummary from '../components/DonationSummary.vue';
-import MissingAddressesCard from '../components/MissingAddressesCard.vue';
-import { Creator } from '../../lib/models.ts';
+import CreatorCard from '~/dashboard/components/CreatorCard.vue';
+import ActivityComponent from '~/dashboard/components/ActivityComponent.vue';
+import DonationSummary from '~/dashboard/components/DonationSummary.vue';
+import MissingAddressesCard from '~/dashboard/components/MissingAddressesCard.vue';
+import { Creator } from '~/lib/models';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
 

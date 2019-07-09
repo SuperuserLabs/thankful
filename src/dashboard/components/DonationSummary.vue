@@ -55,7 +55,7 @@ div.pt-2
 import _ from 'lodash';
 import moment from 'moment';
 import { mapState, mapGetters } from 'vuex';
-import { getInstallDate } from '../../lib/util.ts';
+import { getInstallDate } from '~/lib/util.ts';
 
 export default {
   props: ['checkout'],

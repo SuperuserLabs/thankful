@@ -92,14 +92,17 @@ export default {
       state.netId = -1;
     },
     addPendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id] = donation;
-      state.pendingDonations[donation.creator_id].status = 'pending';
+      console.log('fucking lol donation');
+      console.log(donation);
+      state.pendingDonations[donation.id] = donation;
+      state.pendingDonations[donation.id].status = 'pending';
     },
     completePendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id].status = 'completed';
+      state.pendingDonations[donation.id].status = 'completed';
     },
     failPendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id].status = 'failed';
+      console.log('donation failed!! lol');
+      state.pendingDonations[donation.id].status = 'failed';
     },
   },
 };

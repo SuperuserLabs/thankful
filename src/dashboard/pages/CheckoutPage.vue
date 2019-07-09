@@ -17,12 +17,13 @@ v-container
     v-stepper-content(step="2")
       h3 Sign transactions in metamask
       v-list
-        v-list-tile(v-for="t in transactions")
+        v-list-tile(v-for="d in pendingDonations", :key="d.id")
           v-list-tile-action
-            v-progress-circular(v-if="t.status === 'in-progress'", indeterminate, color="primary")
-            v-icon(v-else-if="t.status === 'failed'") error
+            v-progress-circular(v-if="d.status === 'pending'", indeterminate, color="primary")
+            v-icon(v-else-if="d.status === 'failed'") error
+            v-icon(v-else-if="d.status === 'completed'") check_circle
           v-list-tile-content
-            v-list-tile-title(v-text="t.name")
+            v-list-tile-title(v-text="d.name")
     v-stepper-content(step="3")
       h3 All done! Now just keep surfin' baby.
 </template>
@@ -42,9 +43,9 @@ export default {
   }),
   computed: {
     ...mapState('settings', ['budget_per_month']),
+    ...mapState('metamask', ['pendingDonations']),
     ...mapGetters({
       creators: 'db/creatorsWithShare',
-      pendingDonations: 'metamask/pendingDonations',
     }),
   },
   methods: {

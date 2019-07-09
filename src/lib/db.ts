@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { concat, map, sumBy } from 'lodash';
+import { concat, map, sumBy, countBy } from 'lodash';
 import isReserved from 'github-reserved-names';
 
 import { registerListener } from '../background/messaging.ts';
@@ -179,21 +179,36 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getActivities({ limit = 1000, withCreators = null } = {}): Promise<
-    IActivity[]
-  > {
+  async getActivities({
+    limit = 1000,
+    withCreators = null,
+    withThanks = false,
+  } = {}): Promise<IActivity[]> {
     let coll = this.activities.orderBy('duration').reverse();
     if (withCreators !== null) {
-      if (withCreators) {
-        coll = coll.filter(a => a.creator_id !== undefined);
-      } else {
-        coll = coll.filter(a => a.creator_id === undefined);
-      }
+      coll = coll.filter(a => {
+        if (withCreators) {
+          return a.creator_id !== undefined;
+        } else {
+          return a.creator_id === undefined;
+        }
+      });
     }
     if (limit && limit >= 0) {
       coll = coll.limit(limit);
     }
-    return coll.toArray();
+
+    let activities = await coll.toArray();
+    if (withThanks) {
+      // Populate the activities with their number of thanks
+      let thanksPerUrl = countBy(await this.thanks.toArray(), t => t.url);
+      activities = activities.map(a => {
+        a.thanks = thanksPerUrl[a.url] || 0;
+        return a;
+      });
+    }
+
+    return activities;
   }
 
   // TODO: rename to getCreatorWithUrl or something

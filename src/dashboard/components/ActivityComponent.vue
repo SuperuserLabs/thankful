@@ -8,6 +8,8 @@ v-data-table(v-else, :headers="headers", :items="items(unattributed)", :paginati
         | {{ props.item.title || props.item.url }}
     td.text-right
       | {{ props.item.duration | friendlyDuration }}
+    td.text-right
+      | {{ props.item.thanks || '' }}
 </template>
 
 <script>
@@ -18,6 +20,7 @@ export default {
     headers: [
       { text: 'Page', value: 'title', width: '80%' },
       { text: 'Duration', value: 'duration', width: '20%' },
+      { text: 'Thanks', value: 'thanks', width: '20%' },
     ],
     pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
     loading: true,

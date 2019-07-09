@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import demodata from '../../demodata.js';
 import { getDatabase } from '../../../lib/db.ts';
+import { IDonation, IDonationSuccess } from '../../../lib/models.ts';
 
 const scoringFunction = c => {
   const oneHour = 60 * 60;
@@ -130,8 +131,17 @@ export default {
       await state.creators[index].delete();
       commit('remove', { index });
     },
-    async logDonation({ commit }, { creator_id, weiAmount, usdAmount, hash }) {
-      let id = await db.logDonation(creator_id, weiAmount, usdAmount, hash);
+    async logDonation(
+      { commit },
+      receipt: IDonationSuccess
+    ): Promise<IDonation> {
+      let id = await db.logDonation(
+        receipt.creator_id,
+        receipt.weiAmount,
+        receipt.usdAmount,
+        receipt.tx_id,
+        receipt.net_id
+      );
       let donation = await db.getDonation(id);
       commit('addDonation', donation);
       return donation;

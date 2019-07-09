@@ -1,3 +1,9 @@
+import {
+  IDonation,
+  IDonationRequest,
+  IDonationSuccess,
+} from '../../../lib/models';
+
 let networks = {
   '-1': { color: 'warning' },
   1: { name: 'Main Ethereum Network', color: 'green' },
@@ -5,7 +11,9 @@ let networks = {
   4: { name: 'Rinkeby Test Network', color: 'orange' },
   42: { name: 'Kovan Test Network', color: 'purple' },
 };
-let donate;
+
+import Donate from '../../../lib/donate.ts';
+let donate: Donate;
 
 export default {
   namespaced: true,
@@ -13,6 +21,7 @@ export default {
   state: {
     netId: -1,
     address: null,
+    pendingDonations: {},
   },
   getters: {
     netName(state) {
@@ -27,15 +36,14 @@ export default {
   },
   actions: {
     async initialize({ dispatch }) {
-      let module = await import(/* webpackChunkName: "donate" */ '../../../lib/donate.ts');
-      donate = new module.default();
+      donate = new Donate();
       await donate.init();
       dispatch('update');
       setInterval(() => dispatch('update'), 5000);
     },
     async update({ commit }) {
       try {
-        let id = await donate.getId();
+        let id = await donate.getNetId();
         commit('setNetId', id);
         let addr = await donate.getMyAddress();
         if (addr !== undefined) {
@@ -49,16 +57,25 @@ export default {
         commit('unsetAddress');
       }
     },
-    async donateAll({ dispatch }, donations) {
-      let all = await donate.donateAll(donations);
-      return all.map(async d => {
-        let donation = await d;
-        if (donation.failed) {
-          throw donation.err;
-        }
-
-        return dispatch('db/logDonation', donation, { root: true });
-      });
+    donateAll(
+      { state, dispatch, commit },
+      donationRequests: IDonationRequest[]
+    ): Promise<IDonation>[] {
+      return donationRequests
+        .filter(d => !!d.address)
+        .map(async d => {
+          commit('addPendingDonation', d);
+          try {
+            let donationCompleted = await donate.donate(d);
+            commit('completePendingDonation', d);
+            return dispatch('db/logDonation', donationCompleted, {
+              root: true,
+            });
+          } catch (err) {
+            commit('failPendingDonation', d);
+            throw err;
+          }
+        });
     },
   },
   mutations: {
@@ -73,6 +90,16 @@ export default {
     },
     unsetNetId(state) {
       state.netId = -1;
+    },
+    addPendingDonation(state, donation) {
+      state.pendingDonations[donation.creator_id] = donation;
+      state.pendingDonations[donation.creator_id].status = 'pending';
+    },
+    completePendingDonation(state, donation) {
+      state.pendingDonations[donation.creator_id].status = 'completed';
+    },
+    failPendingDonation(state, donation) {
+      state.pendingDonations[donation.creator_id].status = 'failed';
     },
   },
 };

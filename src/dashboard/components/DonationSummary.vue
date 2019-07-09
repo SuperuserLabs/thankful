@@ -43,12 +43,6 @@ div.pt-2
                         prefix="$",
                         single-line,
                         autofocus)
-
-  div.text-xs-center.pt-2.pb-3(v-if="checkout")
-    v-btn(v-if="!buttonError", large, color='primary' @click="donateAll()")
-      | Send your thanks! (${{ total.toFixed(2) }})
-    v-btn(v-else disabled large outline color='primary')
-      | {{ buttonError }}
 </template>
 
 <script>
@@ -58,11 +52,10 @@ import { mapState, mapGetters } from 'vuex';
 import { getInstallDate } from '../../lib/util.ts';
 
 export default {
-  props: ['checkout'],
+  props: ['distribution', 'checkout'],
   data: function() {
     return {
       editMode: false,
-      distribution: [],
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
@@ -127,38 +120,12 @@ export default {
         updates: { address: address },
       });
     },
-    donateAll() {
-      this.$store.dispatch('metamask/donateAll', this.distribution).catch(e => {
-        console.error('donateAll (in vue) error:', e);
-        // We're currently not catching the emitting anywhere so we
-        // console.error for now
-        this.$emit('error', e);
-      });
-    },
-    distribute() {
-      this.distribution = this.creators.map(c => {
-        return {
-          ...c,
-          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
-        };
-      });
-    },
     async updateLastDonationDate() {
       const lastDonation = this.$store.state.db.donations[0];
       this.lastDonationDate =
         lastDonation === undefined
           ? await getInstallDate()
           : new Date(lastDonation.date);
-    },
-  },
-  async created() {
-    await this.$store.dispatch('db/ensureDonations');
-    await this.updateLastDonationDate();
-    this.distribute();
-  },
-  watch: {
-    creators() {
-      this.distribute();
     },
   },
 };

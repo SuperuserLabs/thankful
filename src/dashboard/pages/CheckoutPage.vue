@@ -1,18 +1,82 @@
 <template lang="pug">
 v-container
-  donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)" checkout="true")
+  v-stepper(:value="step")
+    v-stepper-header
+      v-stepper-step(step="1", :complete="step > 1") Review your donations
+      v-divider
+      v-stepper-step(step="2", :complete="step > 2") Sign transactions
+      v-divider
+      v-stepper-step(step="3", :complete="step > 3") Done
+
+    v-stepper-content(step="1")
+      donation-summary(ref='donationSummary', @error="transactionError", checkout="true", :distribution="distribution")
+      v-layout(row)
+        v-flex
+        v-flex(shrink)
+          v-btn(color="primary", @click="processTransactions()") Continue 
+    v-stepper-content(step="2")
+      h3 Sign transactions in metamask
+      v-list
+        v-list-tile(v-for="t in transactions")
+          v-list-tile-action
+            v-progress-circular(v-if="t.status === 'in-progress'", indeterminate, color="primary")
+            v-icon(v-else-if="t.status === 'failed'") error
+          v-list-tile-content
+            v-list-tile-title(v-text="t.name")
+    v-stepper-content(step="3")
+      h3 All done! Now just keep surfin' baby.
 </template>
 
 <script>
 import DonationSummary from '../components/DonationSummary.vue';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
   components: {
     'donation-summary': DonationSummary,
   },
-  data: () => ({}),
-  computed: {},
+  data: () => ({
+    step: 1,
+    distribution: [],
+    transactions: [],
+  }),
+  computed: {
+    ...mapState('settings', ['budget_per_month']),
+    ...mapGetters({
+      creators: 'db/creatorsWithShare',
+      pendingDonations: 'metamask/pendingDonations',
+    }),
+  },
   methods: {
+    processTransactions() {
+      console.log('processTransactions()');
+      this.step = 2;
+      this.transactions = this.distribution.map(d => {
+        return {
+          ...d,
+          status: 'in-progress',
+        };
+      });
+      this.donateAll();
+    },
+    async donateAll() {
+      try {
+        await this.$store.dispatch('metamask/donateAll', this.distribution);
+      } catch (e) {
+        console.error('donateAll (in vue) error:', e);
+        // We're currently not catching the emitting anywhere so we
+        // console.error for now
+        this.$emit('error', e);
+      }
+    },
+    distribute() {
+      this.distribution = this.creators.map(c => {
+        return {
+          ...c,
+          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
+        };
+      });
+    },
     errfun(title) {
       return message => {
         console.error(`${title}: ${message}`);
@@ -22,6 +86,24 @@ export default {
           type: 'error',
         });
       };
+    },
+    transactionError() {
+      console.log('error in transaction');
+      this.transactions = this.distribution.map(d => {
+        return {
+          ...d,
+          status: 'failed',
+        };
+      });
+    },
+  },
+  async created() {
+    await this.$store.dispatch('db/ensureDonations');
+    this.distribute();
+  },
+  watch: {
+    creators() {
+      this.distribute();
     },
   },
 };

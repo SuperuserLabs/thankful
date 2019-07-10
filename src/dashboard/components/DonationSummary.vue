@@ -47,9 +47,7 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
-import moment from 'moment';
 import { mapState, mapGetters } from 'vuex';
-import { getInstallDate } from '../../lib/util.ts';
 
 export default {
   props: ['distribution', 'checkout'],
@@ -71,7 +69,6 @@ export default {
           v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
-      lastDonationDate: new Date(),
     };
   },
   computed: {
@@ -88,12 +85,6 @@ export default {
         return 'Please log in to MetaMask to be able to donate';
       }
       return '';
-    },
-    timeSinceLastDonation() {
-      const last = this.lastDonationDate;
-      const time_since = moment().diff(last) / 1000;
-      console.log('last donation was', last, ', ', time_since, 'seconds ago');
-      return time_since;
     },
     monthlyAmount() {
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
@@ -119,13 +110,6 @@ export default {
         index: index,
         updates: { address: address },
       });
-    },
-    async updateLastDonationDate() {
-      const lastDonation = this.$store.state.db.donations[0];
-      this.lastDonationDate =
-        lastDonation === undefined
-          ? await getInstallDate()
-          : new Date(lastDonation.date);
     },
   },
 };

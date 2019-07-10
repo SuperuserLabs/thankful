@@ -1,18 +1,7 @@
-import {
-  IDonation,
-  IDonationRequest,
-  IDonationSuccess,
-} from '../../../lib/models';
+import { IDonation, IDonationRequest, IDonationSuccess } from '~/lib/models';
+import Donate from '~/lib/donate';
+import networks from '../../../lib/networks';
 
-let networks = {
-  '-1': { color: 'warning' },
-  1: { name: 'Main Ethereum Network', color: 'green' },
-  3: { name: 'Ropsten Test Network', color: 'red' },
-  4: { name: 'Rinkeby Test Network', color: 'orange' },
-  42: { name: 'Kovan Test Network', color: 'purple' },
-};
-
-import Donate from '../../../lib/donate.ts';
 let donate: Donate;
 
 export default {

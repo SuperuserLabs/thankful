@@ -1,12 +1,7 @@
-import {
-  IDonation,
-  IDonationRequest,
-  IDonationSuccess,
-} from '../../../lib/models';
-
+import { IDonation, IDonationRequest, IDonationSuccess } from '~/lib/models';
+import Donate from '~/lib/donate';
 import networks from '../../../lib/networks';
 
-import Donate from '../../../lib/donate.ts';
 let donate: Donate;
 
 export default {

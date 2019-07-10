@@ -6,7 +6,7 @@ v-container
       v-divider
       v-stepper-step(step="2", :complete="step > 2") Sign transactions
       v-divider
-      v-stepper-step(step="3", :complete="step > 3") Done
+      v-stepper-step(step="3", :complete="step > 2") Done
 
     v-stepper-content(step="1")
       donation-summary(ref='donationSummary', @error="transactionError", checkout="true", :distribution="distribution")
@@ -21,10 +21,9 @@ v-container
           v-list-tile-action
             v-progress-circular(v-if="d.status === 'pending'", indeterminate, color="primary")
             v-icon(v-else-if="d.status === 'failed'") error
-            v-icon(v-else-if="d.status === 'completed'") check_circle
+            v-icon(v-else-if="d.status === 'completed'", color="primary") check_circle
           v-list-tile-content
             v-list-tile-title(v-text="d.name")
-      p {{ JSON.stringify(pendingDonations) }}
     v-stepper-content(step="3")
       h3 All done! Now just keep surfin' baby.
 </template>
@@ -106,6 +105,15 @@ export default {
   watch: {
     creators() {
       this.distribute();
+    },
+    pendingDonations() {
+      let donationSuccess = Object.values(this.pendingDonations).every(x => {
+        return x.status === 'completed';
+      });
+
+      if (donationSuccess) {
+        this.step = 3;
+      }
     },
   },
 };

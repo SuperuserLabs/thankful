@@ -99,12 +99,25 @@ export default {
     },
     completePendingDonation(state, donation) {
       console.log('completed donation!');
-      state.pendingDonations[donation.id].status = 'completed';
+      state.pendingDonations = {
+        ...state.pendingDonations,
+        [donation.id]: {
+          ...state.pendingDonations[donation.id],
+          status: 'completed',
+        },
+      };
       console.log(state.pendingDonations);
     },
     failPendingDonation(state, donation) {
-      console.log('donation failed!! lol');
-      state.pendingDonations[donation.id].status = 'failed';
+      console.log('donation failed');
+      state.pendingDonations = {
+        ...state.pendingDonations,
+        [donation.id]: {
+          ...state.pendingDonations[donation.id],
+          status: 'failed',
+        },
+      };
+      console.log('pendingDonations');
       console.log(state.pendingDonations);
     },
   },

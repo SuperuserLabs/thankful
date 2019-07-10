@@ -81,7 +81,6 @@ export default {
   created() {
     this.$store.dispatch('db/ensureCreators').then(() => {
       this.loading = false;
-      console.log(this.creators);
     });
   },
 };

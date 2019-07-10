@@ -44,6 +44,17 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
   Vue.filter('append', (v, text) => v + text);
   Vue.filter('trim', (v, chars) => v.substr(0, chars || 5) + '...');
 
+  Vue.prototype.$error = function(title) {
+    return message => {
+      console.error(`${title}: ${message}`);
+      this.$store.commit('notifications/insert', {
+        title,
+        text: message,
+        type: 'error',
+      });
+    };
+  };
+
   new Vue({
     el: '#dashboard',
     store,

@@ -81,14 +81,26 @@ export default {
       state.netId = -1;
     },
     addPendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id] = donation;
-      state.pendingDonations[donation.creator_id].status = 'pending';
+      state.pendingDonations[donation.id] = donation;
+      state.pendingDonations[donation.id].status = 'pending';
     },
     completePendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id].status = 'completed';
+      state.pendingDonations = {
+        ...state.pendingDonations,
+        [donation.id]: {
+          ...state.pendingDonations[donation.id],
+          status: 'completed',
+        },
+      };
     },
     failPendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id].status = 'failed';
+      state.pendingDonations = {
+        ...state.pendingDonations,
+        [donation.id]: {
+          ...state.pendingDonations[donation.id],
+          status: 'failed',
+        },
+      };
     },
   },
 };

@@ -70,7 +70,9 @@ div
       div.my-3
 
       // Donation summary
-      donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
+      v-layout(row)
+        v-flex(xs12)
+          donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
       div.text-xs-center.pt-2.pb-3
         router-link(to="/checkout")
@@ -89,7 +91,7 @@ import { Creator } from '~/lib/models';
 import { secondsSinceDonation } from '~/lib/util';
 
 import _ from 'lodash';
-import { mapGetters } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { getDatabase } from '../../lib/db.ts';
 
 export default {
@@ -116,11 +118,14 @@ export default {
       v => !v || this.isAddress(v) || 'Not a valid ETH address',
     ],
     newCreator: false,
+    distribution: [],
     daysSinceDonation: null,
   }),
   computed: {
+    ...mapState('settings', ['budget_per_month']),
     ...mapGetters({
       creators: 'db/favoriteCreators',
+      creatorsWithShare: 'db/creatorsWithShare',
       activityByCreator: 'db/activityByCreator',
       notifications: 'notifications/active',
       isAddress: 'metamask/isAddress',
@@ -132,6 +137,14 @@ export default {
       c.priority = 2;
       this.newCreator = true;
       this.edit(c, -1);
+    },
+    distribute() {
+      this.distribution = this.creatorsWithShare.map(c => {
+        return {
+          ...c,
+          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
+        };
+      });
     },
     ignore(creator) {
       this.currentCreator = creator;
@@ -172,6 +185,15 @@ export default {
       this.loading = false;
     });
     this.$store.dispatch('db/ensureActivities');
+  },
+  async created() {
+    await this.$store.dispatch('db/ensureDonations');
+    this.distribute();
+  },
+  watch: {
+    creators() {
+      this.distribute();
+    },
   },
   async mounted() {
     let db = getDatabase();

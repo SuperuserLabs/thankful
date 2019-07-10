@@ -32,15 +32,14 @@ div.pt-2
                 :value="100 * props.item.funds / total",
                 @change="(x) => changeDonationAmount(props.item, x)",
                 min="0",
-                max="100",
-                style="display: inline-block")
+                max="100",)
             v-flex
               v-edit-dialog.text-xs-right(large,
                             lazy,
                             @open="currentFundsValue = props.item.funds"
-                            @save="props.item.funds = parseFloat(currentFundsValue)")
-                div.text--secondary.subheading(style="display: inline-block")
-                  span {{ props.item.funds | fixed(2) | prepend('$') }}
+                            @save="changeDonationAmount(props.item, 100 * currentFundsValue / total)")
+                div.text--secondary.subheading
+                  | {{ props.item.funds | fixed(2) | prepend('$') }}
                 div.mt-3.title(slot="input")
                   | Change donation
                 v-text-field(slot="input",
@@ -49,7 +48,7 @@ div.pt-2
                             step="0.1",
                             min="0",
                             :rules="rules.fundsInput",
-                            :value="props.item.funds",
+                            v-model="currentFundsValue",
                             prefix="$",
                             single-line,
                             autofocus)
@@ -66,10 +65,11 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
 export default {
-  props: ['distribution', 'checkout'],
+  props: ['checkout'],
   data: function() {
     return {
       editMode: false,
+      distribution: [],
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
@@ -163,17 +163,9 @@ export default {
         };
       });
     },
-    async updateLastDonationDate() {
-      const lastDonation = this.$store.state.db.donations[0];
-      this.lastDonationDate =
-        lastDonation === undefined
-          ? await getInstallDate()
-          : new Date(lastDonation.date);
-    },
   },
   async created() {
     await this.$store.dispatch('db/ensureDonations');
-    await this.updateLastDonationDate();
     this.distribute();
   },
   watch: {

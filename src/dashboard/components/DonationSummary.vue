@@ -31,6 +31,7 @@ div.pt-2
               :label="props.item.funds | fixed(2) | prepend('$')",
               inverse-label,
               @change="(x) => changeDonationAmount(props.item, x)",
+              min="0",
               max="100")
 //        td
 //          v-edit-dialog.text-xs-right(large,
@@ -90,8 +91,7 @@ export default {
   computed: {
     ...mapState('settings', ['budget_per_month']),
     total() {
-      return this.budget_per_month;
-      // return _.sumBy(this.distribution, 'funds');
+      return _.sumBy(this.distribution, 'funds');
     },
     buttonError() {
       let { netId, address } = this.$store.state.metamask;
@@ -129,8 +129,6 @@ export default {
   },
   methods: {
     changeDonationAmount(creator, new_value) {
-      console.log('creator', creator.id);
-      console.log('new_value', new_value);
       const dist =
         Object.keys(this.$store.state.metamask.distribution).length > 0
           ? this.$store.state.metamask.distribution
@@ -138,22 +136,19 @@ export default {
               obj[c.id] = c.share;
               return obj;
             }, {});
-      console.log('dist', dist);
       const redist_targets = _.omit(dist, [creator.id]);
       console.log('redist_targets', redist_targets);
-      console.log(Object.values(redist_targets));
       const unchanged_share_sum = _.sum(Object.values(redist_targets));
       console.log('unchanged_share_sum', unchanged_share_sum);
-      const change = new_value / 100 - creator.share;
-      console.log('change', change);
-      var new_dist = _.mapValues(
-        redist_targets,
-        share => share - (change * share) / unchanged_share_sum
+      const change = new_value / 100 - dist[creator.id];
+      const new_dist = _.mapValues(redist_targets, share =>
+        unchanged_share_sum > 10e-3
+          ? share - (share * change) / unchanged_share_sum
+          : // redistribute equally if all other sliders are set to ~0
+            (-1 * change) / Object.keys(redist_targets).length
       );
       new_dist[creator.id] = new_value / 100;
       console.log('new_dist', new_dist);
-      console.log(_.sum(Object.values(new_dist)));
-      // TODO: check for floating point error
       this.$store.commit('metamask/distribute', new_dist);
       this.distribute();
     },

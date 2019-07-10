@@ -78,10 +78,9 @@ export default {
       });
     },
   },
-  created() {
-    this.$store.dispatch('db/ensureCreators').then(() => {
-      this.loading = false;
-    });
+  async created() {
+    await this.$store.dispatch('db/ensureCreators');
+    this.loading = false;
   },
 };
 </script>

@@ -177,7 +177,6 @@ export default {
     let db = getDatabase();
     let seconds = await secondsSinceDonation(db);
     this.daysSinceDonation = Math.round(seconds / (24 * 60 * 60));
-    console.log(this.daysSinceDonation);
   },
 };
 </script>

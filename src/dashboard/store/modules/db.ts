@@ -72,8 +72,24 @@ export default {
 
     activityByCreator: state => creatorId => state.activities[creatorId],
 
-    activities: ({ activities }) => onlyUnattributed =>
-      onlyUnattributed ? activities.undefined : _.flatten(_.values(activities)),
+    activities: state => ({
+      onlyUnattributed = false,
+      withCreator = false,
+    } = {}) => {
+      if (onlyUnattributed) {
+        // Gets activities that have been grouped as `undefined` in the mapping
+        return state.activities.undefined;
+      }
+
+      let activities = _.flatten(_.values(state.activities));
+      if (withCreator) {
+        activities = _.map(activities, a => ({
+          ...a,
+          creator: state.creators.find(c => c.id === a.creator_id),
+        }));
+      }
+      return activities;
+    },
   },
 
   actions: {
@@ -102,6 +118,7 @@ export default {
     },
     async loadCreators({ commit }) {
       let creators = await db.getCreators({
+        limit: -1,
         withDurations: true,
         withThanksAmount: true,
       });

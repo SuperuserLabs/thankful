@@ -146,6 +146,12 @@ export default {
       commit('addDonation', donation);
       return donation;
     },
+
+    async deleteUnattributedActivity({ dispatch }) {
+      let deleteCount = await db.deleteUnattributedActivities();
+      console.log(`Deleted ${deleteCount} activities`);
+      await dispatch('loadActivities');
+    },
   },
 
   mutations: {

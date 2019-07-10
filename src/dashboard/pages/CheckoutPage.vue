@@ -25,7 +25,8 @@ v-container
           v-list-tile-content
             v-list-tile-title(v-text="d.name")
     v-stepper-content(step="3")
-      h3 All done! Now just keep surfin' baby.
+      h3 All donations where successful! 
+      p Thank you for supporting these creators, it helps build a healthier internet! You can now go back to browsing as usual. We will remind you when it is time to donate again. 
 </template>
 
 <script>

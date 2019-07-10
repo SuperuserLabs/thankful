@@ -118,6 +118,7 @@ export default {
     },
     async loadCreators({ commit }) {
       let creators = await db.getCreators({
+        limit: -1,
         withDurations: true,
         withThanksAmount: true,
       });

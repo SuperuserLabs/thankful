@@ -191,6 +191,7 @@ export class Database extends Dexie {
     withThanks = false,
   } = {}): Promise<IActivity[]> {
     let coll = this.activities.orderBy('duration').reverse();
+
     if (withCreators !== null) {
       coll = coll.filter(a => {
         if (withCreators) {
@@ -200,6 +201,7 @@ export class Database extends Dexie {
         }
       });
     }
+
     if (limit && limit >= 0) {
       coll = coll.limit(limit);
     }
@@ -239,12 +241,18 @@ export class Database extends Dexie {
 
   @messageListener()
   async getCreators({
-    limit = 100,
+    limit = 1000,
     withDurations = false,
     withThanksAmount = false,
   } = {}): Promise<ICreator[]> {
     await this.attributeGithubActivity();
-    let creators = await this.creators.limit(limit).toArray();
+
+    let coll = this.creators.reverse();
+    if (limit && limit >= 0) {
+      coll = coll.limit(limit);
+    }
+
+    let creators = await coll.toArray();
     if (withDurations) {
       await Promise.all(
         map(creators, async c => {

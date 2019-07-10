@@ -178,6 +178,12 @@ export class Database extends Dexie {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
+  // Get activities from database
+  //
+  // Options:
+  //   withCreators = null    Includes all activity, without creator set
+  //   withCreators = true    Only includes activity with an attributed creator, and sets creator_id
+  //   withCreators = false   Only includes activity without an attributed creator
   @messageListener()
   async getActivities({
     limit = 1000,
@@ -209,6 +215,14 @@ export class Database extends Dexie {
     }
 
     return activities;
+  }
+
+  @messageListener()
+  async deleteUnattributedActivities(): Promise<number> {
+    let deleteCount = await this.activities
+      .filter(a => a.creator_id === undefined)
+      .delete();
+    return deleteCount;
   }
 
   // TODO: rename to getCreatorWithUrl or something
@@ -349,6 +363,7 @@ export class Database extends Dexie {
   async getDonations(limit = 100): Promise<Donation[]> {
     try {
       let donations = await this.donations
+        .orderBy('date')
         .reverse()
         .limit(limit)
         .toArray();
@@ -356,13 +371,6 @@ export class Database extends Dexie {
     } catch (err) {
       console.log("Couldn't get donation history from db:", err);
     }
-  }
-
-  @messageListener()
-  async lastDonationDate(): Promise<Date | null> {
-    // TODO: Combine with behavior defined in Vuex to reduce code duplication
-    let donation: IDonation = await this.getDonations(1)[0];
-    return donation !== undefined ? new Date(donation.date) : null;
   }
 
   @messageListener()

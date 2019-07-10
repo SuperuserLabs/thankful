@@ -47,13 +47,15 @@ div
     v-container(grid-list-md)
       // Favorite creators
       v-layout(row)
-        v-flex(xs12).mb-6
-          div.display-1 Your favorite creators
-        v-flex(grow)
+        v-flex
+          span.display-1 Your favorite creators
+          span.ml-3.caption(v-show="daysSinceDonation !== null")
+            | You last donated {{daysSinceDonation}} days ago
         v-flex(shrink)
           v-btn(flat, right, small, @click="addCreator()")
             v-icon add
             | Add creator
+
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
@@ -65,17 +67,17 @@ div
                        @ignore="ignore(creator)"
                        )
 
+      div.my-3
+
       // Donation summary
-      v-layout(row)
-        v-flex(xs12)
-          donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
+      donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
 
-          div.text-xs-center.pt-2.pb-3
-            router-link(to="/checkout")
-              v-btn(large color="primary")
-                | Review & donate
+      div.text-xs-center.pt-2.pb-3
+        router-link(to="/checkout")
+          v-btn(large color="primary")
+            | Review & donate
 
-          missing-addresses-card
+      missing-addresses-card
 </template>
 
 <script>
@@ -84,8 +86,11 @@ import ActivityComponent from '~/dashboard/components/ActivityComponent.vue';
 import DonationSummary from '~/dashboard/components/DonationSummary.vue';
 import MissingAddressesCard from '~/dashboard/components/MissingAddressesCard.vue';
 import { Creator } from '~/lib/models';
+import { secondsSinceDonation } from '~/lib/util';
+
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
+import { getDatabase } from '../../lib/db.ts';
 
 export default {
   components: {
@@ -111,6 +116,7 @@ export default {
       v => !v || this.isAddress(v) || 'Not a valid ETH address',
     ],
     newCreator: false,
+    daysSinceDonation: null,
   }),
   computed: {
     ...mapGetters({
@@ -166,6 +172,12 @@ export default {
       this.loading = false;
     });
     this.$store.dispatch('db/ensureActivities');
+  },
+  async mounted() {
+    let db = getDatabase();
+    let seconds = await secondsSinceDonation(db);
+    this.daysSinceDonation = Math.round(seconds / (24 * 60 * 60));
+    console.log(this.daysSinceDonation);
   },
 };
 </script>

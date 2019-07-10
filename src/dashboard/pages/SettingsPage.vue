@@ -1,15 +1,18 @@
 <template lang="pug">
 v-container
-  h1.display-0 Settings
   t-budget-card
+
+  t-database-cleaning
 </template>
 
 <script>
 import BudgetCard from '../components/BudgetCard.vue';
+import DatabaseCleaning from '../components/DatabaseCleaning.vue';
 
 export default {
   components: {
     't-budget-card': BudgetCard,
+    't-database-cleaning': DatabaseCleaning,
   },
   data: function() {
     return {};

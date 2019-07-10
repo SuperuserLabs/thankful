@@ -11,7 +11,9 @@ export default {
     netId: -1,
     address: null,
     pendingDonations: {},
+    distribution: {},
   },
+
   getters: {
     netName(state) {
       return networks[state.netId].name;
@@ -23,6 +25,7 @@ export default {
       return addr => donate.isAddress(addr);
     },
   },
+
   actions: {
     async initialize({ dispatch }) {
       donate = new Donate();
@@ -101,6 +104,9 @@ export default {
           status: 'failed',
         },
       };
+    },
+    distribute(state, new_dist) {
+      state.distribution = new_dist;
     },
   },
 };

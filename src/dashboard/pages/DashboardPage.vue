@@ -77,7 +77,7 @@ div
       div.text-xs-center.pt-2.pb-3
         router-link(to="/checkout")
           v-btn(large color="primary")
-            | Review & donate
+            | Review & donate ${{ this.budget_per_month }} 
 
       missing-addresses-card
 </template>

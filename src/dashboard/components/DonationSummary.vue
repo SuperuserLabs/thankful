@@ -23,26 +23,41 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
+        // fix this ugly mess
         td
-          v-edit-dialog.text-xs-right(large,
-                        lazy,
-                        @open="currentFundsValue = props.item.funds"
-                        @save="props.item.funds = parseFloat(currentFundsValue)")
-            div
-              v-slider(color="green", :value="80 * props.item.funds / highestAmount", readonly, :label="props.item.funds | fixed(2) | prepend('$')", inverse-label)
-              //| ${{ props.item.funds | fixed(2) }}
-            div.mt-3.title(slot="input")
-              | Change donation
-            v-text-field(slot="input",
-                        type="number",
-                        hint="Your monthly budget",
-                        step="0.1",
-                        min="0",
-                        :rules="rules.fundsInput",
-                        v-model="currentFundsValue",
-                        prefix="$",
-                        single-line,
-                        autofocus)
+          v-layout(row, wrap)
+            v-flex
+              v-slider(
+                color="green",
+                :value="100 * props.item.funds / total",
+                @change="(x) => changeDonationAmount(props.item, x)",
+                min="0",
+                max="100",)
+            v-flex
+              v-edit-dialog.text-xs-right(large,
+                            lazy,
+                            @open="currentFundsValue = props.item.funds"
+                            @save="changeDonationAmount(props.item, 100 * currentFundsValue / total)")
+                div.text--secondary.subheading
+                  | {{ props.item.funds | fixed(2) | prepend('$') }}
+                div.mt-3.title(slot="input")
+                  | Change donation
+                v-text-field(slot="input",
+                            type="number",
+                            hint="Your monthly budget",
+                            step="0.1",
+                            min="0",
+                            :rules="rules.fundsInput",
+                            v-model="currentFundsValue",
+                            prefix="$",
+                            single-line,
+                            autofocus)
+
+  div.text-xs-center.pt-2.pb-3(v-if="checkout")
+    v-btn(v-if="!buttonError", large, color='primary' @click="donateAll()")
+      | Send your thanks! (${{ total.toFixed(2) }})
+    v-btn(v-else disabled large outline color='primary')
+      | {{ buttonError }}
 </template>
 
 <script>
@@ -50,10 +65,11 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
 export default {
-  props: ['distribution', 'checkout'],
+  props: ['checkout'],
   data: function() {
     return {
       editMode: false,
+      distribution: [],
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
@@ -105,11 +121,56 @@ export default {
     }),
   },
   methods: {
+    changeDonationAmount(creator, new_value) {
+      const dist =
+        Object.keys(this.$store.state.metamask.distribution).length > 0
+          ? this.$store.state.metamask.distribution
+          : this.creators.reduce((obj, c) => {
+              obj[c.id] = c.share;
+              return obj;
+            }, {});
+      const redist_targets = _.omit(dist, [creator.id]);
+      const unchanged_share_sum = _.sum(Object.values(redist_targets));
+      const change = new_value / 100 - dist[creator.id];
+      const new_dist = _.mapValues(redist_targets, share => {
+        if (unchanged_share_sum > 10e-3) {
+          return share - (share * change) / unchanged_share_sum;
+        } // redistribute equally if all other sliders are set to ~0
+        return (-1 * change) / Object.keys(redist_targets).length;
+      });
+      new_dist[creator.id] = new_value / 100;
+      this.$store.commit('metamask/distribute', new_dist);
+      this.distribute();
+    },
     updateAddress(index, address) {
       this.$store.dispatch('db/doUpdateCreator', {
         index: index,
         updates: { address: address },
       });
+    },
+    distribute() {
+      const store_dist = this.$store.state.metamask.distribution;
+      this.distribution = this.creators.map(c => {
+        return {
+          ...c,
+          funds: parseFloat(
+            (
+              (Object.keys(store_dist).length > 0
+                ? store_dist[c.id]
+                : c.share) * this.budget_per_month
+            ).toFixed(2)
+          ),
+        };
+      });
+    },
+  },
+  async created() {
+    await this.$store.dispatch('db/ensureDonations');
+    this.distribute();
+  },
+  watch: {
+    creators() {
+      this.distribute();
     },
   },
 };

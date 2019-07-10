@@ -6,12 +6,14 @@ v-data-table(v-else, :headers="headers", :items="creators", :pagination.sync='pa
     td
       a(:href="props.item.url", target="_blank")
         | {{ props.item.name || props.item.url }}
-    td
+    td(style="white-space: nowrap;")
       | {{ props.item.duration | friendlyDuration }}
     td
+      | {{ props.item.thanksAmount || '' }}
+    td.pr-0
       v-layout(row)
         v-flex
-        v-flex(shrink)
+        v-flex(shrink, style="white-space: nowrap;")
           v-icon(v-show='props.item.priority == 2') star
           v-icon(v-show='props.item.priority == 1') heart
 
@@ -49,8 +51,9 @@ export default {
   data: () => ({
     loading: true,
     headers: [
-      { text: 'Creator', value: 'name' },
-      { text: 'Duration', value: 'duration' },
+      { text: 'Creator', value: 'name', width: '60%' },
+      { text: 'Duration', value: 'duration', width: '10%' },
+      { text: 'Thanks', value: 'thanksAmount', width: '10%' },
       { text: '', value: 'actions', sortable: false },
     ],
     pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },

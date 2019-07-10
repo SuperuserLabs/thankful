@@ -92,13 +92,10 @@ export default {
       state.netId = -1;
     },
     addPendingDonation(state, donation) {
-      console.log('fucking lol donation');
-      console.log(donation);
       state.pendingDonations[donation.id] = donation;
       state.pendingDonations[donation.id].status = 'pending';
     },
     completePendingDonation(state, donation) {
-      console.log('completed donation!');
       state.pendingDonations = {
         ...state.pendingDonations,
         [donation.id]: {
@@ -106,10 +103,8 @@ export default {
           status: 'completed',
         },
       };
-      console.log(state.pendingDonations);
     },
     failPendingDonation(state, donation) {
-      console.log('donation failed');
       state.pendingDonations = {
         ...state.pendingDonations,
         [donation.id]: {
@@ -117,8 +112,6 @@ export default {
           status: 'failed',
         },
       };
-      console.log('pendingDonations');
-      console.log(state.pendingDonations);
     },
   },
 };

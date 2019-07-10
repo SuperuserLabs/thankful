@@ -23,33 +23,34 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
-        td
+        // fix this ugly mess
+        td(colspan="2")
           div
             v-slider(
               color="green",
               :value="100 * props.item.funds / total",
-              :label="props.item.funds | fixed(2) | prepend('$')",
-              inverse-label,
               @change="(x) => changeDonationAmount(props.item, x)",
               min="0",
-              max="100")
-//        td
-//          v-edit-dialog.text-xs-right(large,
-//                        lazy,
-//                        @open="currentFundsValue = props.item.funds"
-//                        @save="props.item.funds = parseFloat(currentFundsValue)")
-//          div.mt-3.title(slot="input")
-//            | Change donation
-//          v-text-field(slot="input",
-//                      type="number",
-//                      hint="Your monthly budget",
-//                      step="0.1",
-//                      min="0",
-//                      :rules="rules.fundsInput",
-//                      v-model="currentFundsValue",
-//                      prefix="$",
-//                      single-line,
-//                      autofocus)
+              max="100",
+              style="display: inline-block")
+            v-edit-dialog.text-xs-right(large,
+                          lazy,
+                          @open="currentFundsValue = props.item.funds"
+                          @save="props.item.funds = parseFloat(currentFundsValue)")
+              div.text--secondary.subheading(style="display: inline-block")
+                span {{ props.item.funds | fixed(2) | prepend('$') }}
+              div.mt-3.title(slot="input")
+                | Change donation
+              v-text-field(slot="input",
+                          type="number",
+                          hint="Your monthly budget",
+                          step="0.1",
+                          min="0",
+                          :rules="rules.fundsInput",
+                          :value="props.item.funds",
+                          prefix="$",
+                          single-line,
+                          autofocus)
 
   div.text-xs-center.pt-2.pb-3(v-if="checkout")
     v-btn(v-if="!buttonError", large, color='primary' @click="donateAll()")
@@ -137,9 +138,7 @@ export default {
               return obj;
             }, {});
       const redist_targets = _.omit(dist, [creator.id]);
-      console.log('redist_targets', redist_targets);
       const unchanged_share_sum = _.sum(Object.values(redist_targets));
-      console.log('unchanged_share_sum', unchanged_share_sum);
       const change = new_value / 100 - dist[creator.id];
       const new_dist = _.mapValues(redist_targets, share =>
         unchanged_share_sum > 10e-3
@@ -148,7 +147,6 @@ export default {
             (-1 * change) / Object.keys(redist_targets).length
       );
       new_dist[creator.id] = new_value / 100;
-      console.log('new_dist', new_dist);
       this.$store.commit('metamask/distribute', new_dist);
       this.distribute();
     },
@@ -168,7 +166,6 @@ export default {
     },
     distribute() {
       const store_dist = this.$store.state.metamask.distribution;
-      console.log(store_dist);
       this.distribution = this.creators.map(c => {
         return {
           ...c,

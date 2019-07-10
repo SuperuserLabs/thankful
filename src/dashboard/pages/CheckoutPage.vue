@@ -39,11 +39,12 @@ export default {
   },
   data: () => ({
     step: 1,
+    distribution: [],
     transactions: [],
   }),
   computed: {
     ...mapState('settings', ['budget_per_month']),
-    ...mapState('metamask', ['pendingDonations', 'distribution']),
+    ...mapState('metamask', ['pendingDonations']),
     ...mapGetters({
       creators: 'db/creatorsWithShare',
     }),
@@ -71,17 +72,10 @@ export default {
       }
     },
     distribute() {
-      const store_dist = this.$store.state.metamask.distribution;
       this.distribution = this.creators.map(c => {
         return {
           ...c,
-          funds: parseFloat(
-            (
-              (Object.keys(store_dist).length > 0
-                ? store_dist[c.id]
-                : c.share) * this.budget_per_month
-            ).toFixed(2)
-          ),
+          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
         };
       });
     },
@@ -119,14 +113,14 @@ export default {
       });
       let donationFailure = Object.values(this.pendingDonations).some(x => {
         return x.status === 'failed';
-      });
+      })
 
       if (donationSuccess) {
         this.step = 3;
       }
 
       if (donationFailure) {
-        this.$error('Donation failed')('One or more of the donations failed.');
+        this.$error("Donation failed")("One or more of the donations failed.")
       }
     },
   },

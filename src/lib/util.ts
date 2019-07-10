@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 let browser;
 if (typeof chrome !== 'undefined') {
   browser = require('webextension-polyfill');
@@ -34,4 +36,14 @@ export async function getInstallDate(): Promise<Date> {
   } else {
     return installDate;
   }
+}
+
+export async function lastDonationDate(db): Promise<Date | null> {
+  let donations = await db.getDonations(1);
+  return donations.length > 0 ? donations[0].date : null;
+}
+
+export async function secondsSinceDonation(db): Promise<number> {
+  const lastTime = (await lastDonationDate(db)) || (await getInstallDate());
+  return moment().diff(new Date(lastTime)) / 1000;
 }

@@ -21,8 +21,8 @@ v-app
 </template>
 
 <script>
-import { getCurrentTab, openDashboardTab } from '../lib/tabs.js';
-import { isTimeToDonate } from '../lib/reminders.js';
+import { getCurrentTab, openDashboardTab } from '~/lib/tabs.js';
+import { isTimeToDonate } from '~/lib/reminders.js';
 import browser from 'webextension-polyfill';
 
 let db;

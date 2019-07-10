@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { concat, map, sumBy } from 'lodash';
+import { concat, map, sumBy, countBy } from 'lodash';
 import isReserved from 'github-reserved-names';
 
 import { registerListener } from '../background/messaging.ts';
@@ -178,22 +178,53 @@ export class Database extends Dexie {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
+  // Get activities from database
+  //
+  // Options:
+  //   withCreators = null    Includes all activity, without creator set
+  //   withCreators = true    Only includes activity with an attributed creator, and sets creator_id
+  //   withCreators = false   Only includes activity without an attributed creator
   @messageListener()
-  async getActivities({ limit = 1000, withCreators = null } = {}): Promise<
-    IActivity[]
-  > {
+  async getActivities({
+    limit = 1000,
+    withCreators = null,
+    withThanks = false,
+  } = {}): Promise<IActivity[]> {
     let coll = this.activities.orderBy('duration').reverse();
+
     if (withCreators !== null) {
-      if (withCreators) {
-        coll = coll.filter(a => a.creator_id !== undefined);
-      } else {
-        coll = coll.filter(a => a.creator_id === undefined);
-      }
+      coll = coll.filter(a => {
+        if (withCreators) {
+          return a.creator_id !== undefined;
+        } else {
+          return a.creator_id === undefined;
+        }
+      });
     }
+
     if (limit && limit >= 0) {
       coll = coll.limit(limit);
     }
-    return coll.toArray();
+
+    let activities = await coll.toArray();
+    if (withThanks) {
+      // Populate the activities with their number of thanks
+      let thanksPerUrl = countBy(await this.thanks.toArray(), t => t.url);
+      activities = activities.map(a => {
+        a.thanks = thanksPerUrl[a.url] || 0;
+        return a;
+      });
+    }
+
+    return activities;
+  }
+
+  @messageListener()
+  async deleteUnattributedActivities(): Promise<number> {
+    let deleteCount = await this.activities
+      .filter(a => a.creator_id === undefined)
+      .delete();
+    return deleteCount;
   }
 
   // TODO: rename to getCreatorWithUrl or something
@@ -210,12 +241,18 @@ export class Database extends Dexie {
 
   @messageListener()
   async getCreators({
-    limit = 100,
+    limit = 1000,
     withDurations = false,
     withThanksAmount = false,
   } = {}): Promise<ICreator[]> {
     await this.attributeGithubActivity();
-    let creators = await this.creators.limit(limit).toArray();
+
+    let coll = this.creators.reverse();
+    if (limit && limit >= 0) {
+      coll = coll.limit(limit);
+    }
+
+    let creators = await coll.toArray();
     if (withDurations) {
       await Promise.all(
         map(creators, async c => {
@@ -334,6 +371,7 @@ export class Database extends Dexie {
   async getDonations(limit = 100): Promise<Donation[]> {
     try {
       let donations = await this.donations
+        .orderBy('date')
         .reverse()
         .limit(limit)
         .toArray();
@@ -341,13 +379,6 @@ export class Database extends Dexie {
     } catch (err) {
       console.log("Couldn't get donation history from db:", err);
     }
-  }
-
-  @messageListener()
-  async lastDonationDate(): Promise<Date | null> {
-    // TODO: Combine with behavior defined in Vuex to reduce code duplication
-    let donation: IDonation = await this.getDonations(1)[0];
-    return donation !== undefined ? new Date(donation.date) : null;
   }
 
   @messageListener()

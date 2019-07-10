@@ -47,13 +47,15 @@ div
     v-container(grid-list-md)
       // Favorite creators
       v-layout(row)
-        v-flex(xs12).mb-6
-          div.display-1 Your favorite creators
-        v-flex(grow)
+        v-flex
+          span.display-1 Your favorite creators
+          span.ml-3.caption(v-show="daysSinceDonation !== null")
+            | You last donated {{daysSinceDonation}} days ago
         v-flex(shrink)
           v-btn(flat, right, small, @click="addCreator()")
             v-icon add
             | Add creator
+
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
@@ -65,27 +67,32 @@ div
                        @ignore="ignore(creator)"
                        )
 
+      div.my-3
+
       // Donation summary
       v-layout(row)
         v-flex(xs12)
-          donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)")
+          donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
-          div.text-xs-center.pt-2.pb-3
-            router-link(to="/checkout")
-              v-btn(large color="primary")
-                | Review & donate ${{ this.budget_per_month }} 
+      div.text-xs-center.pt-2.pb-3
+        router-link(to="/checkout")
+          v-btn(large color="primary")
+            | Review & donate ${{ this.budget_per_month }} 
 
-          missing-addresses-card
+      missing-addresses-card
 </template>
 
 <script>
-import CreatorCard from '../components/CreatorCard.vue';
-import ActivityComponent from '../components/ActivityComponent.vue';
-import DonationSummary from '../components/DonationSummary.vue';
-import MissingAddressesCard from '../components/MissingAddressesCard.vue';
-import { Creator } from '../../lib/models.ts';
+import CreatorCard from '~/dashboard/components/CreatorCard.vue';
+import ActivityComponent from '~/dashboard/components/ActivityComponent.vue';
+import DonationSummary from '~/dashboard/components/DonationSummary.vue';
+import MissingAddressesCard from '~/dashboard/components/MissingAddressesCard.vue';
+import { Creator } from '~/lib/models';
+import { secondsSinceDonation } from '~/lib/util';
+
 import _ from 'lodash';
-import { mapGetters, mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
+import { getDatabase } from '../../lib/db.ts';
 
 export default {
   components: {
@@ -111,11 +118,14 @@ export default {
       v => !v || this.isAddress(v) || 'Not a valid ETH address',
     ],
     newCreator: false,
+    distribution: [],
+    daysSinceDonation: null,
   }),
   computed: {
     ...mapState('settings', ['budget_per_month']),
     ...mapGetters({
       creators: 'db/favoriteCreators',
+      creatorsWithShare: 'db/creatorsWithShare',
       activityByCreator: 'db/activityByCreator',
       notifications: 'notifications/active',
       isAddress: 'metamask/isAddress',
@@ -127,6 +137,14 @@ export default {
       c.priority = 2;
       this.newCreator = true;
       this.edit(c, -1);
+    },
+    distribute() {
+      this.distribution = this.creatorsWithShare.map(c => {
+        return {
+          ...c,
+          funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
+        };
+      });
     },
     ignore(creator) {
       this.currentCreator = creator;
@@ -167,6 +185,20 @@ export default {
       this.loading = false;
     });
     this.$store.dispatch('db/ensureActivities');
+  },
+  async created() {
+    await this.$store.dispatch('db/ensureDonations');
+    this.distribute();
+  },
+  watch: {
+    creators() {
+      this.distribute();
+    },
+  },
+  async mounted() {
+    let db = getDatabase();
+    let seconds = await secondsSinceDonation(db);
+    this.daysSinceDonation = Math.round(seconds / (24 * 60 * 60));
   },
 };
 </script>

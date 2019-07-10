@@ -63,16 +63,13 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
-import moment from 'moment';
 import { mapState, mapGetters } from 'vuex';
-import { getInstallDate } from '../../lib/util.ts';
 
 export default {
-  props: ['checkout'],
+  props: ['distribution', 'checkout'],
   data: function() {
     return {
       editMode: false,
-      distribution: [],
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
@@ -88,7 +85,6 @@ export default {
           v => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
-      lastDonationDate: new Date(),
     };
   },
   computed: {
@@ -105,12 +101,6 @@ export default {
         return 'Please log in to MetaMask to be able to donate';
       }
       return '';
-    },
-    timeSinceLastDonation() {
-      const last = this.lastDonationDate;
-      const time_since = moment().diff(last) / 1000;
-      console.log('last donation was', last, ', ', time_since, 'seconds ago');
-      return time_since;
     },
     monthlyAmount() {
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
@@ -156,14 +146,6 @@ export default {
       this.$store.dispatch('db/doUpdateCreator', {
         index: index,
         updates: { address: address },
-      });
-    },
-    donateAll() {
-      this.$store.dispatch('metamask/donateAll', this.distribution).catch(e => {
-        console.error('donateAll (in vue) error:', e);
-        // We're currently not catching the emitting anywhere so we
-        // console.error for now
-        this.$emit('error', e);
       });
     },
     distribute() {

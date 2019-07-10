@@ -22,3 +22,6 @@ stats.json
 
 # .env secrets
 .env-webstore
+
+# a folder @ErikBjare uses to store related non-versioned files
+other

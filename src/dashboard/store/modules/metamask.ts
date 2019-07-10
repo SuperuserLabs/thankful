@@ -1,19 +1,7 @@
-import _ from 'lodash';
-import {
-  IDonation,
-  IDonationRequest,
-  IDonationSuccess,
-} from '../../../lib/models';
+import { IDonation, IDonationRequest, IDonationSuccess } from '~/lib/models';
+import Donate from '~/lib/donate';
+import networks from '../../../lib/networks';
 
-let networks = {
-  '-1': { color: 'warning' },
-  1: { name: 'Main Ethereum Network', color: 'green' },
-  3: { name: 'Ropsten Test Network', color: 'red' },
-  4: { name: 'Rinkeby Test Network', color: 'orange' },
-  42: { name: 'Kovan Test Network', color: 'purple' },
-};
-
-import Donate from '../../../lib/donate.ts';
 let donate: Donate;
 
 export default {
@@ -96,14 +84,26 @@ export default {
       state.netId = -1;
     },
     addPendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id] = donation;
-      state.pendingDonations[donation.creator_id].status = 'pending';
+      state.pendingDonations[donation.id] = donation;
+      state.pendingDonations[donation.id].status = 'pending';
     },
     completePendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id].status = 'completed';
+      state.pendingDonations = {
+        ...state.pendingDonations,
+        [donation.id]: {
+          ...state.pendingDonations[donation.id],
+          status: 'completed',
+        },
+      };
     },
     failPendingDonation(state, donation) {
-      state.pendingDonations[donation.creator_id].status = 'failed';
+      state.pendingDonations = {
+        ...state.pendingDonations,
+        [donation.id]: {
+          ...state.pendingDonations[donation.id],
+          status: 'failed',
+        },
+      };
     },
     distribute(state, new_dist) {
       state.distribution = new_dist;

@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import demodata from '../../demodata.js';
-import { getDatabase } from '../../../lib/db.ts';
-import { IDonation, IDonationSuccess } from '../../../lib/models.ts';
+import demodata from '../../demodata';
+import { getDatabase } from '~/lib/db';
+import { IDonation, IDonationSuccess } from '~/lib/models';
 
 const scoringFunction = c => {
   const oneHour = 60 * 60;
@@ -72,8 +72,24 @@ export default {
 
     activityByCreator: state => creatorId => state.activities[creatorId],
 
-    activities: ({ activities }) => onlyUnattributed =>
-      onlyUnattributed ? activities.undefined : _.flatten(_.values(activities)),
+    activities: state => ({
+      onlyUnattributed = false,
+      withCreator = false,
+    } = {}) => {
+      if (onlyUnattributed) {
+        // Gets activities that have been grouped as `undefined` in the mapping
+        return state.activities.undefined;
+      }
+
+      let activities = _.flatten(_.values(state.activities));
+      if (withCreator) {
+        activities = _.map(activities, a => ({
+          ...a,
+          creator: state.creators.find(c => c.id === a.creator_id),
+        }));
+      }
+      return activities;
+    },
   },
 
   actions: {
@@ -102,6 +118,7 @@ export default {
     },
     async loadCreators({ commit }) {
       let creators = await db.getCreators({
+        limit: -1,
         withDurations: true,
         withThanksAmount: true,
       });
@@ -109,7 +126,7 @@ export default {
       commit('setLoaded', 'creators');
     },
     async loadActivities({ commit }) {
-      let all = await db.getActivities({ limit: -1 });
+      let all = await db.getActivities({ limit: -1, withThanks: true });
       commit('setActivities', _.groupBy(all, 'creator_id'));
       commit('setLoaded', 'activities');
     },
@@ -145,6 +162,12 @@ export default {
       let donation = await db.getDonation(id);
       commit('addDonation', donation);
       return donation;
+    },
+
+    async deleteUnattributedActivity({ dispatch }) {
+      let deleteCount = await db.deleteUnattributedActivities();
+      console.log(`Deleted ${deleteCount} activities`);
+      await dispatch('loadActivities');
     },
   },
 

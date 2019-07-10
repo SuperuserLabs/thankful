@@ -9,7 +9,7 @@ v-container
       v-stepper-step(step="3", :complete="step > 2") Done
 
     v-stepper-content(step="1")
-      donation-summary(ref='donationSummary', @error="transactionError", checkout="true", :distribution="distribution")
+      donation-summary(ref='donationSummary', @error="$error('Donation failed')($event)", checkout="true", :distribution="distribution")
       v-layout(row)
         v-flex
         v-flex(shrink)
@@ -110,9 +110,16 @@ export default {
       let donationSuccess = Object.values(this.pendingDonations).every(x => {
         return x.status === 'completed';
       });
+      let donationFailure = Object.values(this.pendingDonations).some(x => {
+        return x.status === 'failed';
+      })
 
       if (donationSuccess) {
         this.step = 3;
+      }
+
+      if (donationFailure) {
+        this.$error("Donation failed")("One or more of the donations failed.")
       }
     },
   },

@@ -68,7 +68,7 @@ div
       // Donation summary
       v-layout(row)
         v-flex(xs12)
-          donation-summary(ref='donationSummary', @error="errfun('Donating failed')($event)", :distribution="distribution")
+          donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
           div.text-xs-center.pt-2.pb-3
             router-link(to="/checkout")
@@ -137,16 +137,6 @@ export default {
           funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),
         };
       });
-    },
-    errfun(title) {
-      return message => {
-        console.error(`${title}: ${message}`);
-        this.$store.commit('notifications/insert', {
-          title,
-          text: message,
-          type: 'error',
-        });
-      };
     },
     ignore(creator) {
       this.currentCreator = creator;

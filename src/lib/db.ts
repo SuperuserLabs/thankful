@@ -349,6 +349,7 @@ export class Database extends Dexie {
   async getDonations(limit = 100): Promise<Donation[]> {
     try {
       let donations = await this.donations
+        .orderBy('date')
         .reverse()
         .limit(limit)
         .toArray();
@@ -356,13 +357,6 @@ export class Database extends Dexie {
     } catch (err) {
       console.log("Couldn't get donation history from db:", err);
     }
-  }
-
-  @messageListener()
-  async lastDonationDate(): Promise<Date | null> {
-    // TODO: Combine with behavior defined in Vuex to reduce code duplication
-    let donation: IDonation = await this.getDonations(1)[0];
-    return donation !== undefined ? new Date(donation.date) : null;
   }
 
   @messageListener()

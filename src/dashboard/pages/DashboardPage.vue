@@ -75,9 +75,12 @@ div
           donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
       div.text-xs-center.pt-2.pb-3
-        v-btn(v-if="buttonError === 'install'" large color="info" href="https://metamask.io/" target="_blank") Please install MetaMask to be able to donate         
+        router-link(v-if="buttonError === 'install'" to="/onboarding/metamask")
+          v-btn(large color="info")
+            | Please install MetaMask to be able to donate
         router-link(v-else-if="buttonError === 'setup'" to="/onboarding/metamask")
-          v-btn(large color="info") Click here to set up MetaMask to be able to donate
+          v-btn(large color="info")
+            | Click here to set up MetaMask to be able to donate
         router-link(v-else to="/checkout")
           v-btn(large color="primary")
             | Review & donate

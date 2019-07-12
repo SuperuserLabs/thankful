@@ -13,6 +13,14 @@ v-stepper(v-model="step", vertical)
     | Log in to MetaMask
   v-stepper-content(step=2)
     b Now open MetaMask to log in to your account.
+    div(class="note") #[b NOTE:] Unfortunately, #[a(href='https://github.com/MetaMask/metamask-extension/issues/5950') due to (temporary) technical reasons], you also need to #[b turn off privacy mode] in MetaMask (#[a(href='https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8') details on privacy mode]). You can do this by:
+      ol
+        li Opening MetaMask
+        li Clicking on your user icon in the top right
+        li Clicking Settings
+        li Clicking Security & privacy
+        li Toggling Privacy Mode
+
 
   v-stepper-step(step=3)
     | You're done!
@@ -23,6 +31,13 @@ v-stepper(v-model="step", vertical)
 </template>
 
 <style scoped>
+.note {
+  margin: 1rem 3rem;
+  padding: 1rem;
+  background-color: lightgray;
+  border-radius: 5px;
+}
+
 /*
 .step-done {
   opacity: 0.5;

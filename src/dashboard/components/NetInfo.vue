@@ -4,7 +4,7 @@ v-chip(outline, :color='netColor')
     b Not connected to Ethereum, please install #[a(href='https://metamask.io/') MetaMask]
   div(v-else-if="!address")
     //| You are connected to the {{ netName }} but not logged in.
-    b MetaMask is installed but #[a(href='#/onboarding/metamask') some steps need to be taken to connect to it. Click here]
+    b MetaMask is installed, #[a(href='#/onboarding/metamask') click here to set it up]
   div(v-else)
     b Connected to: {{ netName }}
 </template>

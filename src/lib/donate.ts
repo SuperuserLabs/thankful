@@ -20,8 +20,18 @@ export default class Donate {
     await import('bn.js');
     web3 = new Web3(web3Provider);
 
-    //return web3.eth.net.getId();
-    return this.getNetId();
+    return new Promise((res, rej) => {
+      console.log('init promise');
+      web3Provider.send({ method: 'eth_requestAccounts' }, (err, addrs) => {
+        if (err) {
+          console.log('user denied metamask permission', err);
+          return rej(err);
+        }
+
+        console.log('addrs', addrs);
+        return res(this.getNetId());
+      });
+    });
   }
 
   async getNetId(): Promise<number> {

@@ -34,8 +34,10 @@ v-stepper(v-model="step", vertical)
 .note {
   margin: 1rem 3rem;
   padding: 1rem;
-  background-color: lightgray;
   border-radius: 5px;
+  border-style: solid;
+  border-color: #bbb;
+  border-width: 2px;
 }
 
 /*

@@ -18,7 +18,7 @@ v-stepper(v-model="step", vertical)
         li Opening MetaMask
         li Clicking on your user icon in the top right
         li Clicking Settings
-        li Clicking Security & privacy
+        li Clicking Security & Privacy
         li Toggling Privacy Mode
 
 

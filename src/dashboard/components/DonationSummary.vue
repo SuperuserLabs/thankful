@@ -76,16 +76,6 @@ export default {
     total() {
       return _.sumBy(this.distribution, 'funds');
     },
-    buttonError() {
-      let { netId, address } = this.$store.state.metamask;
-      if (netId === -1) {
-        return 'Please install MetaMask to be able to donate';
-      }
-      if (!address) {
-        return 'Please log in to MetaMask to be able to donate';
-      }
-      return '';
-    },
     monthlyAmount() {
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
       return (

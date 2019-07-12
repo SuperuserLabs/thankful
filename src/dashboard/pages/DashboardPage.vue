@@ -75,7 +75,13 @@ div
           donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
       div.text-xs-center.pt-2.pb-3
-        router-link(to="/checkout")
+        router-link(v-if="buttonError === 'install'" to="/onboarding/metamask")
+          v-btn(large color="info")
+            | Please install MetaMask to be able to donate
+        router-link(v-else-if="buttonError === 'setup'" to="/onboarding/metamask")
+          v-btn(large color="info")
+            | Click here to set up MetaMask to be able to donate
+        router-link(v-else to="/checkout")
           v-btn(large color="primary")
             | Review & donate
 
@@ -130,6 +136,19 @@ export default {
       notifications: 'notifications/active',
       isAddress: 'metamask/isAddress',
     }),
+    buttonError() {
+      let { netId, address } = this.$store.state.metamask;
+      if (netId === -1) {
+        return 'install';
+        //return { text: 'Please install MetaMask to be able to donate',
+        // link
+      }
+      if (!address) {
+        return 'setup';
+        //return 'Please log in to MetaMask to be able to donate';
+      }
+      return 'none';
+    },
   },
   methods: {
     addCreator() {

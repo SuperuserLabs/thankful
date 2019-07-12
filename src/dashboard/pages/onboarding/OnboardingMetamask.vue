@@ -13,6 +13,14 @@ v-stepper(v-model="step", vertical)
     | Log in to MetaMask
   v-stepper-content(step=2)
     b Now open MetaMask to log in to your account.
+    v-alert.my-3.mx-4(:value="true" type="info" outline) Unfortunately, due to (temporary) #[a(href='https://github.com/MetaMask/metamask-extension/issues/5950') technical reasons], you also need to #[b turn off privacy mode] in MetaMask (#[a(href='https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8') details on privacy mode]). You can do this by:
+      ol
+        li Opening MetaMask
+        li Clicking on your user icon in the top right
+        li Clicking Settings
+        li Clicking Security & Privacy
+        li Toggling Privacy Mode
+
 
   v-stepper-step(step=3)
     | You're done!

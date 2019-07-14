@@ -31,7 +31,7 @@ serve:
 	cd dist/ && python3 -m http.server
 
 get-crypto-addresses:
-	node scripts/get_crypto_addresses.js > dist/data/crypto_addresses.json
+	node scripts/get_crypto_addresses.js > dist/crypto_addresses.json
 
 
 ## Testing, linting, and code checking

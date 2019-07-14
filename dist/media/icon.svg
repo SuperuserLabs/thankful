@@ -15,12 +15,12 @@
    viewBox="0 0 100 100"
    version="1.1"
    id="svg8"
-   sodipodi:docname="icon-spiral.svg"
+   sodipodi:docname="icon.svg"
    inkscape:version="0.92.4 5da689c313, 2019-01-14"
    enable-background="new"
-   inkscape:export-filename="/home/erb/Programming/thankful/dist/media/icon-128.png"
-   inkscape:export-xdpi="32.509998"
-   inkscape:export-ydpi="32.509998">
+   inkscape:export-filename="/home/erb/Programming/thankful/dist/media/icon-256.png"
+   inkscape:export-xdpi="65.024002"
+   inkscape:export-ydpi="65.024002">
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -96,9 +96,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35355339"
-     inkscape:cx="303.20632"
-     inkscape:cy="-368.54435"
+     inkscape:zoom="0.0625"
+     inkscape:cx="-1654.8713"
+     inkscape:cy="1027.4771"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -120,7 +120,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -203,7 +203,7 @@
        sodipodi:insensitive="true" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:13.25546455px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:#4d4d4d;stroke-width:1.75;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="font-style:normal;font-weight:normal;font-size:13.25546455px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:#4d4d4d;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        x="25.279877"
        y="286.63461"
        id="text4520"><tspan
@@ -211,6 +211,6 @@
          id="tspan4518"
          x="25.279877"
          y="286.63461"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:133.47518921px;font-family:'varela round';-inkscape-font-specification:'varela round';fill:#ffffff;fill-opacity:1;stroke:#4d4d4d;stroke-width:1.75;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">t</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:133.47518921px;font-family:'varela round';-inkscape-font-specification:'varela round';fill:#ffffff;fill-opacity:1;stroke:#4d4d4d;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">t</tspan></text>
   </g>
 </svg>

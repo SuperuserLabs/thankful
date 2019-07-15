@@ -23,6 +23,15 @@ async function _sendMessage(type: string, data: any[]): Promise<any> {
   return await browser.runtime.sendMessage({ type, data });
 }
 
+// Handles unhandled promise rejections
+// https://dexie.org/docs/Promise/unhandledrejection-event
+function handler(event) {
+  event.preventDefault(); // Prevents default handler (would log to console).
+  console.warn('Unhandled promise rejection:', event.reason);
+}
+
+if (window) window.addEventListener('unhandledrejection', handler);
+
 // Doesn't like when you add the descriptor argument for whatever reason ("Unable to resolve signature of method decorator when called as an expression.")
 type TDecorator = (
   target: any,
@@ -232,14 +241,14 @@ export class Database extends Dexie {
 
   // TODO: rename to getCreatorWithUrl or something
   @messageListener()
-  async getCreator(url: string): Promise<ICreator> {
+  async getCreator(url: string): Promise<ICreator | null> {
     // get() gets a creator where the url array contains the url
-    return this.creators.get({ url: url });
+    return (await this.creators.get({ url: url })) || null;
   }
 
   @messageListener()
-  async getCreatorWithId(id: number): Promise<ICreator> {
-    return this.creators.get(id);
+  async getCreatorWithId(id: number): Promise<ICreator | null> {
+    return (await this.creators.get(id)) || null;
   }
 
   @messageListener()
@@ -329,8 +338,13 @@ export class Database extends Dexie {
   @messageListener()
   async connectUrlToCreator(url: string, creator_url: string) {
     url = canonicalizeUrl(url);
-    console.log(url);
     let creator = await this.getCreator(creator_url);
+    if (!creator) {
+      console.error(
+        `Couldn't connect url to creator, no creator found with url: ${creator_url}`
+      );
+      return;
+    }
     await Promise.all([
       this.connectThanksToCreator(url, creator.id),
       this.connectActivityToCreator(url, creator.id),
@@ -412,10 +426,11 @@ export class Database extends Dexie {
   async _attributeFromRegistry() {
     let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
 
+    // TODO: This won't work for YouTube and similar
     let activities = await this.activities
       .where('url')
       .startsWithAnyOf(registryUrls)
-      .filter(a => a.creator_id === undefined)
+      //.filter(a => a.creator_id === undefined)
       .toArray();
     // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
 
@@ -497,11 +512,12 @@ export class Database extends Dexie {
           share: withDefault(share, creator.share),
           info: withDefault(info, creator.info),
         };
+        //console.log('Putting creator: ', creator);
         return creators.put(creator);
       } else {
         let urlSet = new Set([key_url, ...url]);
         creator = {
-          url: Array.from(urlSet),
+          url: Array.from(urlSet) as string[],
           name: name,
           ignore: !!ignore,
           address: address,
@@ -509,6 +525,7 @@ export class Database extends Dexie {
           share: share,
           info: info,
         };
+        //console.log('Adding creator: ', creator);
         return creators.add(creator);
       }
     });

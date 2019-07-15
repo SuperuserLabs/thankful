@@ -101,6 +101,14 @@ describe('Creator', () => {
     expect(creators).toHaveLength(2);
   });
 
+  it("get creator that doesn't exist", async () => {
+    let creator = await db.getCreator('https://notarealcreator.com');
+    expect(creator).toBeNull();
+
+    creator = await db.getCreatorWithId(666666);
+    expect(creator).toBeNull();
+  });
+
   it('correctly adds creator', async () => {
     await db.updateCreator(c_url, { name: c_name });
 

@@ -176,7 +176,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getActivity(url): Promise<IActivity> {
+  async getActivity(url: string): Promise<IActivity> {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
@@ -231,13 +231,13 @@ export class Database extends Dexie {
 
   // TODO: rename to getCreatorWithUrl or something
   @messageListener()
-  async getCreator(url): Promise<ICreator> {
+  async getCreator(url: string): Promise<ICreator> {
     // get() gets a creator where the url array contains the url
     return this.creators.get({ url: url });
   }
 
   @messageListener()
-  async getCreatorWithId(id): Promise<ICreator> {
+  async getCreatorWithId(id: number): Promise<ICreator> {
     return this.creators.get(id);
   }
 
@@ -276,7 +276,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getCreatorActivity(creator_id): Promise<IActivity[]> {
+  async getCreatorActivity(creator_id: number): Promise<IActivity[]> {
     // Get all activity connected to a certain creator
     return this.activities
       .where('creator_id')
@@ -285,7 +285,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async logActivity(url, duration, options = {}) {
+  async logActivity(url: string, duration: number, options = {}) {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     url = canonicalizeUrl(url);
@@ -364,13 +364,13 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async donationWithCreator(donation): Promise<IDonation> {
+  async donationWithCreator(donation: IDonation): Promise<IDonation> {
     donation.creator = await this.getCreatorWithId(donation.creator_id);
     return donation;
   }
 
   @messageListener()
-  async getDonations(limit = 100): Promise<Donation[]> {
+  async getDonations(limit: number = 100): Promise<Donation[]> {
     try {
       let donations = await this.donations
         .orderBy('date')
@@ -426,7 +426,6 @@ export class Database extends Dexie {
 
   @messageListener()
   async _attributeFromRegistry() {
-    // TODO: let addressRegistry = await axios.get('/crypto_addresses.json');
     let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
 
     let activities = await this.activities
@@ -524,7 +523,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async logThank(url, title) {
+  async logThank(url: string, title: string) {
     let activity = await this.activities.get({ url: url });
     let creator_id = activity !== undefined ? activity.creator_id : undefined;
     return this.thanks.add(new Thank(url, title, creator_id)).catch(err => {
@@ -533,7 +532,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getUrlThanksAmount(url): Promise<number> {
+  async getUrlThanksAmount(url: string): Promise<number> {
     url = canonicalizeUrl(url);
     return this.thanks
       .where('url')
@@ -545,7 +544,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getCreatorThanksAmount(creator_id): Promise<number> {
+  async getCreatorThanksAmount(creator_id: number): Promise<number> {
     return this.thanks
       .where('creator_id')
       .equals(creator_id)

@@ -248,7 +248,12 @@ export class Database extends Dexie {
     withDurations = false,
     withThanksAmount = false,
   } = {}): Promise<ICreator[]> {
-    await this.attributeActivity();
+    try {
+      await this.attributeActivity();
+    } catch (error) {
+      console.error("Couldn't attribute activity");
+      console.error(error);
+    }
 
     let coll = this.creators.reverse();
     if (limit && limit >= 0) {
@@ -290,22 +295,17 @@ export class Database extends Dexie {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     url = canonicalizeUrl(url);
-    return this.activities
-      .get({ url: url })
-      .then(activity => {
-        if (activity === undefined) {
-          activity = {
-            url: url,
-            duration: 0,
-          };
-        }
-        activity.duration += duration;
-        Object.assign(activity, options);
-        return this.activities.put(activity);
-      })
-      .catch(err => {
-        throw 'Could not log activity, ' + err;
-      });
+    let activity = await this.activities.get({ url: url });
+
+    if (activity === undefined) {
+      activity = {
+        url: url,
+        duration: 0,
+      };
+    }
+    activity.duration += duration;
+    Object.assign(activity, options);
+    return this.activities.put(activity);
   }
 
   @messageListener()
@@ -314,10 +314,7 @@ export class Database extends Dexie {
     await this.thanks
       .where('url')
       .equals(url)
-      .modify({ creator_id: creator_id })
-      .catch(err => {
-        throw 'Could not connect Thanks to creator, ' + err;
-      });
+      .modify({ creator_id: creator_id });
   }
 
   @messageListener()
@@ -326,24 +323,18 @@ export class Database extends Dexie {
     await this.activities
       .where('url')
       .equals(url)
-      .modify({ creator_id: creator_id })
-      .catch(err => {
-        throw 'Could not connect Activity to creator, ' + err;
-      });
+      .modify({ creator_id: creator_id });
   }
 
   @messageListener()
   async connectUrlToCreator(url: string, creator_url: string) {
-    try {
-      url = canonicalizeUrl(url);
-      let creator = await this.getCreator(creator_url);
-      await Promise.all([
-        this.connectThanksToCreator(url, creator.id),
-        this.connectActivityToCreator(url, creator.id),
-      ]);
-    } catch (err) {
-      throw 'Could not connect URL to creator, ' + err;
-    }
+    url = canonicalizeUrl(url);
+    console.log(url);
+    let creator = await this.getCreator(creator_url);
+    await Promise.all([
+      this.connectThanksToCreator(url, creator.id),
+      this.connectActivityToCreator(url, creator.id),
+    ]);
   }
 
   @messageListener()
@@ -372,16 +363,12 @@ export class Database extends Dexie {
 
   @messageListener()
   async getDonations(limit: number = 100): Promise<Donation[]> {
-    try {
-      let donations = await this.donations
-        .orderBy('date')
-        .reverse()
-        .limit(limit)
-        .toArray();
-      return await Promise.all(donations.map(d => this.donationWithCreator(d)));
-    } catch (err) {
-      console.error("Couldn't get donation history from db:", err);
-    }
+    let donations = await this.donations
+      .orderBy('date')
+      .reverse()
+      .limit(limit)
+      .toArray();
+    return await Promise.all(donations.map(d => this.donationWithCreator(d)));
   }
 
   @messageListener()
@@ -391,38 +378,34 @@ export class Database extends Dexie {
 
   @messageListener()
   async _attributeGithubActivity() {
-    try {
-      // If getActivities() takes a long time to run, consider using:
-      //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
-      const items = concat(
-        await this.thanks
-          .where('url')
-          .startsWith('https://github.com/')
-          .filter(t => t.creator_id === undefined)
-          .toArray(),
-        await this.activities
-          .where('url')
-          .startsWith('https://github.com/')
-          .filter(t => t.creator_id === undefined)
-          .toArray()
-      );
+    // If getActivities() takes a long time to run, consider using:
+    //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
+    const items = concat(
+      await this.thanks
+        .where('url')
+        .startsWith('https://github.com/')
+        .filter(t => t.creator_id === undefined)
+        .toArray(),
+      await this.activities
+        .where('url')
+        .startsWith('https://github.com/')
+        .filter(t => t.creator_id === undefined)
+        .toArray()
+    );
 
-      await Promise.all(
-        map(items, async a => {
-          let u = new URL(a.url);
-          let user_or_org = u.pathname.split('/')[1];
-          if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
-            let creator_url = `https://github.com/${user_or_org}`;
-            await this.updateCreator(creator_url, { name: user_or_org });
-            await this.connectUrlToCreator(a.url, creator_url);
-          }
-        })
-      );
+    await Promise.all(
+      map(items, async a => {
+        let u = new URL(a.url);
+        let user_or_org = u.pathname.split('/')[1];
+        if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
+          let creator_url = `https://github.com/${user_or_org}`;
+          await this.updateCreator(creator_url, { name: user_or_org });
+          await this.connectUrlToCreator(a.url, creator_url);
+        }
+      })
+    );
 
-      return null;
-    } catch (err) {
-      throw 'Could not attribute Github activity, ' + err;
-    }
+    return null;
   }
 
   @messageListener()
@@ -447,7 +430,7 @@ export class Database extends Dexie {
         await this.updateCreator(creator.urls[0], {
           name: creator.name,
           address: creator['eth address'],
-          urls: creator.urls,
+          url: creator.urls,
         });
         let db_creator = await this.getCreator(creator.urls[0]);
         console.log('New creator with activity found in registry:', db_creator);
@@ -473,27 +456,37 @@ export class Database extends Dexie {
         }
       })
     );
+
+    return null;
   }
 
   @messageListener()
   async updateCreator(
-    url: string,
+    key_url: string,
     {
       name = null,
-      urls = [],
+      url = [],
       ignore = null,
       address = null,
       priority = null,
       share = null,
       info = null,
+    }: {
+      name?: string;
+      url?: string[];
+      ignore?: boolean;
+      address?: string;
+      priority?: number;
+      share?: number;
+      info?: string;
     } = {}
   ) {
     let creators = this.creators;
     const withDefault = (maybe, def) => (maybe === null ? def : maybe);
     this.transaction('rw', creators, async () => {
-      let creator = await creators.get({ url: url });
+      let creator = await creators.get({ url: key_url });
       if (creator) {
-        let urlSet = new Set([...creator.url, ...urls]);
+        let urlSet = new Set([key_url, ...url, ...creator.url]);
         creator = {
           id: creator.id,
           url: Array.from(urlSet) as string[],
@@ -506,7 +499,7 @@ export class Database extends Dexie {
         };
         return creators.put(creator);
       } else {
-        let urlSet = new Set([url, ...urls]);
+        let urlSet = new Set([key_url, ...url]);
         creator = {
           url: Array.from(urlSet),
           name: name,
@@ -525,9 +518,7 @@ export class Database extends Dexie {
   async logThank(url: string, title: string) {
     let activity = await this.activities.get({ url: url });
     let creator_id = activity !== undefined ? activity.creator_id : undefined;
-    return this.thanks.add(new Thank(url, title, creator_id)).catch(err => {
-      throw 'Logging thank failed: ' + err;
-    });
+    return this.thanks.add(new Thank(url, title, creator_id));
   }
 
   @messageListener()
@@ -536,10 +527,7 @@ export class Database extends Dexie {
     return this.thanks
       .where('url')
       .equals(url)
-      .count()
-      .catch(err => {
-        throw 'Could not count url thanks: ' + err;
-      });
+      .count();
   }
 
   @messageListener()
@@ -547,9 +535,6 @@ export class Database extends Dexie {
     return this.thanks
       .where('creator_id')
       .equals(creator_id)
-      .count()
-      .catch(err => {
-        throw 'Could not count creator thanks: ' + err;
-      });
+      .count();
   }
 }

@@ -5,6 +5,8 @@ v-container
       | Enable demo mode
     v-btn(@click="logStore()")
       | Log store to console
+    v-btn(@click="attributeFromRegistry()")
+      | Attribute using registry
 
   v-card
     v-layout(row)
@@ -23,6 +25,8 @@ v-container
 <script>
 import Dexie from 'dexie';
 import _ from 'lodash';
+import { getDatabase } from '~/lib/db.ts';
+
 export default {
   components: {},
   data: () => ({
@@ -39,6 +43,11 @@ export default {
   methods: {
     logStore() {
       console.log(this.$store.state.db);
+    },
+    async attributeFromRegistry() {
+      let db = getDatabase();
+      let r = await db._attributeFromRegistry();
+      console.log(r);
     },
     enableDemoMode() {
       this.$store.commit('db/demomode');

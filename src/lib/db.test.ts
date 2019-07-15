@@ -109,6 +109,21 @@ describe('Creator', () => {
     expect(creator.name).toBe(c_name);
   });
 
+  it('get creator with multiple urls', async () => {
+    let c_url2 = 'https://test.com';
+    await db.updateCreator(c_url, { name: c_name, url: [c_url, c_url2] });
+
+    let creator1 = await db.getCreator(c_url);
+    expect(creator1).not.toBeNull();
+    expect(creator1.url).toHaveLength(2);
+
+    let creator2 = await db.getCreator(c_url2);
+    expect(creator1).not.toBeNull();
+    expect(creator2.url[0]).toBe(c_url);
+    expect(creator2.url[1]).toBe(c_url2);
+    expect(creator2.name).toBe(c_name);
+  });
+
   it('correctly updates creator', async () => {
     await db.updateCreator(c_url, { name: c_name });
 

@@ -46,8 +46,10 @@ export default {
     },
     async attributeFromRegistry() {
       let db = getDatabase();
-      let r = await db._attributeFromRegistry();
-      console.log(r);
+      let act = await db._attributeActivityToCreatorFromRegistry();
+      console.log(act);
+      let addr = await db._attributeAddressToCreatorFromRegistry();
+      console.log(addr);
     },
     enableDemoMode() {
       this.$store.commit('db/demomode');

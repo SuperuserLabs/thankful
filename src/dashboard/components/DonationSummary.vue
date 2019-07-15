@@ -112,7 +112,6 @@ export default {
         creator: creator,
         new_value: new_value,
       });
-      console.log(this.distribution);
     },
     updateAddress(index, address) {
       this.$store.dispatch('db/doUpdateCreator', {
@@ -130,15 +129,11 @@ export default {
     await this.$store.dispatch('db/ensureDonations');
     await this.$store.dispatch('db/ensureCreators');
     await this.$store.commit('metamask/set_budget', this.budget_per_month);
-    console.log('mounted summary');
     this.initializeDistribution();
   },
   watch: {
     creators() {
       this.initializeDistribution();
-    },
-    distribution() {
-      console.log('updated distribution', this.distribution);
     },
   },
 };

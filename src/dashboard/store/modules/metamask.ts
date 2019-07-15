@@ -30,14 +30,11 @@ export default {
 
   actions: {
     changeDonationAmount({ state, commit }, payload) {
-      console.log('creators', payload);
       let creators = payload.creators;
       let creator = payload.creator;
       let new_value = payload.new_value;
 
       let dist = state.distribution;
-      console.log('dist', dist);
-
       let redist_targets = dist.filter(c => c.id !== creator.id);
       let unchanged_share_sum = 1 - creator.share;
       let change = new_value / 100 - creator.share;
@@ -50,11 +47,9 @@ export default {
           // redistribute equally if all other sliders are set to ~0
           c.share = (-1 * change) / (dist.length - 1);
         }
-        console.log(c.share);
         return c;
       });
 
-      console.log('new dist', dist);
       commit('distribute', dist);
     },
     async initialize({ dispatch }) {

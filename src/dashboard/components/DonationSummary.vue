@@ -1,6 +1,5 @@
 <template lang="pug">
 div.pt-2
-  p {{ storeDist }}
   v-card
     v-card-title.display-1
       | Donation summary
@@ -31,14 +30,14 @@ div.pt-2
               v-slider(
                 color="green",
                 :value="100 * props.item.funds / total",
-                @change="(x) => changeDonationAmount(props.item, x)",
+                @change="(x) => changeDonationAmount(creators, props.item, x)",
                 min="0",
                 max="100",)
             v-flex
               v-edit-dialog.text-xs-right(large,
                             lazy,
                             @open="currentFundsValue = props.item.funds"
-                            @save="changeDonationAmount(props.item, 100 * currentFundsValue / total)")
+                            @save="changeDonationAmount(creators, props.item, 100 * currentFundsValue / total)")
                 div.text--secondary.subheading
                   | {{ props.item.funds | fixed(2) | prepend('$') }}
                 div.mt-3.title(slot="input")
@@ -58,14 +57,13 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
   props: ['checkout'],
   data: function() {
     return {
       editMode: false,
-      distribution: [],
       headers: [
         { text: 'Creator', value: 'name' },
         { text: 'Address', value: 'address' },
@@ -85,7 +83,7 @@ export default {
   },
   computed: {
     ...mapState('settings', ['budget_per_month']),
-    ...mapState({ storeDist: 'metamask/distribution' }),
+    ...mapState('metamask', ['distribution']),
     ...mapGetters({
       isAddress: 'metamask/isAddress',
       creators: 'db/creatorsWithShare',
@@ -108,29 +106,7 @@ export default {
     },
   },
   methods: {
-    changeDonationAmount(creator, new_value) {
-      const dist =
-        Object.keys(this.$store.state.metamask.distribution).length > 0
-          ? this.$store.state.metamask.distribution
-          : this.creators.reduce((obj, c) => {
-              obj[c.id] = c.share;
-              return obj;
-            }, {});
-      const redist_targets = _.omit(dist, [creator.id]);
-      const unchanged_share_sum = _.sum(Object.values(redist_targets));
-      const change = new_value / 100 - dist[creator.id];
-      const new_dist = _.mapValues(redist_targets, share => {
-        if (unchanged_share_sum > 10e-3) {
-          return share - (share * change) / unchanged_share_sum;
-        } // redistribute equally if all other sliders are set to ~0
-        return (-1 * change) / Object.keys(redist_targets).length;
-      });
-      new_dist[creator.id] = new_value / 100;
-      console.log('change amoutn');
-      console.log(new_dist);
-      this.$store.commit('metamask/distribute', new_dist);
-      this.distribute();
-    },
+    ...mapActions('metamask', ['changeDonationAmount']),
     updateAddress(index, address) {
       this.$store.dispatch('db/doUpdateCreator', {
         index: index,
@@ -138,23 +114,19 @@ export default {
       });
     },
     distribute() {
-      const store_dist = this.$store.state.metamask.distribution;
-      this.distribution = this.creators.map(c => {
+      let new_dist = this.creators.map(c => {
         return {
           ...c,
-          funds: parseFloat(
-            (
-              (Object.keys(store_dist).length > 0
-                ? store_dist[c.id]
-                : c.share) * this.budget_per_month
-            ).toFixed(2)
-          ),
+          funds: parseFloat(c.share * this.budget_per_month).toFixed(2),
         };
       });
+      console.log(new_dist);
+      this.$store.commit('metamask/distribute', new_dist);
     },
   },
-  async created() {
+  async mounted() {
     await this.$store.dispatch('db/ensureDonations');
+    await this.$store.dispatch('db/ensureCreators');
     this.distribute();
   },
   watch: {

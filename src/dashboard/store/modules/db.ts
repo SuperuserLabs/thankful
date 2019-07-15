@@ -142,7 +142,7 @@ export default {
     },
     save({ state }, { index }) {
       let c = state.creators[index];
-      db.updateCreator(c.url[0], c.name, c);
+      db.updateCreator(c.url[0], c);
     },
     async removeCreator({ commit, state }, { index }) {
       await state.creators[index].delete();

@@ -164,9 +164,10 @@ export class Database extends Dexie {
 
   @messageListener()
   async initThankfulTeamCreator() {
-    return this.updateCreator('https://getthankful.io', 'Thankful Team', {
+    return this.updateCreator('https://getthankful.io', {
       // Erik's address
       // TODO: Change to a multisig wallet
+      name: 'Thankful Team',
       address: '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35',
       info:
         'Be thankful for Thankful, donate so we can keep helping people to be thankful!',
@@ -412,7 +413,7 @@ export class Database extends Dexie {
           let user_or_org = u.pathname.split('/')[1];
           if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
             let creator_url = `https://github.com/${user_or_org}`;
-            await this.updateCreator(creator_url, user_or_org);
+            await this.updateCreator(creator_url, { name: user_or_org });
             await this.connectUrlToCreator(a.url, creator_url);
           }
         })
@@ -443,15 +444,13 @@ export class Database extends Dexie {
         );
 
         // TODO: Check if creator is already in database
-        await this.updateCreator(creator.urls[0], creator.name, {
+        await this.updateCreator(creator.urls[0], {
+          name: creator.name,
           address: creator['eth address'],
           urls: creator.urls,
         });
         let db_creator = await this.getCreator(creator.urls[0]);
-        console.log(
-          'New creator with activity found in address registry:',
-          db_creator
-        );
+        console.log('New creator with activity found in registry:', db_creator);
       })
     );
 
@@ -479,8 +478,8 @@ export class Database extends Dexie {
   @messageListener()
   async updateCreator(
     url: string,
-    name: string,
     {
+      name = null,
       urls = [],
       ignore = null,
       address = null,
@@ -498,7 +497,7 @@ export class Database extends Dexie {
         creator = {
           id: creator.id,
           url: Array.from(urlSet) as string[],
-          name: name,
+          name: withDefault(name, creator.name),
           ignore: withDefault(ignore, creator.ignore),
           address: withDefault(address, creator.address),
           priority: withDefault(priority, creator.priority),

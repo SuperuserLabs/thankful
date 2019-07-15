@@ -25,14 +25,15 @@ div.pt-2
                         autofocus)
         // fix this ugly mess
         td
-          v-layout(row, wrap)
+          v-layout(row)
             v-flex
-              v-slider(
-                color="green",
-                :value="100 * props.item.funds / total",
-                @change="(x) => changeDonationAmount(props.item, x)",
-                min="0",
-                max="100",)
+              v-layout(col)
+                v-slider(
+                  color="green",
+                  :value="100 * props.item.funds / total",
+                  @change="(x) => changeDonationAmount(props.item, x)",
+                  min="0",
+                  max="100",)
             v-flex
               v-edit-dialog.text-xs-right(large,
                             lazy,
@@ -151,6 +152,14 @@ export default {
 .text-xs-right .v-menu__activator {
   display: block;
   justify-content: right;
+}
+
+.v-input--slider {
+  margin-top: 8px;
+}
+
+.v-input--slider .v-messages {
+  display: none;
 }
 
 .text-xs-right .v-menu__activator a {

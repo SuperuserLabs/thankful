@@ -3,7 +3,7 @@ div.pt-2
   v-card
     v-card-title.display-1
       | Donation summary
-    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination')
+    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', disable-initial-sort=true)
       template(slot='items', slot-scope='props')
         td
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
@@ -30,14 +30,14 @@ div.pt-2
               v-slider(
                 color="green",
                 :value="100 * props.item.funds / total",
-                @change="(x) => changeDonationAmount(creators, props.item, x)",
+                @change="(x) => changeDonationAmount(props.item, x)",
                 min="0",
                 max="100",)
             v-flex
               v-edit-dialog.text-xs-right(large,
                             lazy,
                             @open="currentFundsValue = props.item.funds"
-                            @save="changeDonationAmount(creators, props.item, 100 * currentFundsValue / total)")
+                            @save="changeDonationAmount(props.item, 100 * currentFundsValue / total)")
                 div.text--secondary.subheading
                   | {{ props.item.funds | fixed(2) | prepend('$') }}
                 div.mt-3.title(slot="input")
@@ -57,7 +57,7 @@ div.pt-2
 
 <script>
 import _ from 'lodash';
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
   props: ['checkout'],
@@ -69,7 +69,7 @@ export default {
         { text: 'Address', value: 'address' },
         { text: 'Amount', value: 'funds', align: 'right' },
       ],
-      pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
+      pagination: { rowsPerPage: -1 },
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {
@@ -106,32 +106,39 @@ export default {
     },
   },
   methods: {
-    ...mapActions('metamask', ['changeDonationAmount']),
+    async changeDonationAmount(creator, new_value) {
+      await this.$store.dispatch('metamask/changeDonationAmount', {
+        creators: this.creators,
+        creator: creator,
+        new_value: new_value,
+      });
+      console.log(this.distribution);
+    },
     updateAddress(index, address) {
       this.$store.dispatch('db/doUpdateCreator', {
         index: index,
         updates: { address: address },
       });
     },
-    distribute() {
-      let new_dist = this.creators.map(c => {
-        return {
-          ...c,
-          funds: parseFloat(c.share * this.budget_per_month).toFixed(2),
-        };
-      });
-      console.log(new_dist);
-      this.$store.commit('metamask/distribute', new_dist);
+    initializeDistribution() {
+      // WARNING: Note how this will put the creator objects in the store, so they will mutate in the distribution state in the metamask store
+      let distribution = _.orderBy(this.creators, 'share', 'desc');
+      this.$store.commit('metamask/distribute', distribution);
     },
   },
   async mounted() {
     await this.$store.dispatch('db/ensureDonations');
     await this.$store.dispatch('db/ensureCreators');
-    this.distribute();
+    await this.$store.commit('metamask/set_budget', this.budget_per_month);
+    console.log('mounted summary');
+    this.initializeDistribution();
   },
   watch: {
     creators() {
-      this.distribute();
+      this.initializeDistribution();
+    },
+    distribution() {
+      console.log('updated distribution', this.distribution);
     },
   },
 };

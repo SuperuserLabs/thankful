@@ -11,6 +11,7 @@ export default {
   state: {
     netId: -1,
     address: null,
+    budget_per_month: 0,
     pendingDonations: {},
     distribution: [],
   },
@@ -28,22 +29,33 @@ export default {
   },
 
   actions: {
-    changeDonationAmount({ state, commit }, creators, creator, new_value) {
-      let dist = state.distribution.length > 0 ? state.distribution : creators;
+    changeDonationAmount({ state, commit }, payload) {
+      console.log('creators', payload);
+      let creators = payload.creators;
+      let creator = payload.creator;
+      let new_value = payload.new_value;
+
+      let dist = state.distribution;
+      console.log('dist', dist);
+
       let redist_targets = dist.filter(c => c.id !== creator.id);
-      let unchanged_share_sum = _.sumBy(redist_targets, 'share');
+      let unchanged_share_sum = 1 - creator.share;
       let change = new_value / 100 - creator.share;
-      let new_dist = redist_targets.map(share => {
-        if (unchanged_share_sum > 10e-3) {
-          return share - (share * change) / unchanged_share_sum;
-        } // redistribute equally if all other sliders are set to ~0
-        return (-1 * change) / redist_targets.length;
+      dist = dist.map(c => {
+        if (c.id === creator.id) {
+          c.share = new_value / 100;
+        } else if (unchanged_share_sum > 10e-3) {
+          c.share = c.share - (c.share * change) / unchanged_share_sum;
+        } else {
+          // redistribute equally if all other sliders are set to ~0
+          c.share = (-1 * change) / (dist.length - 1);
+        }
+        console.log(c.share);
+        return c;
       });
-      creator.share = new_value / 100;
-      new_dist.push(creator);
-      console.log('change amoutn');
-      console.log(new_dist);
-      commit('distribute', new_dist);
+
+      console.log('new dist', dist);
+      commit('distribute', dist);
     },
     async initialize({ dispatch }) {
       donate = new Donate();
@@ -123,7 +135,14 @@ export default {
         },
       };
     },
-    distribute(state, new_dist) {
+    set_budget(state, budget_per_month) {
+      state.budget_per_month = budget_per_month;
+    },
+    distribute({ state }, new_dist) {
+      new_dist = new_dist.map(c => {
+        c.funds = parseFloat((c.share * state.budget_per_month).toFixed(2));
+        return c;
+      });
       state.distribution = new_dist;
     },
   },

@@ -1,6 +1,15 @@
 import Dexie from 'dexie';
 import axios from 'axios';
-import { concat, map, sumBy, countBy, find, some, flatten } from 'lodash';
+import {
+  concat,
+  map,
+  sumBy,
+  countBy,
+  find,
+  some,
+  flatten,
+  intersection,
+} from 'lodash';
 import isReserved from 'github-reserved-names';
 import addressRegistry from '../../dist/crypto_addresses.json';
 
@@ -423,10 +432,15 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async _attributeFromRegistry() {
+  async _attributeActivityToCreatorFromRegistry() {
+    /*
+     * Attributes activity whose URLs starts with a creator URL in the registry
+     * Works for basic websites, GitHub, etc.
+     * Doesn't work for YouTube
+     */
+
     let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
 
-    // TODO: This won't work for YouTube and similar
     let activities = await this.activities
       .where('url')
       .startsWithAnyOf(registryUrls)
@@ -437,18 +451,21 @@ export class Database extends Dexie {
     // Import creators to database
     await Promise.all(
       map(activities, async a => {
-        let creator = find(addressRegistry, c =>
+        let reg_creator = find(addressRegistry, c =>
           some(c.urls, url => a.url.startsWith(url))
         );
 
         // TODO: Check if creator is already in database
-        await this.updateCreator(creator.urls[0], {
-          name: creator.name,
-          address: creator['eth address'],
-          url: creator.urls,
+        await this.updateCreator(reg_creator.urls[0], {
+          name: reg_creator.name,
+          address: reg_creator['eth address'],
+          url: reg_creator.urls,
         });
-        let db_creator = await this.getCreator(creator.urls[0]);
-        console.log('New creator with activity found in registry:', db_creator);
+        let db_creator = await this.getCreator(reg_creator.urls[0]);
+        console.log(
+          'New creator with activity found in registry:',
+          db_creator.name
+        );
       })
     );
 
@@ -471,7 +488,40 @@ export class Database extends Dexie {
         }
       })
     );
+    return null;
+  }
 
+  @messageListener()
+  async _attributeAddressToCreatorFromRegistry() {
+    // Attributes addresses to creators that have matching URLs in the registry
+    let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
+
+    let creators = await this.creators
+      .where('url')
+      .anyOf(registryUrls)
+      .toArray();
+    // console.info(`Found creators with entries in registry: ${creators.length}`);
+
+    // Import creators to database
+    await Promise.all(
+      map(creators, async c => {
+        let reg_creator = find(
+          addressRegistry,
+          reg_c => intersection(reg_c.urls, c.url).length > 0
+        );
+        if (!reg_creator) return;
+
+        await this.updateCreator(c.url[0], {
+          address: reg_creator['eth address'],
+        });
+
+        let db_creator = await this.getCreator(c.url[0]);
+        console.log(
+          'New address for creator found in registry:',
+          db_creator.name
+        );
+      })
+    );
     return null;
   }
 

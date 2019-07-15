@@ -211,14 +211,14 @@ describe('Attribute addresses from registry', () => {
     await clearDB(db);
   });
 
-  it('attributes activity', async () => {
+  it('attributes activity for domain', async () => {
     let c_url = 'https://archive.org/';
     let a_url = 'https://archive.org/';
     let expected_address = '0xFA8E3920daF271daB92Be9B87d9998DDd94FEF08';
 
     await db.logActivity(a_url, 10);
     await db.attributeActivity();
-    await db._attributeFromRegistry();
+    await db._attributeActivityToCreatorFromRegistry();
 
     let activity = await db.getActivity(a_url);
     let creator = await db.getCreator(c_url);
@@ -232,6 +232,30 @@ describe('Attribute addresses from registry', () => {
     // TODO: Test that all urls for the creator are included
     expect(creator.url[0]).toEqual(c_url);
     expect(creator.address).toEqual(expected_address);
+  });
+
+  it('attributes address to YouTube channel', async () => {
+    let c_url = 'https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g';
+    await db.updateCreator(c_url, { name: 'Ethereum Foundation' });
+    await db._attributeAddressToCreatorFromRegistry();
+
+    // Just a mock entry that won't match anything in the registry
+    await db.updateCreator('https://test.com/asdasdad', { name: 'test' });
+
+    let creator = await db.getCreator(c_url);
+    expect(creator.name).toBe('Ethereum Foundation');
+    expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+  });
+
+  it('attributes address to GitHub user', async () => {
+    let c_url = 'https://github.com/ethereum';
+    await db.updateCreator(c_url, { name: 'Ethereum Foundation' });
+    await db._attributeAddressToCreatorFromRegistry();
+
+    let creator = await db.getCreator(c_url);
+    expect(creator.name).toBe('Ethereum Foundation');
+    expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+    // TODO
   });
 });
 

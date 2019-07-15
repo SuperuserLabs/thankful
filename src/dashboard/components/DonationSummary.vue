@@ -1,5 +1,6 @@
 <template lang="pug">
 div.pt-2
+  p {{ storeDist }}
   v-card
     v-card-title.display-1
       | Donation summary
@@ -53,11 +54,6 @@ div.pt-2
                             single-line,
                             autofocus)
 
-  div.text-xs-center.pt-2.pb-3(v-if="checkout")
-    v-btn(v-if="!buttonError", large, color='primary' @click="donateAll()")
-      | Send your thanks! (${{ total.toFixed(2) }})
-    v-btn(v-else disabled large outline color='primary')
-      | {{ buttonError }}
 </template>
 
 <script>
@@ -89,6 +85,11 @@ export default {
   },
   computed: {
     ...mapState('settings', ['budget_per_month']),
+    ...mapState({ storeDist: 'metamask/distribution' }),
+    ...mapGetters({
+      isAddress: 'metamask/isAddress',
+      creators: 'db/creatorsWithShare',
+    }),
     total() {
       return _.sumBy(this.distribution, 'funds');
     },
@@ -105,10 +106,6 @@ export default {
     highestAmount() {
       return _.max(_.map(this.distribution, c => c.funds));
     },
-    ...mapGetters({
-      isAddress: 'metamask/isAddress',
-      creators: 'db/creatorsWithShare',
-    }),
   },
   methods: {
     changeDonationAmount(creator, new_value) {
@@ -129,6 +126,8 @@ export default {
         return (-1 * change) / Object.keys(redist_targets).length;
       });
       new_dist[creator.id] = new_value / 100;
+      console.log('change amoutn');
+      console.log(new_dist);
       this.$store.commit('metamask/distribute', new_dist);
       this.distribute();
     },

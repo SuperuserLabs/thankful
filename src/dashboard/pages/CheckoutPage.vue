@@ -52,7 +52,8 @@ export default {
     processTransactions() {
       console.log('processTransactions()');
       this.step = 2;
-      this.transactions = this.distribution.map(d => {
+      console.log(this.distribution);
+      this.transactions = Object.values(this.distribution).map(d => {
         return {
           ...d,
           status: 'in-progress',
@@ -61,6 +62,7 @@ export default {
       this.donateAll();
     },
     async donateAll() {
+      console.log(this.distribution);
       try {
         await this.$store.dispatch('metamask/donateAll', this.distribution);
       } catch (e) {
@@ -69,21 +71,6 @@ export default {
         // console.error for now
         this.$emit('error', e);
       }
-    },
-    distribute() {
-      const store_dist = this.$store.state.metamask.distribution;
-      this.distribution = this.creators.map(c => {
-        return {
-          ...c,
-          funds: parseFloat(
-            (
-              (Object.keys(store_dist).length > 0
-                ? store_dist[c.id]
-                : c.share) * this.budget_per_month
-            ).toFixed(2)
-          ),
-        };
-      });
     },
     errfun(title) {
       return message => {
@@ -95,28 +82,17 @@ export default {
         });
       };
     },
-    transactionError() {
-      console.log('error in transaction');
-      this.transactions = this.distribution.map(d => {
-        return {
-          ...d,
-          status: 'failed',
-        };
-      });
-    },
   },
   async created() {
     await this.$store.dispatch('db/ensureDonations');
-    this.distribute();
   },
   watch: {
-    creators() {
-      this.distribute();
-    },
     pendingDonations() {
-      let donationSuccess = Object.values(this.pendingDonations).every(x => {
-        return x.status === 'completed';
-      });
+      let dtiononationSuccess = Object.values(this.pendingDonations).every(
+        x => {
+          return x.status === 'completed';
+        }
+      );
       let donationFailure = Object.values(this.pendingDonations).some(x => {
         return x.status === 'failed';
       });

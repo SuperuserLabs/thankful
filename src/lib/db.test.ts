@@ -42,7 +42,7 @@ describe('Activity', () => {
     const c_url = 'https://creatorurl.com';
     await db.logActivity(url, 13.37);
 
-    await db.updateCreator(c_url, 'dummy');
+    await db.updateCreator(c_url, { name: 'dummy' });
     let id = (await db.getCreator(c_url)).id;
 
     await db.connectActivityToCreator(url, id);
@@ -69,7 +69,7 @@ describe('Activity', () => {
     const c_url = 'https://creatorurl.com';
     await db.logActivity(url, 12.5);
 
-    await db.updateCreator(c_url, 'dummy');
+    await db.updateCreator(c_url, { name: 'dummy' });
     let creatorId = (await db.getCreator(c_url)).id;
 
     await db.connectUrlToCreator(url, c_url);
@@ -94,15 +94,15 @@ describe('Creator', () => {
   });
 
   it('get all creators', async () => {
-    await db.updateCreator(c_url, c_name);
-    await db.updateCreator('testurl', 'testname');
+    await db.updateCreator(c_url, { name: c_name });
+    await db.updateCreator('testurl', { name: 'testname' });
 
     let creators = await db.getCreators();
     expect(creators).toHaveLength(2);
   });
 
   it('correctly adds creator', async () => {
-    await db.updateCreator(c_url, c_name);
+    await db.updateCreator(c_url, { name: c_name });
 
     let creator = await db.getCreator(c_url);
     expect(creator.url[0]).toBe(c_url);
@@ -110,7 +110,7 @@ describe('Creator', () => {
   });
 
   it('add creator and connect activity to creator', async () => {
-    await db.updateCreator(c_url, c_name);
+    await db.updateCreator(c_url, { name: c_name });
 
     // Test fetching creator by url
     let creator = await db.getCreator(c_url);
@@ -128,7 +128,7 @@ describe('Creator', () => {
   });
 
   it('gets duration of all activity by creator', async () => {
-    await db.updateCreator(c_url, c_name);
+    await db.updateCreator(c_url, { name: c_name });
 
     let creatorKey = (await db.getCreator(c_url)).id;
     let duration = 10;
@@ -197,7 +197,7 @@ describe('Thanks', () => {
     await db.logThank(thxUrl, thxTitle);
     await db.logThank(thxUrlNotCanon, thxTitle);
 
-    await db.updateCreator(thxCreatorUrl, thxCreatorName);
+    await db.updateCreator(thxCreatorUrl, { name: thxCreatorName });
     let creator = await db.getCreator(thxCreatorUrl);
 
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
@@ -208,7 +208,7 @@ describe('Thanks', () => {
   it('Attaches a creator to a thank', async () => {
     await db.logThank(thxUrl, thxTitle);
 
-    await db.updateCreator(thxCreatorUrl, thxCreatorName);
+    await db.updateCreator(thxCreatorUrl, { name: thxCreatorName });
     let id = (await db.getCreator(thxCreatorUrl)).id;
 
     await db.connectThanksToCreator(thxUrlNotCanon, id);
@@ -224,7 +224,7 @@ describe('Thanks', () => {
   it('Attaches creator to a thank with connectUrl', async () => {
     await db.logThank(thxUrl, thxTitle);
 
-    await db.updateCreator(thxCreatorUrl, thxCreatorName);
+    await db.updateCreator(thxCreatorUrl, { name: thxCreatorName });
     let id = (await db.getCreator(thxCreatorUrl)).id;
 
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
@@ -257,7 +257,7 @@ describe('DonationHistory', () => {
   });
 
   it('Logs one donation and reads it', async () => {
-    await db.updateCreator(c_url, c_name);
+    await db.updateCreator(c_url, { name: c_name });
     const creatorId = (await db.getCreator(c_url)).id;
 
     const donationId = await db.logDonation(
@@ -275,7 +275,7 @@ describe('DonationHistory', () => {
   });
 
   it('Logs a few donations and reads them', async () => {
-    await db.updateCreator(c_url, c_name);
+    await db.updateCreator(c_url, { name: c_name });
     const creatorId = (await db.getCreator(c_url)).id;
 
     await db.logDonation(

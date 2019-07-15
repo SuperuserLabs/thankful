@@ -1,6 +1,8 @@
 import Dexie from 'dexie';
-import { concat, map, sumBy, countBy } from 'lodash';
+import axios from 'axios';
+import { concat, map, sumBy, countBy, find, some, flatten } from 'lodash';
 import isReserved from 'github-reserved-names';
+import addressRegistry from '../../dist/crypto_addresses.json';
 
 import { registerListener } from '../background/messaging.ts';
 import { canonicalizeUrl } from './url.ts';
@@ -186,7 +188,7 @@ export class Database extends Dexie {
   //   withCreators = false   Only includes activity without an attributed creator
   @messageListener()
   async getActivities({
-    limit = 1000,
+    limit = 10000,
     withCreators = null,
     withThanks = false,
   } = {}): Promise<IActivity[]> {
@@ -245,7 +247,7 @@ export class Database extends Dexie {
     withDurations = false,
     withThanksAmount = false,
   } = {}): Promise<ICreator[]> {
-    await this.attributeGithubActivity();
+    await this.attributeActivity();
 
     let coll = this.creators.reverse();
     if (limit && limit >= 0) {
@@ -330,7 +332,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async connectUrlToCreator(url, creator_url) {
+  async connectUrlToCreator(url: string, creator_url: string) {
     try {
       url = canonicalizeUrl(url);
       let creator = await this.getCreator(creator_url);
@@ -344,7 +346,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async logDonation(creator_id, weiAmount, usdAmount, hash, net_id) {
+  async logDonation(creator_id: number, weiAmount, usdAmount, hash, net_id) {
     return this.donations.add(
       new Donation(
         creator_id,
@@ -357,7 +359,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getDonation(id): Promise<IDonation> {
+  async getDonation(id: number): Promise<IDonation> {
     return this.donations.get(id).then(d => this.donationWithCreator(d));
   }
 
@@ -377,33 +379,45 @@ export class Database extends Dexie {
         .toArray();
       return await Promise.all(donations.map(d => this.donationWithCreator(d)));
     } catch (err) {
-      console.log("Couldn't get donation history from db:", err);
+      console.error("Couldn't get donation history from db:", err);
     }
   }
 
   @messageListener()
-  async attributeGithubActivity() {
+  async attributeActivity() {
+    await this._attributeGithubActivity();
+  }
+
+  @messageListener()
+  async _attributeGithubActivity() {
     try {
       // If getActivities() takes a long time to run, consider using:
       //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
-      const logs = concat(
-        await this.getActivities({ withCreators: false }),
-        await this.thanks.filter(t => t.creator_id === undefined).toArray()
-      ).filter(a => {
-        return a.url.includes('https://github.com/');
-      });
+      const items = concat(
+        await this.thanks
+          .where('url')
+          .startsWith('https://github.com/')
+          .filter(t => t.creator_id === undefined)
+          .toArray(),
+        await this.activities
+          .where('url')
+          .startsWith('https://github.com/')
+          .filter(t => t.creator_id === undefined)
+          .toArray()
+      );
 
-      let promises = map(logs, async a => {
-        let u = new URL(a.url);
-        let user_or_org = u.pathname.split('/')[1];
-        if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
-          let creator_url = `https://github.com/${user_or_org}`;
-          await this.updateCreator(creator_url, user_or_org);
-          await this.connectUrlToCreator(a.url, creator_url);
-        }
-      });
+      await Promise.all(
+        map(items, async a => {
+          let u = new URL(a.url);
+          let user_or_org = u.pathname.split('/')[1];
+          if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
+            let creator_url = `https://github.com/${user_or_org}`;
+            await this.updateCreator(creator_url, user_or_org);
+            await this.connectUrlToCreator(a.url, creator_url);
+          }
+        })
+      );
 
-      await Promise.all(promises);
       return null;
     } catch (err) {
       throw 'Could not attribute Github activity, ' + err;
@@ -411,9 +425,62 @@ export class Database extends Dexie {
   }
 
   @messageListener()
+  async _attributeFromRegistry() {
+    // TODO: let addressRegistry = await axios.get('/crypto_addresses.json');
+    let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
+
+    let activities = await this.activities
+      .where('url')
+      .startsWithAnyOf(registryUrls)
+      .filter(a => a.creator_id === undefined)
+      .toArray();
+    // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
+
+    // Import creators to database
+    await Promise.all(
+      map(activities, async a => {
+        let creator = find(addressRegistry, c =>
+          some(c.urls, url => a.url.startsWith(url))
+        );
+
+        // TODO: Check if creator is already in database
+        await this.updateCreator(creator.urls[0], creator.name, {
+          address: creator['eth address'],
+          urls: creator.urls,
+        });
+        let db_creator = await this.getCreator(creator.urls[0]);
+        console.log(
+          'New creator with activity found in address registry:',
+          db_creator
+        );
+      })
+    );
+
+    // Attribute activity to creators
+    let creators = await this.creators.toArray();
+    await Promise.all(
+      map(creators, async (c: ICreator) => {
+        if (c.url && c.url.length > 0) {
+          let acts = await this.activities
+            .where('url')
+            .startsWithAnyOf(c.url)
+            .toArray();
+          await Promise.all(
+            map(acts, async a => {
+              await this.connectActivityToCreator(a.url, c.id);
+            })
+          );
+        } else {
+          console.error(`No urls for creator ${c.name}`);
+        }
+      })
+    );
+  }
+
+  @messageListener()
   async updateCreator(
-    url,
-    name,
+    url: string,
+    name: string,
     {
       urls = [],
       ignore = null,

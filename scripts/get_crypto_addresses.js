@@ -1,6 +1,7 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const csv = require('csvtojson');
+const _ = require('lodash');
 
 async function get_addresses() {
   let result = await exec(
@@ -8,8 +9,15 @@ async function get_addresses() {
   );
 
   //console.warn(result.stdout);
-  let csvObj = await csv().fromString(result.stdout);
-  console.log(JSON.stringify(csvObj, null, 2));
+  let creators = await csv().fromString(result.stdout);
+
+  creators = _.map(creators, c => {
+    c = _.mapKeys(c, (v, k) => k.toLowerCase());
+    c.urls = c.urls.split(';').filter(s => s.length > 0);
+    return c;
+  });
+
+  console.log(JSON.stringify(creators, null, 2));
 }
 
 get_addresses();

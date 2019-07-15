@@ -10,9 +10,11 @@ install-ci:
 # Build
 
 build:
+	make get-crypto-addresses
 	npm run build
 
 build-production:
+	make get-crypto-addresses
 	env PRODUCTION=true npm run build
 
 build-svgs:
@@ -22,6 +24,7 @@ build-svgs:
 # Dev tools
 
 dev:
+	make get-crypto-addresses
 	npm run dev
 
 vue-devtools:

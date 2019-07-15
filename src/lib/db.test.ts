@@ -109,6 +109,21 @@ describe('Creator', () => {
     expect(creator.name).toBe(c_name);
   });
 
+  it('correctly updates creator', async () => {
+    await db.updateCreator(c_url, c_name);
+
+    let creator = await db.getCreator(c_url);
+    expect(creator.url[0]).toBe(c_url);
+    expect(creator.name).toBe(c_name);
+    expect(creator.ignore).toBe(false);
+
+    await db.updateCreator(c_url, c_name, { ignore: true });
+    let updatedCreator = await db.getCreator(c_url);
+    expect(updatedCreator.url[0]).toBe(c_url);
+    expect(updatedCreator.name).toBe(c_name);
+    expect(updatedCreator.ignore).toBe(true);
+  });
+
   it('add creator and connect activity to creator', async () => {
     await db.updateCreator(c_url, c_name);
 
@@ -150,7 +165,7 @@ describe('GitHub activity', () => {
     let c_url = 'https://github.com/SuperuserLabs';
     let url = 'https://github.com/SuperuserLabs/thankful';
     await db.logActivity(url, 10);
-    await db.attributeGithubActivity();
+    await db.attributeActivity();
     let activity = await db.getActivity(url);
     let creator = await db.getCreator(c_url);
     expect(activity.creator_id).toEqual(creator.id);
@@ -160,9 +175,40 @@ describe('GitHub activity', () => {
   it('should not attribute non-user pages', async () => {
     let url = 'https://github.com/orgs/SuperuserLabs';
     await db.logActivity(url, 10);
-    await db.attributeGithubActivity();
+    await db.attributeActivity();
     let activity = await db.getActivity(url);
     expect(activity.creator).toBeUndefined();
+  });
+});
+
+describe('Attribute addresses from registry', () => {
+  const db = new Database();
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('attributes activity', async () => {
+    let c_url = 'https://archive.org/';
+    let a_url = 'https://archive.org/';
+    let expected_address = '0xFA8E3920daF271daB92Be9B87d9998DDd94FEF08';
+
+    await db.logActivity(a_url, 10);
+    await db.attributeActivity();
+    await db._attributeFromRegistry();
+
+    let activity = await db.getActivity(a_url);
+    let creator = await db.getCreator(c_url);
+
+    // Test that activity has been attributed
+    expect(activity.creator_id).toEqual(creator.id);
+
+    // Test that creator was successfully imported
+    expect(creator).not.toEqual(null);
+    expect(creator.name).toEqual('Internet Archive');
+    // TODO: Test that all urls for the creator are included
+    expect(creator.url[0]).toEqual(c_url);
+    expect(creator.address).toEqual(expected_address);
   });
 });
 

@@ -133,7 +133,7 @@ export default {
     set_budget(state, budget_per_month) {
       state.budget_per_month = budget_per_month;
     },
-    distribute({ state }, new_dist) {
+    distribute(state, new_dist) {
       new_dist = new_dist.map(c => {
         c.funds = parseFloat((c.share * state.budget_per_month).toFixed(2));
         return c;

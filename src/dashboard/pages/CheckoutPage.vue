@@ -88,14 +88,12 @@ export default {
   },
   watch: {
     pendingDonations() {
-      let dtiononationSuccess = Object.values(this.pendingDonations).every(
-        x => {
-          return x.status === 'completed';
-        }
+      let donationSuccess = Object.values(this.pendingDonations).every(
+        x => x.status === 'completed'
       );
-      let donationFailure = Object.values(this.pendingDonations).some(x => {
-        return x.status === 'failed';
-      });
+      let donationFailure = Object.values(this.pendingDonations).some(
+        x => x.status === 'failed'
+      );
 
       if (donationSuccess) {
         this.step = 3;

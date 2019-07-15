@@ -8,25 +8,28 @@ v-container
       v-divider
       v-stepper-step(step="3", :complete="step > 2") Done
 
-    v-stepper-content(step="1")
-      donation-summary(ref='donationSummary', @error="$error('Donation failed')($event)", checkout="true", :distribution="distribution")
+    v-stepper-content(step="1", style="padding: 0")
+      h2.pa-4 Donation summary
+      div(style="padding: -2em")
+        donation-summary(ref='donationSummary', @error="$error('Donation failed')($event)", checkout="true", :distribution="distribution")
       v-layout(row)
         v-flex
-        v-flex(shrink)
-          v-btn(color="primary", @click="processTransactions()") Continue 
+        v-flex(shrink).pa-3
+          v-btn(color="primary", @click="processTransactions()") Continue
     v-stepper-content(step="2")
-      h3 Sign transactions in metamask
+      h2 Sign transactions in metamask
       v-list
         v-list-tile(v-for="d in pendingDonations", :key="d.id")
           v-list-tile-action
             v-progress-circular(v-if="d.status === 'pending'", indeterminate, color="primary")
-            v-icon(v-else-if="d.status === 'failed'") error
-            v-icon(v-else-if="d.status === 'completed'", color="primary") check_circle
+            v-icon(v-else-if="d.status === 'failed'", color="orange", large) error
+            v-icon(v-else-if="d.status === 'completed'", color="primary", large) check_circle
           v-list-tile-content
             v-list-tile-title(v-text="d.name")
     v-stepper-content(step="3")
-      h3 All donations where successful! 
-      p Thank you for supporting these creators, it helps build a healthier internet! You can now go back to browsing as usual. We will remind you when it is time to donate again. 
+      h2 All donations where successful!
+      p Thank you for supporting these creators, it helps build a healthier internet!
+      p You can now go back to browsing as usual. We will remind you when it is time to donate again.
 </template>
 
 <script>

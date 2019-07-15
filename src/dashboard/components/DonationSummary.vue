@@ -1,8 +1,5 @@
 <template lang="pug">
-div.pt-2
-  v-card
-    v-card-title.display-1
-      | Donation summary
+div
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', disable-initial-sort=true)
       template(slot='items', slot-scope='props')
         td

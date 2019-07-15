@@ -83,7 +83,7 @@ div
             | Click here to set up MetaMask to be able to donate
         router-link(v-else to="/checkout")
           v-btn(large color="primary")
-            | Review & donate
+            | Review & donate ${{ this.budget_per_month }} 
 
       missing-addresses-card
 </template>

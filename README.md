@@ -42,15 +42,11 @@ These are things we haven't built yet, but are figuring out.
 
 ## What content can currently be funded by Thankful?
 
-We want to make it possible to easily support all creators. These are the things we've been thinking about:
+We want to make it easy to support creators on all platforms and mediums. These are the things we're currently supporting:
 
-- Videos
-  - From YouTube
-- Music
-  - From YouTube
-- Writing
-  - From Medium
-- Patreon (lol)
+- **Videos**: on YouTube
+- **Code**: on GitHub
+- **Writing**: on Medium
 
 ### Platforms we want to support in the future
 

@@ -85,6 +85,7 @@ export class Creator extends Model {
 
 export interface IDonation {
   date: string;
+  creator?: ICreator;
   creator_id: number;
   weiAmount: string;
   usdAmount: string;

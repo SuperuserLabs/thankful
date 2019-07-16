@@ -1,9 +1,6 @@
 <template lang="pug">
-div.pt-2
-  v-card
-    v-card-title.display-1
-      | Donation summary
-    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination')
+div
+    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', disable-initial-sort=true)
       template(slot='items', slot-scope='props')
         td
           a(target="_blank", :href="props.item.url") {{ props.item.name }}
@@ -23,26 +20,37 @@ div.pt-2
                         v-model="currentAddressValue",
                         single-line,
                         autofocus)
+        // fix this ugly mess
         td
-          v-edit-dialog.text-xs-right(large,
-                        lazy,
-                        @open="currentFundsValue = props.item.funds"
-                        @save="props.item.funds = parseFloat(currentFundsValue)")
-            div
-              v-slider(color="green", :value="80 * props.item.funds / highestAmount", readonly, :label="props.item.funds | fixed(2) | prepend('$')", inverse-label)
-              //| ${{ props.item.funds | fixed(2) }}
-            div.mt-3.title(slot="input")
-              | Change donation
-            v-text-field(slot="input",
-                        type="number",
-                        hint="Your monthly budget",
-                        step="0.1",
-                        min="0",
-                        :rules="rules.fundsInput",
-                        v-model="currentFundsValue",
-                        prefix="$",
-                        single-line,
-                        autofocus)
+          v-layout(row)
+            v-flex
+              v-layout(col)
+                v-slider(
+                  color="green",
+                  :value="100 * props.item.funds / total",
+                  @change="(x) => changeDonationAmount(props.item, x)",
+                  min="0",
+                  max="100",)
+            v-flex
+              v-edit-dialog.text-xs-right(large,
+                            lazy,
+                            @open="currentFundsValue = props.item.funds"
+                            @save="changeDonationAmount(props.item, 100 * currentFundsValue / total)")
+                div.text--secondary.subheading
+                  | {{ props.item.funds | fixed(2) | prepend('$') }}
+                div.mt-3.title(slot="input")
+                  | Change donation
+                v-text-field(slot="input",
+                            type="number",
+                            hint="Your monthly budget",
+                            step="0.1",
+                            min="0",
+                            :rules="rules.fundsInput",
+                            v-model="currentFundsValue",
+                            prefix="$",
+                            single-line,
+                            autofocus)
+
 </template>
 
 <script>
@@ -50,7 +58,7 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
 export default {
-  props: ['distribution', 'checkout'],
+  props: ['checkout'],
   data: function() {
     return {
       editMode: false,
@@ -59,7 +67,7 @@ export default {
         { text: 'Address', value: 'address' },
         { text: 'Amount', value: 'funds', align: 'right' },
       ],
-      pagination: { sortBy: 'funds', descending: true, rowsPerPage: -1 },
+      pagination: { rowsPerPage: -1 },
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {
@@ -73,18 +81,13 @@ export default {
   },
   computed: {
     ...mapState('settings', ['budget_per_month']),
+    ...mapState('metamask', ['distribution']),
+    ...mapGetters({
+      isAddress: 'metamask/isAddress',
+      creators: 'db/creatorsWithShare',
+    }),
     total() {
       return _.sumBy(this.distribution, 'funds');
-    },
-    buttonError() {
-      let { netId, address } = this.$store.state.metamask;
-      if (netId === -1) {
-        return 'Please install MetaMask to be able to donate';
-      }
-      if (!address) {
-        return 'Please log in to MetaMask to be able to donate';
-      }
-      return '';
     },
     monthlyAmount() {
       const one_month = 60 * 60 * 24 * 30; // 30 days in seconds
@@ -99,17 +102,36 @@ export default {
     highestAmount() {
       return _.max(_.map(this.distribution, c => c.funds));
     },
-    ...mapGetters({
-      isAddress: 'metamask/isAddress',
-      creators: 'db/creatorsWithShare',
-    }),
   },
   methods: {
+    async changeDonationAmount(creator, new_value) {
+      await this.$store.dispatch('metamask/changeDonationAmount', {
+        creators: this.creators,
+        creator: creator,
+        new_value: new_value,
+      });
+    },
     updateAddress(index, address) {
       this.$store.dispatch('db/doUpdateCreator', {
         index: index,
         updates: { address: address },
       });
+    },
+    initializeDistribution() {
+      // WARNING: Note how this will put the creator objects in the store, so they will mutate in the distribution state in the metamask store
+      let distribution = _.orderBy(this.creators, 'share', 'desc');
+      this.$store.commit('metamask/distribute', distribution);
+    },
+  },
+  async mounted() {
+    await this.$store.dispatch('db/ensureDonations');
+    await this.$store.dispatch('db/ensureCreators');
+    await this.$store.commit('metamask/set_budget', this.budget_per_month);
+    this.initializeDistribution();
+  },
+  watch: {
+    creators() {
+      this.initializeDistribution();
     },
   },
 };
@@ -122,6 +144,14 @@ export default {
 .text-xs-right .v-menu__activator {
   display: block;
   justify-content: right;
+}
+
+.v-input--slider {
+  margin-top: 8px;
+}
+
+.v-input--slider .v-messages {
+  display: none;
 }
 
 .text-xs-right .v-menu__activator a {

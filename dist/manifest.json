@@ -4,10 +4,13 @@
   "version": "0.7.0",
   "description": "Support free culture by automatically sending cryptocurrency to the creators of the content you love.",
   "icons": {
-    "64": "icons/handshake.png"
+    "64": "media/icon-64.png",
+    "128": "media/icon-128.png",
+    "256": "media/icon-256.png",
+    "512": "media/icon-512.png"
   },
   "browser_action": {
-    "default_icon": "icons/handshake.png",
+    "default_icon": "media/icon-128.png",
     "default_title": "Thankful",
     "default_popup": "popup/index.html",
     "browser_style": true

@@ -5,7 +5,9 @@ div
       v-btn(icon @click="drawer = !drawer")
         v-icon menu
     v-toolbar-title
-      h1 #[router-link(to="/" style="text-decoration: none; color: inherit") Thankful]
+      router-link(to="/" style="text-decoration: none; color: inherit")
+          img.mr-3(src="/media/icon-256.png", style="width: 1.8em; display: inline-block; vertical-align: middle")
+          h1(style="display: inline-block; vertical-align: middle")  Thankful
     v-toolbar-items
       div(style="display: flex; align-items: center;")
         div.pl-4

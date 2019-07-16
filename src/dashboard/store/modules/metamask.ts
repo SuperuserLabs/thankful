@@ -1,6 +1,7 @@
 import { IDonation, IDonationRequest, IDonationSuccess } from '~/lib/models';
 import Donate from '~/lib/donate';
 import networks from '../../../lib/networks';
+import _ from 'lodash';
 
 let donate: Donate;
 
@@ -10,8 +11,11 @@ export default {
   state: {
     netId: -1,
     address: null,
+    budget_per_month: 0,
     pendingDonations: {},
+    distribution: [],
   },
+
   getters: {
     netName(state) {
       return networks[state.netId].name;
@@ -23,7 +27,31 @@ export default {
       return addr => donate.isAddress(addr);
     },
   },
+
   actions: {
+    changeDonationAmount({ state, commit }, payload) {
+      let creators = payload.creators;
+      let creator = payload.creator;
+      let new_value = payload.new_value;
+
+      let dist = state.distribution;
+      let redist_targets = dist.filter(c => c.id !== creator.id);
+      let unchanged_share_sum = 1 - creator.share;
+      let change = new_value / 100 - creator.share;
+      dist = dist.map(c => {
+        if (c.id === creator.id) {
+          c.share = new_value / 100;
+        } else if (unchanged_share_sum > 10e-3) {
+          c.share = c.share - (c.share * change) / unchanged_share_sum;
+        } else {
+          // redistribute equally if all other sliders are set to ~0
+          c.share = (-1 * change) / (dist.length - 1);
+        }
+        return c;
+      });
+
+      commit('distribute', dist);
+    },
     async initialize({ dispatch }) {
       donate = new Donate();
       await donate.init();
@@ -101,6 +129,16 @@ export default {
           status: 'failed',
         },
       };
+    },
+    set_budget(state, budget_per_month) {
+      state.budget_per_month = budget_per_month;
+    },
+    distribute(state, new_dist) {
+      new_dist = new_dist.map(c => {
+        c.funds = parseFloat((c.share * state.budget_per_month).toFixed(2));
+        return c;
+      });
+      state.distribution = new_dist;
     },
   },
 };

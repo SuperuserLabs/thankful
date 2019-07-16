@@ -21,11 +21,16 @@ export async function dbListener({
   let getDatabase = require('../lib/db.ts').getDatabase;
   const db = getDatabase();
 
-  if (_listeners[type] !== undefined) {
-    console.info(`Using registerListener for message type: ${type}`);
-    let listener = <any>_listeners[type].bind(db);
-    return await listener(...data);
-  } else {
+  if (_listeners[type] === undefined) {
     throw `Unhandled message type: ${type}`;
+  }
+
+  console.info(`Using registerListener for message type: ${type}`);
+  let listener = <any>_listeners[type].bind(db);
+  try {
+    return await listener(...data);
+  } catch (error) {
+    console.error(`Error occurred while calling listener of type: ${type}`);
+    console.error(error.stack);
   }
 }

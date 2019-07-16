@@ -9,16 +9,19 @@ install-ci:
 
 # Build
 
-build:
+build: dist/crypto_addresses.json
 	npm run build
 
-build-production:
+build-production: dist/crypto_addresses.json
 	env PRODUCTION=true npm run build
+
+build-svgs:
+	for size in 64 128 256 512; do inkscape --without-gui --export-png=dist/media/icon-$$size.png --export-width=$$size --export-height=$$size dist/media/icon.svg; done
 
 
 # Dev tools
 
-dev:
+dev: dist/crypto_addresses.json
 	npm run dev
 
 vue-devtools:
@@ -27,13 +30,13 @@ vue-devtools:
 serve:
 	cd dist/ && python3 -m http.server
 
-get-crypto-addresses:
-	node scripts/get_crypto_addresses.js > dist/data/crypto_addresses.json
+dist/crypto_addresses.json:
+	node scripts/get_crypto_addresses.js > dist/crypto_addresses.json
 
 
 ## Testing, linting, and code checking
 
-test:
+test: dist/crypto_addresses.json
 	npm run test
 
 lint:

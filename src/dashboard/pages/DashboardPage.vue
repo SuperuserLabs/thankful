@@ -47,7 +47,7 @@ div
     v-container(grid-list-md)
       // Favorite creators
       v-layout(row)
-        v-flex
+        v-flex.pa-2
           span.display-1 Your favorite creators
           span.ml-3.caption(v-show="daysSinceDonation !== null")
             | You last donated {{daysSinceDonation}} days ago
@@ -70,14 +70,21 @@ div
       div.my-3
 
       // Donation summary
-      v-layout(row)
-        v-flex(xs12)
-          donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
+      v-card
+        v-card-title
+          span.display-1.ma-2 Donation summary
+        donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
       div.text-xs-center.pt-2.pb-3
-        router-link(to="/checkout")
+        router-link(v-if="buttonError === 'install'" to="/onboarding/metamask")
+          v-btn(large color="info")
+            | Please install MetaMask to be able to donate
+        router-link(v-else-if="buttonError === 'setup'" to="/onboarding/metamask")
+          v-btn(large color="info")
+            | Click here to set up MetaMask to be able to donate
+        router-link(v-else to="/checkout")
           v-btn(large color="primary")
-            | Review & donate
+            | Review & donate ${{ this.budget_per_month }}
 
       missing-addresses-card
 </template>
@@ -130,6 +137,19 @@ export default {
       notifications: 'notifications/active',
       isAddress: 'metamask/isAddress',
     }),
+    buttonError() {
+      let { netId, address } = this.$store.state.metamask;
+      if (netId === -1) {
+        return 'install';
+        //return { text: 'Please install MetaMask to be able to donate',
+        // link
+      }
+      if (!address) {
+        return 'setup';
+        //return 'Please log in to MetaMask to be able to donate';
+      }
+      return 'none';
+    },
   },
   methods: {
     addCreator() {

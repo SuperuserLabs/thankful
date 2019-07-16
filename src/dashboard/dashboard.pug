@@ -2,8 +2,10 @@ html
     head
         meta(charset="UTF-8")
         title Thankful Dashboard
+        link(rel="shortcut icon" type="image/png" href="/media/icon-256.png")
 
-        if mode == 'development'
+        // This used to work to connect to stand-alone Vue dev tools, but not sure how to get it working again due to CSP difficulties
+        //if mode == 'development'
             script(src="http://localhost:8098")
 
     body

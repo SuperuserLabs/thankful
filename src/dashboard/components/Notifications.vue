@@ -6,8 +6,8 @@ div
   a(v-on:click='toTop()', v-if='notifications.length > 0', style='position:fixed;bottom:20px;right:100px;z-index:100')
     v-icon(color='warning', x-large) warning
 
-  v-container(v-show="notifications.length > 0")
-    v-alert(v-for="(msg, index) in notifications", :key='index', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.index)')
+  v-container.mb-0(v-show="notifications.length > 0")
+    v-alert(v-for="(msg, index) in notifications", :key='msg.id', :type='msg.type', value="msg.active", dismissible, @input='hideNotification(msg.id)')
       b(v-if="msg.title")
         | {{ msg.title }}:&nbsp;
       | {{ msg.text }}

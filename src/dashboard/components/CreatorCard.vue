@@ -21,7 +21,7 @@ v-card(height='116px').mt-1
       span(v-if="thanksAmount").pr-1
         v-tooltip(bottom)
           span(slot="activator")
-            v-icon(small) favorite
+            v-icon(small, color="red", style="opacity: 0.8") favorite
             span.px-1
               | {{ thanksAmount }}
           span

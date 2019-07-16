@@ -52,9 +52,12 @@ div
           span.ml-3.caption(v-show="daysSinceDonation !== null")
             | You last donated {{daysSinceDonation}} days ago
         v-flex(shrink)
-          v-btn(flat, right, small, @click="addCreator()")
-            v-icon add
-            | Add creator
+          v-tooltip(bottom)
+            template(v-slot:activator="{ on }")
+              v-btn(flat, right, small, @click="addCreator()" v-on="on")
+                v-icon add
+                | Add creator
+            span This feature is broken, sorry!
 
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
@@ -155,8 +158,10 @@ export default {
     addCreator() {
       let c = new Creator('', '');
       c.priority = 2;
+      /*
       this.newCreator = true;
       this.edit(c, -1);
+      */
     },
     distribute() {
       this.distribution = this.creatorsWithShare.map(c => {

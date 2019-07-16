@@ -526,7 +526,9 @@ export class Database extends Dexie {
         if (!reg_creator) return;
 
         await this.updateCreator(c.url[0], {
+          name: reg_creator.name,
           address: reg_creator['eth address'],
+          url: Array.from(new Set([...c.url, ...reg_creator.urls])),
         });
 
         let db_creator = await this.getCreator(c.url[0]);

@@ -30,7 +30,7 @@ div
                   :value="100 * props.item.funds / total",
                   @change="(x) => changeDonationAmount(props.item, x)",
                   min="0",
-                  max="100",)
+                  max="50")
             v-flex
               v-edit-dialog.text-xs-right(large,
                             lazy,

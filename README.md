@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/SuperuserLabs/thankful.svg?branch=master)](https://travis-ci.org/SuperuserLabs/thankful)
 
-_Support the creators of free culture according to your preferences. Be thankful._
+_Support creators of free culture the way you want. Be thankful._
 
-Thankful is an app that keeps track of the websites you visit, the videos you watch, the music you listen to (not yet), which applications you use (such as Thankful itself), and then tries to figure out who created it so that you can choose to easily support those you find deserving by directly sending them cryptocurrency.
+Thankful is an app that keeps track of the websites you visit, the videos you watch, the music you listen to (not yet), which applications you use (such as Thankful itself) and then tries to figure out who created it so that you can choose to easily support those you find deserving, by directly sending them cryptocurrency.
 
-This helps solve a fundamental issue on the internet, where most culture is created and consumed today, where creators often have an larger incentive to simply get your attention as long as possible rather than to try and provide as much value to you as possible. So by using Thankful, you incentivize people to not only like what they are doing, but to make you feel that it's **worth supporting**.
+This helps solve a fundamental issue on the internet, where most culture is created and consumed today, where creators often have a larger incentive to simply get your attention as long as possible rather than to try and provide you with something of value. By using Thankful, you incentivize creators to not only spend more time and effort on what they do best, but to make sure that the content they create is **worth supporting**.
 
-Thankful is being developed by Superuser Labs, it is our hope that people will want to express their gratitude towards others so we can have more sane incentives in society.
+Thankful is being developed by Superuser Labs. It is our hope that people will want to express their gratitude towards others so we can have more healthier incentives on the internet.
 
 ## Get the alpha!
 
@@ -21,7 +21,7 @@ Thankful is being developed by Superuser Labs, it is our hope that people will w
 ## Features
 
 - Direct-to-creator payments (no middle men!)
-- Keeps track of the creators you visit on YouTube, Medium, and GitHub (more coming soon, create an issue if you have a request!)
+- Keeps track of the creators you visit on YouTube, Medium and GitHub (more coming soon, create an issue if you have a request!)
 - Decentralized
 - No special token
 - No forced fees (but we hope you will be thankful and support our continued work!)
@@ -37,19 +37,27 @@ These are things we haven't built yet, but are figuring out.
 - Reward supporters with "tokens of gratitude" (proofs of support).
 - Keep track of the amount that creators have received.
 - Enable creators to give back to their supporters.
-- Import data from ActivityWatch .
+- Import data from [ActivityWatch](https://github.com/ActivityWatch/activitywatch).
   - Lets users support creators of non-web apps/software, music, and more.
 
-## What content could be funded by Thankful?
+## What content can currently be funded by Thankful?
 
-We want to make it possible to easily support all creators, these are the things we've been thinking about:
+We want to make it possible to easily support all creators. These are the things we've been thinking about:
 
 - Videos
   - From YouTube
 - Music
-  - From Spotify ([issue #175](https://github.com/SuperuserLabs/thankful/issues/175)), Soundcloud ([issue #15](https://github.com/SuperuserLabs/thankful/issues/15)), YouTube.
+  - From YouTube
 - Writing
-  - From Medium, personal websites/blogs, social media posts and comments.
+  - From Medium
+- Patreon (lol)
+
+### Platforms we want to support in the future
+
+- Music
+  - Spotify ([issue #175](https://github.com/SuperuserLabs/thankful/issues/175))
+  - Soundcloud ([issue #15](https://github.com/SuperuserLabs/thankful/issues/15))
+- Personal websites/blogs, social media posts and comments
 - Podcasts
 - Software
   - Funding development of free software has been a problem for a long time (See this [aptly titled article](https://fosspost.org/opinions/people-be-thankful-for-free-software-developers))
@@ -59,7 +67,7 @@ We want to make it possible to easily support all creators, these are the things
 
 ## Alternatives
 
-We've kept an eye on all the alternatives in the space (there are a lot of great ideas out there) and have collected them here so people can compare us to the alternatives themselves.
+We've kept an eye on all the alternatives in the space (there are a lot of great ideas out there) and collected them here so people can compare us to the alternatives themselves.
 
 - Patreon
 - Kickstarter
@@ -73,7 +81,7 @@ We've kept an eye on all the alternatives in the space (there are a lot of great
 - [Bitbacker](https://bitbacker.io/)
 - [Donaid](https://donaid.io/)
 
-All these deserve our deepest thanks, they have all done something special and we've learned a lot from them.
+All these deserve our deepest thanks; they have all done something special and we've learned a lot from them.
 
 Here's a related article by the FOSSPost: ["Fund Open Source Software With These 5 Platforms"](https://fosspost.org/articles/fund-open-source-software-with-these-5-platforms)
 

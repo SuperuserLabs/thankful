@@ -48,39 +48,20 @@ We want to make it easy to support creators on all platforms and mediums. These 
 - **Code**: on GitHub
 - **Writing**: on Medium
 
-### Platforms we want to support in the future
+### Things we want to support in the future
 
 - Music
   - Spotify ([issue #175](https://github.com/SuperuserLabs/thankful/issues/175))
   - Soundcloud ([issue #15](https://github.com/SuperuserLabs/thankful/issues/15))
+  - Last.fm
 - Personal websites/blogs, social media posts and comments
 - Podcasts
 - Software
   - Funding development of free software has been a problem for a long time (See this [aptly titled article](https://fosspost.org/opinions/people-be-thankful-for-free-software-developers))
   - Software creator could choose to support development of important dependencies.
+- Other types of activity that can be gathered by [ActivityWatch](https://activitywatch.net)
 - Charities
   - While not creating content, we believe charity aligns well with the design of Thankful, and hope to be able to make it easy for users to support highly effective like the [Against Malaria Foundation](https://www.againstmalaria.com/) and [Effective Altruism Funds](https://app.effectivealtruism.org/funds).
-
-## Alternatives
-
-We've kept an eye on all the alternatives in the space (there are a lot of great ideas out there) and collected them here so people can compare us to the alternatives themselves.
-
-- Patreon
-- Kickstarter
-- Open Collective
-- Bountysource
-- Flattr
-- Gratipay
-- Liberapay
-- [Brave](https://brave.com/)
-- [Bitbacker](https://bitbacker.io/)
-- [Donaid](https://donaid.io/)
-
-All these deserve our deepest thanks; they have all done something special and we've learned a lot from them.
-
-The folks over at Snowdrift has also written a summary of alternatives: https://wiki.snowdrift.coop/market-research/other-crowdfunding
-
-Here's a related article by the FOSSPost: ["Fund Open Source Software With These 5 Platforms"](https://fosspost.org/articles/fund-open-source-software-with-these-5-platforms)
 
 <!-- These all have different niches filled in different ways, it'd be nice to write about what they do well for their niche, and how that could be generalized, or how we compare -->
 
@@ -93,3 +74,5 @@ Here's a related article by the FOSSPost: ["Fund Open Source Software With These
 - Bountysource: for creating an interesting way to fund open source development.
 - Flattr: for pioneering microtransactions/tipping.
 - Yours: for trying something crazy. (see video: ["Improving Content Quality with P2P Micropayments"](https://www.youtube.com/watch?v=EtYJ748LA1M))
+
+We've been keeping track of and learned about alternatives to Thankful that you can read about in [our wiki](https://github.com/SuperuserLabs/thankful/wiki/Alternatives).

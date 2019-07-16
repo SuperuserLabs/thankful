@@ -5,7 +5,7 @@ import { IDonation, IDonationSuccess } from '~/lib/models';
 
 const scoringFunction = c => {
   const oneHour = 60 * 60;
-  return Math.sqrt(c.duration + c.thanksAmount * oneHour);
+  return Math.sqrt(c.duration) + c.thanksAmount * Math.sqrt(oneHour);
 };
 
 let db = getDatabase();

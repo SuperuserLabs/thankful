@@ -98,7 +98,11 @@ addCreator({
 
 addCreator({
   name: 'Ethereum Foundation',
-  url: ['https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g'],
+  url: [
+    'https://github.com/ethereum',
+    'https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g',
+    'https://twitter.com/ethereum',
+  ],
   thanksAmount: 3,
   activity: [
     {
@@ -116,13 +120,51 @@ addCreator({
 });
 
 addCreator({
+  name: 'Hampus Jakobsson',
+  url: [
+    'https://medium.com/@hajak',
+    'https://hajak.se/',
+    'https://twitter.com/hajak',
+  ],
+  activity: [
+    {
+      url: 'https://hajak.se/how-to-plan-your-next-move-7a68bb7d9a2',
+      duration: 212,
+    },
+  ],
+});
+
+addCreator({
   name: 'Tom Scott',
   url: ['https://www.youtube.com/channel/UCBa659QWEk1AI4Tg--mrJ2A'],
 });
 
 addCreator({
+  name: '3Blue1Brown',
+  url: ['https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw'],
+  thanksAmount: 1,
+  activity: [
+    {
+      url: 'https://www.youtube.com/watch?v=aircAruvnKk',
+      duration: 19 * 60 + 13,
+    },
+  ],
+});
+
+addCreator({
   name: 'Crypto Daily',
   url: ['https://www.youtube.com/channel/UC67AEEecqFEc92nVvcqKdhA'],
+});
+
+addCreator({
+  name: 'Kurzgesagt - In a Nutshell',
+  url: ['https://www.youtube.com/channel/UCsXVk37bltHxD1rDPwtNM8Q'],
+  activity: [
+    {
+      url: 'https://www.youtube.com/watch?v=UjtOGPJ0URM',
+      duration: 9 * 60 + 35,
+    },
+  ],
 });
 
 addCreator({
@@ -132,7 +174,10 @@ addCreator({
 
 addCreator({
   name: 'aantonop',
-  url: ['https://www.youtube.com/channel/UCJWCJCWOxBYSi5DhCieLOLQ'],
+  url: [
+    'https://www.youtube.com/channel/UCJWCJCWOxBYSi5DhCieLOLQ',
+    'https://twitter.com/aantonop',
+  ],
   thanksAmount: 2,
   activity: [
     {
@@ -144,7 +189,10 @@ addCreator({
 
 addCreator({
   name: 'ActivityWatch',
-  url: ['https://github.com/ActivityWatch'],
+  url: [
+    'https://github.com/ActivityWatch',
+    'https://twitter.com/ActivityWatchIt',
+  ],
   activity: [
     {
       url: 'https://github.com/ActivityWatch/activitywatch',

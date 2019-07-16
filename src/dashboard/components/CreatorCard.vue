@@ -2,11 +2,12 @@
 v-card(height='116px').mt-1
   v-card-title.pb-0
     div(style="text-overflow: ellipsis; overflow-x: hidden; width: 100%; text-align: center;")
-      h3.mb-2 {{ name }}
+      h3.mb-0 {{ name }}
     div(style="margin: 0 auto;")
       span(v-for="site in sites")
-        a.title.pr-2(v-if='site.url', :href='site.url' target="_blank" style="text-decoration: none !important")
-          font-awesome-icon(:icon="site.icon", :color='site.color')
+        a.title(v-if='site.url', :href='site.url' target="_blank" style="text-decoration: none !important")
+          v-btn.ma-0(icon, style="font-size: inherit")
+            font-awesome-icon(:icon="site.icon", :color='site.color')
   v-card-actions.pt-0
     v-layout(row, align-center).ma-0.pl-1.body-1.text--secondary
       span(v-if="duration").pr-1
@@ -64,7 +65,7 @@ v-card(height='116px').mt-1
 
 <script>
 import { isOnDomain } from '~/lib/url.ts';
-import { find as _find } from 'lodash';
+import { find as _find, sortBy } from 'lodash';
 
 export default {
   data() {
@@ -97,6 +98,11 @@ export default {
           color: 'black',
         },
         {
+          domain: 'twitter.com',
+          icon: ['fab', 'twitter'],
+          color: '#38A1F3',
+        },
+        {
           domain: 'medium.com',
           icon: ['fab', 'medium'],
           color: 'black',
@@ -111,7 +117,7 @@ export default {
       let fallback = {
         domain: 'fallback',
         icon: ['fas', 'globe'],
-        color: 'grey',
+        color: '#4AF',
       };
 
       let sites = this.urls.map(url => {
@@ -122,6 +128,7 @@ export default {
           return Object.assign({ url: url }, fallback);
         }
       });
+      sites = sortBy(sites, ['domain']);
       return sites;
     },
   },

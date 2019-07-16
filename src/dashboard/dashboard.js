@@ -4,16 +4,27 @@ import {
   faYoutube,
   faGithub,
   faMedium,
+  faFacebookF,
+  faTwitter,
   faPatreon,
 } from '@fortawesome/free-brands-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faStar, faGlobe, faYoutube, faGithub, faMedium, faPatreon);
+library.add(
+  faStar, 
+  faGlobe,
+  faYoutube,
+  faGithub,
+  faMedium,
+  faFacebookF,
+  faTwitter,
+  faPatreon,
+);
 
 import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';
 import '../stylus/main.styl';
 import { messages } from '../resources';
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 (async () => {

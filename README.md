@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/SuperuserLabs/thankful.svg?branch=master)](https://travis-ci.org/SuperuserLabs/thankful)
 
-_Support creators of free culture the way you want. Be thankful._
+_Support free culture by automatically sending cryptocurrency to the creators of the content you love._
 
 Thankful is an app that keeps track of the websites you visit, the videos you watch, the music you listen to (not yet), which applications you use (such as Thankful itself) and then tries to figure out who created it so that you can choose to easily support those you find deserving, by directly sending them cryptocurrency.
 
-This helps solve a fundamental issue on the internet, where most culture is created and consumed today, where creators often have a larger incentive to simply get your attention as long as possible rather than to try and provide you with something of value. By using Thankful, you incentivize creators to not only spend more time and effort on what they do best, but to make sure that the content they create is **worth supporting**.
+This helps solve a fundamental issue on the internet where ad-funded creators have incentive to steal your attention as long as possible instead of providing you with as much value as they can. By using Thankful, you incentivize creators to spend more time and effort on creating **what you want**, and reward those who do.
 
-Thankful is being developed by Superuser Labs. It is our hope that people will want to express their gratitude towards others so we can have more healthier incentives on the internet.
+Thankful is being developed by Superuser Labs. We hope that people will want to express their gratitude towards others so we can have healthier incentives on the internet.
 
 ## Get the alpha!
 
@@ -77,11 +77,12 @@ We've kept an eye on all the alternatives in the space (there are a lot of great
 - Gratipay
 - Liberapay
 - [Brave](https://brave.com/)
-- [Giveth](https://giveth.io/)
 - [Bitbacker](https://bitbacker.io/)
 - [Donaid](https://donaid.io/)
 
 All these deserve our deepest thanks; they have all done something special and we've learned a lot from them.
+
+The folks over at Snowdrift has also written a summary of alternatives: https://wiki.snowdrift.coop/market-research/other-crowdfunding
 
 Here's a related article by the FOSSPost: ["Fund Open Source Software With These 5 Platforms"](https://fosspost.org/articles/fund-open-source-software-with-these-5-platforms)
 

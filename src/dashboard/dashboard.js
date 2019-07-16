@@ -1,12 +1,22 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import {
   faYoutube,
   faGithub,
   faMedium,
+  faFacebookF,
+  faTwitter,
 } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faStar, faYoutube, faGithub, faMedium);
+library.add(
+  faStar,
+  faYoutube,
+  faGithub,
+  faMedium,
+  faFacebookF,
+  faTwitter,
+  faGlobe
+);
 
 import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';

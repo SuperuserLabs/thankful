@@ -11,9 +11,9 @@ div
     v-toolbar-items
       div(style="display: flex; align-items: center;")
         div.pl-4
-          h3 We're in alpha!
+          h3 We're in beta!
           div
-            | Please report any issues #[a(href='https://github.com/SuperuserLabs/thankful/issues' style="text-decoration: underline") here].
+            | Send us #[a(href="https://forms.gle/rQvBgEWwL7T4SZ9b9") feedback] and report any #[a(href='https://github.com/SuperuserLabs/thankful/issues') issues].
     v-spacer
     v-toolbar-items
       div.pt-2

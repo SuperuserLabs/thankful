@@ -361,6 +361,20 @@ export class Database extends Dexie {
   }
 
   @messageListener()
+  async cleanDisconnected() {
+    // Cleans activities with creators assigned that no longer exist
+    let creatorIds = await this.creators.toCollection().primaryKeys();
+    let no_modified = await this.activities
+      .where('creator_id')
+      .noneOf(creatorIds)
+      .filter(t => t.creator_id !== undefined)
+      .modify({ creator_id: undefined });
+    console.log(
+      `Deassociated ${no_modified} activities with dead creator links`
+    );
+  }
+
+  @messageListener()
   async logDonation(creator_id: number, weiAmount, usdAmount, hash, net_id) {
     return this.donations.add(
       new Donation(
@@ -549,9 +563,25 @@ export class Database extends Dexie {
     let creators = this.creators;
     const withDefault = (maybe, def) => (maybe === null ? def : maybe);
     this.transaction('rw', creators, async () => {
-      let creator = await creators.get({ url: key_url });
+      let urlSet = new Set([key_url, ...url]);
+
+      let creator = null;
+      // If urlSet is larger than 1, we need to check all the keys if they have a matching creator
+      if (urlSet.size > 1) {
+        creator = find(
+          await Promise.all(
+            map(
+              Array.from(urlSet),
+              async url => await creators.get({ url: url })
+            )
+          )
+        );
+      } else {
+        creator = await creators.get({ url: key_url });
+      }
+
       if (creator) {
-        let urlSet = new Set([key_url, ...url, ...creator.url]);
+        urlSet = new Set([...urlSet, ...creator.url]);
         creator = {
           id: creator.id,
           url: Array.from(urlSet) as string[],
@@ -565,7 +595,6 @@ export class Database extends Dexie {
         //console.log('Putting creator: ', creator);
         return creators.put(creator);
       } else {
-        let urlSet = new Set([key_url, ...url]);
         creator = {
           url: Array.from(urlSet) as string[],
           name: name,

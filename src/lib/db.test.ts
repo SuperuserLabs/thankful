@@ -257,6 +257,20 @@ describe('Attribute addresses from registry', () => {
     expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
     // TODO
   });
+
+  it("doesn't duplicate creators when updating existing creator with new URL", async () => {
+    let a_url = 'https://github.com/SuperuserLabs/thankful';
+    let c_urls = [
+      'https://superuserlabs.github.io',
+      'https://github.com/SuperuserLabs',
+    ];
+    await db.updateCreator(c_urls[1], { name: 'SuperuserLabs' });
+    await db.updateCreator(c_urls[0], { name: 'SuperuserLabs', url: c_urls });
+
+    let creator1 = await db.getCreator(c_urls[0]);
+    let creator2 = await db.getCreator(c_urls[1]);
+    expect(creator1).toEqual(creator2);
+  });
 });
 
 describe('Thanks', () => {

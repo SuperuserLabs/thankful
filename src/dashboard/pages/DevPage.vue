@@ -7,8 +7,11 @@ v-container
       | Log store to console
     v-btn(@click="attributeFromRegistry()")
       | Attribute using registry
+    v-btn(@click="db.cleanDisconnected()")
+      | Clean disconnected
 
   v-card
+    h3 Johannes database stuff (probably broken)
     v-layout(row)
       v-flex(xs3)
         v-select(:disabled='loading', v-model='select', :items='databaseNames')
@@ -30,6 +33,7 @@ import { getDatabase } from '~/lib/db.ts';
 export default {
   components: {},
   data: () => ({
+    db: getDatabase(),
     loading: false,
     loaded: false,
     logger: '',
@@ -45,10 +49,9 @@ export default {
       console.log(this.$store.state.db);
     },
     async attributeFromRegistry() {
-      let db = getDatabase();
-      let act = await db._attributeActivityToCreatorFromRegistry();
+      let act = await this.db._attributeActivityToCreatorFromRegistry();
       console.log(act);
-      let addr = await db._attributeAddressToCreatorFromRegistry();
+      let addr = await this.db._attributeAddressToCreatorFromRegistry();
       console.log(addr);
     },
     enableDemoMode() {

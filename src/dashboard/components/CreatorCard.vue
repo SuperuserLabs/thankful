@@ -1,17 +1,13 @@
 <template lang="pug">
 v-card(height='116px').mt-1
-  v-layout
-    v-flex
-      a(:href="url" target="_blank" style="text-decoration: none !important").headline
-        v-btn(flat large block style="text-transform: none; padding: 0 0.2em 0 0.2em")
-          div.headline.pr-1
-            font-awesome-icon(v-if='isOnDomain(url, "getthankful.io")', :icon="['fas', 'star']", color='#FFCC44')
-            font-awesome-icon(v-if='isOnDomain(url, "youtube.com")', :icon="['fab', 'youtube']", color='red')
-            font-awesome-icon(v-if='isOnDomain(url, "github.com")', :icon="['fab', 'github']", color='black')
-            font-awesome-icon(v-if='isOnDomain(url, "medium.com")', :icon="['fab', 'medium']", color='black')
-          div(style="text-overflow: ellipsis; overflow-x: hidden;")
-            | {{ name }}
-  v-card-actions
+  v-card-title.pb-0
+    div(style="text-overflow: ellipsis; overflow-x: hidden; width: 100%; text-align: center;")
+      h3.mb-2 {{ name }}
+    div(style="margin: 0 auto;")
+      span(v-for="site in sites")
+        a.title.pr-2(v-if='site.url', :href='site.url' target="_blank" style="text-decoration: none !important")
+          font-awesome-icon(:icon="site.icon", :color='site.color')
+  v-card-actions.pt-0
     v-layout(row, align-center).ma-0.pl-1.body-1.text--secondary
       span(v-if="duration").pr-1
         v-tooltip(bottom)
@@ -68,6 +64,7 @@ v-card(height='116px').mt-1
 
 <script>
 import { isOnDomain } from '~/lib/url.ts';
+import { find as _find } from 'lodash';
 
 export default {
   data() {
@@ -81,13 +78,60 @@ export default {
       this.$emit('allocatedFunds', to);
     },
   },
+  computed: {
+    sites() {
+      let platforms = [
+        {
+          domain: 'getthankful.io',
+          icon: ['fas', 'star'],
+          color: '#FFCC44',
+        },
+        {
+          domain: 'youtube.com',
+          icon: ['fab', 'youtube'],
+          color: 'red',
+        },
+        {
+          domain: 'github.com',
+          icon: ['fab', 'github'],
+          color: 'black',
+        },
+        {
+          domain: 'medium.com',
+          icon: ['fab', 'medium'],
+          color: 'black',
+        },
+        {
+          domain: 'patreon.com',
+          icon: ['fab', 'patreon'],
+          color: 'rgb(232, 91, 70)',
+        },
+      ];
+
+      let fallback = {
+        domain: 'fallback',
+        icon: ['fas', 'globe'],
+        color: 'grey',
+      };
+
+      let sites = this.urls.map(url => {
+        let matchedPlatform = _find(platforms, p => isOnDomain(url, p.domain));
+        if (matchedPlatform) {
+          return Object.assign({ url: url }, matchedPlatform);
+        } else {
+          return Object.assign({ url: url }, fallback);
+        }
+      });
+      return sites;
+    },
+  },
   methods: {
     isOnDomain: isOnDomain,
     setDefaultData(obj) {
       return Object.assign(obj, {
         address: this.creator.address || '',
         name: this.creator.name,
-        url: this.creator.url[0],
+        urls: this.creator.url,
         duration: this.creator.duration,
         thanksAmount: this.creator.thanksAmount,
       });

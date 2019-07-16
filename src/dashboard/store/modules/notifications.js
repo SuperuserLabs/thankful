@@ -31,7 +31,13 @@ export default {
 
   mutations: {
     insert(state, { title = null, text, type = 'info' }) {
-      state.messages.push({ title, text, type, active: true });
+      state.messages.push({
+        id: state.messages.length,
+        title,
+        text,
+        type,
+        active: true,
+      });
     },
     hide(state, id) {
       state.messages[id].active = false;

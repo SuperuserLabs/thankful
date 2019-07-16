@@ -1,6 +1,17 @@
 import Dexie from 'dexie';
-import { concat, map, sumBy, countBy } from 'lodash';
+import axios from 'axios';
+import {
+  concat,
+  map,
+  sumBy,
+  countBy,
+  find,
+  some,
+  flatten,
+  intersection,
+} from 'lodash';
 import isReserved from 'github-reserved-names';
+import addressRegistry from '../../dist/crypto_addresses.json';
 
 import { registerListener } from '../background/messaging.ts';
 import { canonicalizeUrl } from './url.ts';
@@ -20,6 +31,15 @@ async function _sendMessage(type: string, data: any[]): Promise<any> {
   let browser = require('webextension-polyfill');
   return await browser.runtime.sendMessage({ type, data });
 }
+
+// Handles unhandled promise rejections
+// https://dexie.org/docs/Promise/unhandledrejection-event
+function handler(event) {
+  event.preventDefault(); // Prevents default handler (would log to console).
+  console.warn('Unhandled promise rejection:', event.reason);
+}
+
+if (window) window.addEventListener('unhandledrejection', handler);
 
 // Doesn't like when you add the descriptor argument for whatever reason ("Unable to resolve signature of method decorator when called as an expression.")
 type TDecorator = (
@@ -175,7 +195,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getActivity(url): Promise<IActivity> {
+  async getActivity(url: string): Promise<IActivity> {
     return await this.activities.get({ url: canonicalizeUrl(url) });
   }
 
@@ -187,7 +207,7 @@ export class Database extends Dexie {
   //   withCreators = false   Only includes activity without an attributed creator
   @messageListener()
   async getActivities({
-    limit = 1000,
+    limit = 10000,
     withCreators = null,
     withThanks = false,
   } = {}): Promise<IActivity[]> {
@@ -230,14 +250,14 @@ export class Database extends Dexie {
 
   // TODO: rename to getCreatorWithUrl or something
   @messageListener()
-  async getCreator(url): Promise<ICreator> {
+  async getCreator(url: string): Promise<ICreator | null> {
     // get() gets a creator where the url array contains the url
-    return this.creators.get({ url: url });
+    return (await this.creators.get({ url: url })) || null;
   }
 
   @messageListener()
-  async getCreatorWithId(id): Promise<ICreator> {
-    return this.creators.get(id);
+  async getCreatorWithId(id: number): Promise<ICreator | null> {
+    return (await this.creators.get(id)) || null;
   }
 
   @messageListener()
@@ -246,7 +266,12 @@ export class Database extends Dexie {
     withDurations = false,
     withThanksAmount = false,
   } = {}): Promise<ICreator[]> {
-    await this.attributeGithubActivity();
+    try {
+      await this.attributeActivity();
+    } catch (error) {
+      console.error("Couldn't attribute activity");
+      console.error(error);
+    }
 
     let coll = this.creators.reverse();
     if (limit && limit >= 0) {
@@ -275,7 +300,7 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getCreatorActivity(creator_id): Promise<IActivity[]> {
+  async getCreatorActivity(creator_id: number): Promise<IActivity[]> {
     // Get all activity connected to a certain creator
     return this.activities
       .where('creator_id')
@@ -284,26 +309,21 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async logActivity(url, duration, options = {}) {
+  async logActivity(url: string, duration: number, options = {}) {
     // Adds a duration to a URL if activity for URL already exists,
     // otherwise creates new Activity with the given duration.
     url = canonicalizeUrl(url);
-    return this.activities
-      .get({ url: url })
-      .then(activity => {
-        if (activity === undefined) {
-          activity = {
-            url: url,
-            duration: 0,
-          };
-        }
-        activity.duration += duration;
-        Object.assign(activity, options);
-        return this.activities.put(activity);
-      })
-      .catch(err => {
-        throw 'Could not log activity, ' + err;
-      });
+    let activity = await this.activities.get({ url: url });
+
+    if (activity === undefined) {
+      activity = {
+        url: url,
+        duration: 0,
+      };
+    }
+    activity.duration += duration;
+    Object.assign(activity, options);
+    return this.activities.put(activity);
   }
 
   @messageListener()
@@ -312,10 +332,7 @@ export class Database extends Dexie {
     await this.thanks
       .where('url')
       .equals(url)
-      .modify({ creator_id: creator_id })
-      .catch(err => {
-        throw 'Could not connect Thanks to creator, ' + err;
-      });
+      .modify({ creator_id: creator_id });
   }
 
   @messageListener()
@@ -324,28 +341,41 @@ export class Database extends Dexie {
     await this.activities
       .where('url')
       .equals(url)
-      .modify({ creator_id: creator_id })
-      .catch(err => {
-        throw 'Could not connect Activity to creator, ' + err;
-      });
+      .modify({ creator_id: creator_id });
   }
 
   @messageListener()
-  async connectUrlToCreator(url, creator_url) {
-    try {
-      url = canonicalizeUrl(url);
-      let creator = await this.getCreator(creator_url);
-      await Promise.all([
-        this.connectThanksToCreator(url, creator.id),
-        this.connectActivityToCreator(url, creator.id),
-      ]);
-    } catch (err) {
-      throw 'Could not connect URL to creator, ' + err;
+  async connectUrlToCreator(url: string, creator_url: string) {
+    url = canonicalizeUrl(url);
+    let creator = await this.getCreator(creator_url);
+    if (!creator) {
+      console.error(
+        `Couldn't connect url to creator, no creator found with url: ${creator_url}`
+      );
+      return;
     }
+    await Promise.all([
+      this.connectThanksToCreator(url, creator.id),
+      this.connectActivityToCreator(url, creator.id),
+    ]);
   }
 
   @messageListener()
-  async logDonation(creator_id, weiAmount, usdAmount, hash, net_id) {
+  async cleanDisconnected() {
+    // Cleans activities with creators assigned that no longer exist
+    let creatorIds = await this.creators.toCollection().primaryKeys();
+    let no_modified = await this.activities
+      .where('creator_id')
+      .noneOf(creatorIds)
+      .filter(t => t.creator_id !== undefined)
+      .modify({ creator_id: undefined });
+    console.log(
+      `Deassociated ${no_modified} activities with dead creator links`
+    );
+  }
+
+  @messageListener()
+  async logDonation(creator_id: number, weiAmount, usdAmount, hash, net_id) {
     return this.donations.add(
       new Donation(
         creator_id,
@@ -358,43 +388,50 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async getDonation(id): Promise<IDonation> {
+  async getDonation(id: number): Promise<IDonation> {
     return this.donations.get(id).then(d => this.donationWithCreator(d));
   }
 
   @messageListener()
-  async donationWithCreator(donation): Promise<IDonation> {
+  async donationWithCreator(donation: IDonation): Promise<IDonation> {
     donation.creator = await this.getCreatorWithId(donation.creator_id);
     return donation;
   }
 
   @messageListener()
-  async getDonations(limit = 100): Promise<Donation[]> {
-    try {
-      let donations = await this.donations
-        .orderBy('date')
-        .reverse()
-        .limit(limit)
-        .toArray();
-      return await Promise.all(donations.map(d => this.donationWithCreator(d)));
-    } catch (err) {
-      console.log("Couldn't get donation history from db:", err);
-    }
+  async getDonations(limit: number = 100): Promise<Donation[]> {
+    let donations = await this.donations
+      .orderBy('date')
+      .reverse()
+      .limit(limit)
+      .toArray();
+    return await Promise.all(donations.map(d => this.donationWithCreator(d)));
   }
 
   @messageListener()
-  async attributeGithubActivity() {
-    try {
-      // If getActivities() takes a long time to run, consider using:
-      //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
-      const logs = concat(
-        await this.getActivities({ withCreators: false }),
-        await this.thanks.filter(t => t.creator_id === undefined).toArray()
-      ).filter(a => {
-        return a.url.includes('https://github.com/');
-      });
+  async attributeActivity() {
+    await this._attributeGithubActivity();
+  }
 
-      let promises = map(logs, async a => {
+  @messageListener()
+  async _attributeGithubActivity() {
+    // If getActivities() takes a long time to run, consider using:
+    //    http://dexie.org/docs/WhereClause/WhereClause.startsWith()
+    const items = concat(
+      await this.thanks
+        .where('url')
+        .startsWith('https://github.com/')
+        .filter(t => t.creator_id === undefined)
+        .toArray(),
+      await this.activities
+        .where('url')
+        .startsWith('https://github.com/')
+        .filter(t => t.creator_id === undefined)
+        .toArray()
+    );
+
+    await Promise.all(
+      map(items, async a => {
         let u = new URL(a.url);
         let user_or_org = u.pathname.split('/')[1];
         if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
@@ -402,34 +439,149 @@ export class Database extends Dexie {
           await this.updateCreator(creator_url, { name: user_or_org });
           await this.connectUrlToCreator(a.url, creator_url);
         }
-      });
+      })
+    );
 
-      await Promise.all(promises);
-      return null;
-    } catch (err) {
-      throw 'Could not attribute Github activity, ' + err;
-    }
+    return null;
+  }
+
+  @messageListener()
+  async _attributeActivityToCreatorFromRegistry() {
+    /*
+     * Attributes activity whose URLs starts with a creator URL in the registry
+     * Works for basic websites, GitHub, etc.
+     * Doesn't work for YouTube
+     */
+
+    let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
+
+    let activities = await this.activities
+      .where('url')
+      .startsWithAnyOf(registryUrls)
+      //.filter(a => a.creator_id === undefined)
+      .toArray();
+    // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
+
+    // Import creators to database
+    await Promise.all(
+      map(activities, async a => {
+        let reg_creator = find(addressRegistry, c =>
+          some(c.urls, url => a.url.startsWith(url))
+        );
+
+        // TODO: Check if creator is already in database
+        await this.updateCreator(reg_creator.urls[0], {
+          name: reg_creator.name,
+          address: reg_creator['eth address'],
+          url: reg_creator.urls,
+        });
+        let db_creator = await this.getCreator(reg_creator.urls[0]);
+        console.log(
+          'New creator with activity found in registry:',
+          db_creator.name
+        );
+      })
+    );
+
+    // Attribute activity to creators
+    let creators = await this.creators.toArray();
+    await Promise.all(
+      map(creators, async (c: ICreator) => {
+        if (c.url && c.url.length > 0) {
+          let acts = await this.activities
+            .where('url')
+            .startsWithAnyOf(c.url)
+            .toArray();
+          await Promise.all(
+            map(acts, async a => {
+              await this.connectActivityToCreator(a.url, c.id);
+            })
+          );
+        } else {
+          console.error(`No urls for creator ${c.name}`);
+        }
+      })
+    );
+    return null;
+  }
+
+  @messageListener()
+  async _attributeAddressToCreatorFromRegistry() {
+    // Attributes addresses to creators that have matching URLs in the registry
+    let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
+
+    let creators = await this.creators
+      .where('url')
+      .anyOf(registryUrls)
+      .toArray();
+    // console.info(`Found creators with entries in registry: ${creators.length}`);
+
+    // Import creators to database
+    await Promise.all(
+      map(creators, async c => {
+        let reg_creator = find(
+          addressRegistry,
+          reg_c => intersection(reg_c.urls, c.url).length > 0
+        );
+        if (!reg_creator) return;
+
+        await this.updateCreator(c.url[0], {
+          address: reg_creator['eth address'],
+        });
+
+        let db_creator = await this.getCreator(c.url[0]);
+        console.log(
+          'New address for creator found in registry:',
+          db_creator.name
+        );
+      })
+    );
+    return null;
   }
 
   @messageListener()
   async updateCreator(
-    url,
+    key_url: string,
     {
       name = null,
-      urls = [],
+      url = [],
       ignore = null,
       address = null,
       priority = null,
       share = null,
       info = null,
+    }: {
+      name?: string;
+      url?: string[];
+      ignore?: boolean;
+      address?: string;
+      priority?: number;
+      share?: number;
+      info?: string;
     } = {}
   ) {
     let creators = this.creators;
     const withDefault = (maybe, def) => (maybe === null ? def : maybe);
     this.transaction('rw', creators, async () => {
-      let creator = await creators.get({ url: url });
+      let urlSet = new Set([key_url, ...url]);
+
+      let creator = null;
+      // If urlSet is larger than 1, we need to check all the keys if they have a matching creator
+      if (urlSet.size > 1) {
+        creator = find(
+          await Promise.all(
+            map(
+              Array.from(urlSet),
+              async url => await creators.get({ url: url })
+            )
+          )
+        );
+      } else {
+        creator = await creators.get({ url: key_url });
+      }
+
       if (creator) {
-        let urlSet = new Set([...creator.url, ...urls]);
+        urlSet = new Set([...urlSet, ...creator.url]);
         creator = {
           id: creator.id,
           url: Array.from(urlSet) as string[],
@@ -440,11 +592,11 @@ export class Database extends Dexie {
           share: withDefault(share, creator.share),
           info: withDefault(info, creator.info),
         };
+        //console.log('Putting creator: ', creator);
         return creators.put(creator);
       } else {
-        let urlSet = new Set([url, ...urls]);
         creator = {
-          url: Array.from(urlSet),
+          url: Array.from(urlSet) as string[],
           name: name,
           ignore: !!ignore,
           address: address,
@@ -452,40 +604,33 @@ export class Database extends Dexie {
           share: share,
           info: info,
         };
+        //console.log('Adding creator: ', creator);
         return creators.add(creator);
       }
     });
   }
 
   @messageListener()
-  async logThank(url, title) {
+  async logThank(url: string, title: string) {
     let activity = await this.activities.get({ url: url });
     let creator_id = activity !== undefined ? activity.creator_id : undefined;
-    return this.thanks.add(new Thank(url, title, creator_id)).catch(err => {
-      throw 'Logging thank failed: ' + err;
-    });
+    return this.thanks.add(new Thank(url, title, creator_id));
   }
 
   @messageListener()
-  async getUrlThanksAmount(url): Promise<number> {
+  async getUrlThanksAmount(url: string): Promise<number> {
     url = canonicalizeUrl(url);
     return this.thanks
       .where('url')
       .equals(url)
-      .count()
-      .catch(err => {
-        throw 'Could not count url thanks: ' + err;
-      });
+      .count();
   }
 
   @messageListener()
-  async getCreatorThanksAmount(creator_id): Promise<number> {
+  async getCreatorThanksAmount(creator_id: number): Promise<number> {
     return this.thanks
       .where('creator_id')
       .equals(creator_id)
-      .count()
-      .catch(err => {
-        throw 'Could not count creator thanks: ' + err;
-      });
+      .count();
   }
 }

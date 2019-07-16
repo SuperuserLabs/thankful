@@ -101,12 +101,50 @@ describe('Creator', () => {
     expect(creators).toHaveLength(2);
   });
 
+  it("get creator that doesn't exist", async () => {
+    let creator = await db.getCreator('https://notarealcreator.com');
+    expect(creator).toBeNull();
+
+    creator = await db.getCreatorWithId(666666);
+    expect(creator).toBeNull();
+  });
+
   it('correctly adds creator', async () => {
     await db.updateCreator(c_url, { name: c_name });
 
     let creator = await db.getCreator(c_url);
     expect(creator.url[0]).toBe(c_url);
     expect(creator.name).toBe(c_name);
+  });
+
+  it('get creator with multiple urls', async () => {
+    let c_url2 = 'https://test.com';
+    await db.updateCreator(c_url, { name: c_name, url: [c_url, c_url2] });
+
+    let creator1 = await db.getCreator(c_url);
+    expect(creator1).not.toBeNull();
+    expect(creator1.url).toHaveLength(2);
+
+    let creator2 = await db.getCreator(c_url2);
+    expect(creator1).not.toBeNull();
+    expect(creator2.url[0]).toBe(c_url);
+    expect(creator2.url[1]).toBe(c_url2);
+    expect(creator2.name).toBe(c_name);
+  });
+
+  it('correctly updates creator', async () => {
+    await db.updateCreator(c_url, { name: c_name });
+
+    let creator = await db.getCreator(c_url);
+    expect(creator.url[0]).toBe(c_url);
+    expect(creator.name).toBe(c_name);
+    expect(creator.ignore).toBe(false);
+
+    await db.updateCreator(c_url, { ignore: true });
+    let updatedCreator = await db.getCreator(c_url);
+    expect(updatedCreator.url[0]).toBe(c_url);
+    expect(updatedCreator.name).toBe(c_name);
+    expect(updatedCreator.ignore).toBe(true);
   });
 
   it('add creator and connect activity to creator', async () => {
@@ -150,7 +188,7 @@ describe('GitHub activity', () => {
     let c_url = 'https://github.com/SuperuserLabs';
     let url = 'https://github.com/SuperuserLabs/thankful';
     await db.logActivity(url, 10);
-    await db.attributeGithubActivity();
+    await db.attributeActivity();
     let activity = await db.getActivity(url);
     let creator = await db.getCreator(c_url);
     expect(activity.creator_id).toEqual(creator.id);
@@ -160,9 +198,78 @@ describe('GitHub activity', () => {
   it('should not attribute non-user pages', async () => {
     let url = 'https://github.com/orgs/SuperuserLabs';
     await db.logActivity(url, 10);
-    await db.attributeGithubActivity();
+    await db.attributeActivity();
     let activity = await db.getActivity(url);
     expect(activity.creator).toBeUndefined();
+  });
+});
+
+describe('Attribute addresses from registry', () => {
+  const db = new Database();
+
+  beforeEach(async () => {
+    await clearDB(db);
+  });
+
+  it('attributes activity for domain', async () => {
+    let c_url = 'https://archive.org/';
+    let a_url = 'https://archive.org/';
+    let expected_address = '0xFA8E3920daF271daB92Be9B87d9998DDd94FEF08';
+
+    await db.logActivity(a_url, 10);
+    await db.attributeActivity();
+    await db._attributeActivityToCreatorFromRegistry();
+
+    let activity = await db.getActivity(a_url);
+    let creator = await db.getCreator(c_url);
+
+    // Test that activity has been attributed
+    expect(activity.creator_id).toEqual(creator.id);
+
+    // Test that creator was successfully imported
+    expect(creator).not.toEqual(null);
+    expect(creator.name).toEqual('Internet Archive');
+    // TODO: Test that all urls for the creator are included
+    expect(creator.url[0]).toEqual(c_url);
+    expect(creator.address).toEqual(expected_address);
+  });
+
+  it('attributes address to YouTube channel', async () => {
+    let c_url = 'https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g';
+    await db.updateCreator(c_url, { name: 'Ethereum Foundation' });
+    await db._attributeAddressToCreatorFromRegistry();
+
+    // Just a mock entry that won't match anything in the registry
+    await db.updateCreator('https://test.com/asdasdad', { name: 'test' });
+
+    let creator = await db.getCreator(c_url);
+    expect(creator.name).toBe('Ethereum Foundation');
+    expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+  });
+
+  it('attributes address to GitHub user', async () => {
+    let c_url = 'https://github.com/ethereum';
+    await db.updateCreator(c_url, { name: 'Ethereum Foundation' });
+    await db._attributeAddressToCreatorFromRegistry();
+
+    let creator = await db.getCreator(c_url);
+    expect(creator.name).toBe('Ethereum Foundation');
+    expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+    // TODO
+  });
+
+  it("doesn't duplicate creators when updating existing creator with new URL", async () => {
+    let a_url = 'https://github.com/SuperuserLabs/thankful';
+    let c_urls = [
+      'https://superuserlabs.github.io',
+      'https://github.com/SuperuserLabs',
+    ];
+    await db.updateCreator(c_urls[1], { name: 'SuperuserLabs' });
+    await db.updateCreator(c_urls[0], { name: 'SuperuserLabs', url: c_urls });
+
+    let creator1 = await db.getCreator(c_urls[0]);
+    let creator2 = await db.getCreator(c_urls[1]);
+    expect(creator1).toEqual(creator2);
   });
 });
 

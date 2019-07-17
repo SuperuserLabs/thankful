@@ -187,11 +187,11 @@ export class Database extends Dexie {
       // Erik's address
       // TODO: Change to a multisig wallet
       name: 'Thankful Team',
-      address: '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35',
+      address: '0x44b8E57DE4494F6424Be86d28D2f0969d57aFca1',
       info:
-        'Be thankful for Thankful, donate so we can keep helping people to be thankful!',
+        'Be thankful for Thankful! Support us so we can keep creating a healthier internet.',
       priority: 1,
-      share: 0.1,
+      share: 0.05,
     });
   }
 

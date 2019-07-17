@@ -8,7 +8,7 @@ Thankful is an app that keeps track of the websites you visit, the videos you wa
 
 This helps solve a fundamental issue on the internet where ad-funded creators have incentive to steal your attention as long as possible instead of providing you with as much value as they can. By using Thankful, you incentivize creators to spend more time and effort on creating **what you want**, and reward those who do.
 
-Thankful is being developed by Superuser Labs. We hope that people will want to express their gratitude towards others so we can have healthier incentives on the internet.
+Thankful is being developed by [Superuser Labs](https://superuserlabs.github.io/). We hope that people will want to express their gratitude towards others so we can have healthier incentives on the internet.
 
 ## Get the alpha!
 

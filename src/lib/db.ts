@@ -471,38 +471,35 @@ export class Database extends Dexie {
     let cached_creators = {};
 
     // Import creators to database
-    let found_creators = await Promise.all(
-      map(
-        activities,
-        async (a: IActivity): Promise<ICreator> => {
-          let reg_creator = find(addressRegistry, c =>
-            some(c.urls, url => a.url.startsWith(url))
-          );
+    await Promise.all(
+      map(activities, async (a: IActivity) => {
+        let reg_creator = find(addressRegistry, c =>
+          some(c.urls, url => a.url.startsWith(url))
+        );
 
-          let key_url = reg_creator.urls[0];
-          let creator = null;
-          if (includes(keys(cached_creators))) {
-            // If creator already updated, skip updating
-            creator = cached_creators[key_url];
-          } else {
-            // If creator not already updated, update and add to cache
-            await this.updateCreator(key_url, {
-              name: reg_creator.name,
-              address: reg_creator['eth address'],
-              url: reg_creator.urls,
-            });
-            creator = await this.getCreator(key_url);
-            cached_creators[key_url] = creator;
-          }
-
-          // Attach activity to creator
-          await this.connectActivityToCreator(a.url, creator.id);
+        let key_url = reg_creator.urls[0];
+        let creator = null;
+        if (includes(keys(cached_creators))) {
+          // If creator already updated, skip updating
+          creator = cached_creators[key_url];
+        } else {
+          // If creator not already updated, update and add to cache
+          await this.updateCreator(key_url, {
+            name: reg_creator.name,
+            address: reg_creator['eth address'],
+            url: reg_creator.urls,
+          });
+          creator = await this.getCreator(key_url);
+          cached_creators[key_url] = creator;
         }
-      )
+
+        // Attach activity to creator
+        await this.connectActivityToCreator(a.url, creator.id);
+      })
     );
     console.log(
       `Found ${
-        keys(found_creators).length
+        keys(cached_creators).length
       } creators with activity in registry:`,
       map(values(cached_creators), c => c.name)
     );

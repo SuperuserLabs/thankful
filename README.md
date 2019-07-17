@@ -12,12 +12,8 @@ Thankful is being developed by [Superuser Labs](https://superuserlabs.github.io/
 
 ## Get the alpha!
 
-<a href="https://chrome.google.com/webstore/detail/thankful/eapbondnpopbiepnjfhnaaejfdfjhnde">
-  <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png" />
-</a>
-<a href="https://addons.mozilla.org/en-US/firefox/addon/getthankful/">
-  <img src="https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png" />
-</a>
+[![Get extension for Chrome](https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png)](https://chrome.google.com/webstore/detail/thankful/eapbondnpopbiepnjfhnaaejfdfjhnde)
+[![Get extension for Firefox](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png)](https://addons.mozilla.org/en-US/firefox/addon/getthankful/)
 
 ## Features
 

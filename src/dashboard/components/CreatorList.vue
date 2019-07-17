@@ -4,8 +4,8 @@ v-layout(v-if='loading', row, justify-center, align-center).pa-5
 v-data-table(v-else, :headers="headers", :items="creators", :pagination.sync='pagination')
   template(slot='items', slot-scope='props')
     td
-      a(:href="props.item.url", target="_blank")
-        | {{ props.item.name || props.item.url }}
+      | {{ props.item.name || props.item.url }}
+      t-creator-sites.ml-2(:urls='props.item.url')
     td(style="white-space: nowrap;")
       | {{ props.item.duration | friendlyDuration }}
     td
@@ -46,6 +46,7 @@ v-data-table(v-else, :headers="headers", :items="creators", :pagination.sync='pa
 
 <script>
 import { mapGetters } from 'vuex';
+import CreatorSites from './CreatorSites.vue';
 
 export default {
   data: () => ({
@@ -58,6 +59,9 @@ export default {
     ],
     pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
   }),
+  components: {
+    't-creator-sites': CreatorSites,
+  },
   props: {
     limit: { default: Infinity, type: Number },
     unattributed: { default: false, type: Boolean },

@@ -49,10 +49,10 @@ export default {
       console.log(this.$store.state.db);
     },
     async attributeFromRegistry() {
-      let act = await this.db._attributeActivityToCreatorFromRegistry();
-      console.log(act);
-      let addr = await this.db._attributeAddressToCreatorFromRegistry();
-      console.log(addr);
+      await this.db._attributeActivityToCreatorFromRegistry();
+      console.log('Attributed activity to creators using registry');
+      await this.db._attributeAddressToCreatorFromRegistry();
+      console.log('Attributed addresses to creators using registry');
     },
     enableDemoMode() {
       this.$store.commit('db/demomode');

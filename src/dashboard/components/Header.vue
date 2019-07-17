@@ -24,6 +24,10 @@ div
         v-tab(v-for="(msg, index) in menuItems" :key="msg.text", :to="msg.link")
           v-icon.mr-2(style="color: inherit") {{ msg.icon }}
           | {{ msg.text }}
+        if mode === "development"
+          v-tab(to="/dev", style="color: #AAA")
+            v-icon.mr-2(style="color: inherit") settings
+            | Dev
 
   v-navigation-drawer(app v-model="drawer" v-if="$vuetify.breakpoint.mdAndDown")
     v-list.pa-1

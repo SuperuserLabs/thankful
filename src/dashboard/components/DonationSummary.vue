@@ -3,7 +3,8 @@ div
     v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', disable-initial-sort=true)
       template(slot='items', slot-scope='props')
         td
-          a(target="_blank", :href="props.item.url") {{ props.item.name }}
+          | {{ props.item.name }}
+          t-creator-sites.ml-1(:urls="props.item.url")
         td
           v-edit-dialog(large,
                         lazy,
@@ -30,7 +31,7 @@ div
                   :value="100 * props.item.funds / total",
                   @change="(x) => changeDonationAmount(props.item, x)",
                   min="0",
-                  max="100",)
+                  max="50")
             v-flex
               v-edit-dialog.text-xs-right(large,
                             lazy,
@@ -56,9 +57,13 @@ div
 <script>
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
+import CreatorSites from './CreatorSites.vue';
 
 export default {
   props: ['checkout'],
+  components: {
+    't-creator-sites': CreatorSites,
+  },
   data: function() {
     return {
       editMode: false,

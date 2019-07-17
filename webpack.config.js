@@ -76,7 +76,15 @@ module.exports = {
           // this applies to `<template lang="pug">` in Vue components
           {
             resourceQuery: /^\?vue/,
-            use: ['pug-plain-loader'],
+            use: [
+              {
+                loader: 'pug-plain-loader',
+                options: {
+                  data: { mode: mode },
+                  pretty: true,
+                },
+              },
+            ],
           },
           // this applies to pug imports inside JavaScript
           {

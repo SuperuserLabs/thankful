@@ -8,6 +8,10 @@ import {
   find,
   some,
   flatten,
+  keys,
+  values,
+  includes,
+  filter,
   intersection,
 } from 'lodash';
 import isReserved from 'github-reserved-names';
@@ -186,11 +190,11 @@ export class Database extends Dexie {
       // Erik's address
       // TODO: Change to a multisig wallet
       name: 'Thankful Team',
-      address: '0xbD2940e549C38Cc6b201767a0238c2C07820Ef35',
+      address: '0x44b8E57DE4494F6424Be86d28D2f0969d57aFca1',
       info:
-        'Be thankful for Thankful, donate so we can keep helping people to be thankful!',
+        'Be thankful for Thankful! Support us so we can keep creating a healthier internet.',
       priority: 1,
-      share: 0.1,
+      share: 0.05,
     });
   }
 
@@ -411,6 +415,8 @@ export class Database extends Dexie {
   @messageListener()
   async attributeActivity() {
     await this._attributeGithubActivity();
+    await this._attributeActivityToCreatorFromRegistry();
+    await this._attributeAddressToCreatorFromRegistry();
   }
 
   @messageListener()
@@ -458,51 +464,45 @@ export class Database extends Dexie {
     let activities = await this.activities
       .where('url')
       .startsWithAnyOf(registryUrls)
-      //.filter(a => a.creator_id === undefined)
+      .filter(a => a.creator_id === undefined)
       .toArray();
     // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
 
+    let cached_creators = {};
+
     // Import creators to database
     await Promise.all(
-      map(activities, async a => {
+      map(activities, async (a: IActivity) => {
         let reg_creator = find(addressRegistry, c =>
           some(c.urls, url => a.url.startsWith(url))
         );
 
-        // TODO: Check if creator is already in database
-        await this.updateCreator(reg_creator.urls[0], {
-          name: reg_creator.name,
-          address: reg_creator['eth address'],
-          url: reg_creator.urls,
-        });
-        let db_creator = await this.getCreator(reg_creator.urls[0]);
-        console.log(
-          'New creator with activity found in registry:',
-          db_creator.name
-        );
-      })
-    );
-
-    // Attribute activity to creators
-    let creators = await this.creators.toArray();
-    await Promise.all(
-      map(creators, async (c: ICreator) => {
-        if (c.url && c.url.length > 0) {
-          let acts = await this.activities
-            .where('url')
-            .startsWithAnyOf(c.url)
-            .toArray();
-          await Promise.all(
-            map(acts, async a => {
-              await this.connectActivityToCreator(a.url, c.id);
-            })
-          );
+        let key_url = reg_creator.urls[0];
+        let creator = null;
+        if (includes(keys(cached_creators))) {
+          // If creator already updated, skip updating
+          creator = cached_creators[key_url];
         } else {
-          console.error(`No urls for creator ${c.name}`);
+          // If creator not already updated, update and add to cache
+          await this.updateCreator(key_url, {
+            name: reg_creator.name,
+            address: reg_creator['eth address'],
+            url: reg_creator.urls,
+          });
+          creator = await this.getCreator(key_url);
+          cached_creators[key_url] = creator;
         }
+
+        // Attach activity to creator
+        await this.connectActivityToCreator(a.url, creator.id);
       })
     );
-    return null;
+    console.log(
+      `Found ${
+        keys(cached_creators).length
+      } creators with activity in registry:`,
+      map(values(cached_creators), c => c.name)
+    );
   }
 
   @messageListener()
@@ -514,27 +514,35 @@ export class Database extends Dexie {
       .where('url')
       .anyOf(registryUrls)
       .toArray();
-    // console.info(`Found creators with entries in registry: ${creators.length}`);
+    //console.info(`Found creators with entries in registry: ${creators.length}`);
 
     // Import creators to database
-    await Promise.all(
-      map(creators, async c => {
-        let reg_creator = find(
-          addressRegistry,
-          reg_c => intersection(reg_c.urls, c.url).length > 0
-        );
-        if (!reg_creator) return;
+    let found_creators = filter(
+      await Promise.all(
+        map(
+          creators,
+          async (c: ICreator): Promise<ICreator | null> => {
+            let reg_creator = find(
+              addressRegistry,
+              reg_c => intersection(reg_c.urls, c.url).length > 0
+            );
+            if (!reg_creator) return;
 
-        await this.updateCreator(c.url[0], {
-          address: reg_creator['eth address'],
-        });
+            await this.updateCreator(c.url[0], {
+              name: reg_creator.name,
+              address: reg_creator['eth address'],
+              url: Array.from(new Set([...c.url, ...reg_creator.urls])),
+            });
 
-        let db_creator = await this.getCreator(c.url[0]);
-        console.log(
-          'New address for creator found in registry:',
-          db_creator.name
-        );
-      })
+            let db_creator = await this.getCreator(c.url[0]);
+            return db_creator;
+          }
+        )
+      )
+    );
+    console.log(
+      `Found ${found_creators.length} creators in registry:`,
+      map(found_creators, c => c.name)
     );
     return null;
   }

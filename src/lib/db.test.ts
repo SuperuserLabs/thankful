@@ -213,7 +213,8 @@ describe('Attribute addresses from registry', () => {
 
   it('attributes activity for domain', async () => {
     let c_url = 'https://archive.org/';
-    let a_url = 'https://archive.org/';
+    let a_url =
+      'https://archive.org/details/d64_Space_Action_1983_Handic_Software';
     let expected_address = '0xFA8E3920daF271daB92Be9B87d9998DDd94FEF08';
 
     await db.logActivity(a_url, 10);
@@ -230,7 +231,7 @@ describe('Attribute addresses from registry', () => {
     expect(creator).not.toEqual(null);
     expect(creator.name).toEqual('Internet Archive');
     // TODO: Test that all urls for the creator are included
-    expect(creator.url[0]).toEqual(c_url);
+    expect(creator.url).toContain(c_url);
     expect(creator.address).toEqual(expected_address);
   });
 
@@ -245,6 +246,8 @@ describe('Attribute addresses from registry', () => {
     let creator = await db.getCreator(c_url);
     expect(creator.name).toBe('Ethereum Foundation');
     expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+    expect(creator.url).toContain(c_url);
+    expect(creator.url).toContain('https://twitter.com/ethereum');
   });
 
   it('attributes address to GitHub user', async () => {
@@ -255,7 +258,6 @@ describe('Attribute addresses from registry', () => {
     let creator = await db.getCreator(c_url);
     expect(creator.name).toBe('Ethereum Foundation');
     expect(creator.address).toBe('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
-    // TODO
   });
 
   it("doesn't duplicate creators when updating existing creator with new URL", async () => {

@@ -62,7 +62,7 @@ div
       v-layout(v-if='loading', row, justify-center, align-center).pa-5
         v-progress-circular(indeterminate, :size='50')
       v-layout(v-else, row, wrap)
-        v-flex(v-for="creator in creators", :key='creator.id', xs12, sm6, md3)
+        v-flex(v-for="creator in creators", :key='creator.id', xs12, sm6, md4, lg3, xl2)
           creator-card(v-bind:creator="creator",
                        v-bind:key="creator.id",
                        @edit="edit(creator)",

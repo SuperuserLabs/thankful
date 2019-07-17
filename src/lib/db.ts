@@ -8,6 +8,9 @@ import {
   find,
   some,
   flatten,
+  keys,
+  values,
+  includes,
   filter,
   intersection,
 } from 'lodash';
@@ -412,6 +415,8 @@ export class Database extends Dexie {
   @messageListener()
   async attributeActivity() {
     await this._attributeGithubActivity();
+    await this._attributeActivityToCreatorFromRegistry();
+    await this._attributeAddressToCreatorFromRegistry();
   }
 
   @messageListener()
@@ -463,6 +468,8 @@ export class Database extends Dexie {
       .toArray();
     // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
 
+    let cached_creators = {};
+
     // Import creators to database
     let found_creators = await Promise.all(
       map(
@@ -472,24 +479,33 @@ export class Database extends Dexie {
             some(c.urls, url => a.url.startsWith(url))
           );
 
-          // Skip if already updated for previous activity with same creator
-          await this.updateCreator(reg_creator.urls[0], {
-            name: reg_creator.name,
-            address: reg_creator['eth address'],
-            url: reg_creator.urls,
-          });
+          let key_url = reg_creator.urls[0];
+          let creator = null;
+          if (includes(keys(cached_creators))) {
+            // If creator already updated, skip updating
+            creator = cached_creators[key_url];
+          } else {
+            // If creator not already updated, update and add to cache
+            await this.updateCreator(key_url, {
+              name: reg_creator.name,
+              address: reg_creator['eth address'],
+              url: reg_creator.urls,
+            });
+            creator = await this.getCreator(key_url);
+            cached_creators[key_url] = creator;
+          }
 
-          let creator = await this.getCreator(reg_creator.urls[0]);
+          // Attach activity to creator
           await this.connectActivityToCreator(a.url, creator.id);
-          return creator;
         }
       )
     );
     console.log(
-      `Found ${found_creators.length} creators with activity in registry:`,
-      map(found_creators, c => c.name)
+      `Found ${
+        keys(found_creators).length
+      } creators with activity in registry:`,
+      map(values(cached_creators), c => c.name)
     );
-    return null;
   }
 
   @messageListener()

@@ -27,19 +27,7 @@ Thankful is being developed by Superuser Labs. We hope that people will want to 
 - No special token
 - No forced fees (but we hope you will be thankful and support our continued work!)
 
-### Feature wishlist
-
-These are things we haven't built yet, but are figuring out.
-
-- Let you donate to creators who you don't yet know the cryptocurrency address (or who might not even have a wallet).
-  - This helps greatly with virality and cryptocurrency adoption, see [issue #164](https://github.com/SuperuserLabs/thankful/issues/164).
-  - See our [smart contracts](https://github.com/SuperuserLabs/thankful-contracts) for more info.
-- Allow for donations with ERC-20 tokens, especially stablecoins like Dai.
-- Reward supporters with "tokens of gratitude" (proofs of support).
-- Keep track of the amount that creators have received.
-- Enable creators to give back to their supporters.
-- Import data from [ActivityWatch](https://github.com/ActivityWatch/activitywatch).
-  - Lets users support creators of non-web apps/software, music, and more.
+But there's a lot more coming, you can **read about the features we are planning [in our wiki](https://github.com/SuperuserLabs/thankful/wiki/Feature-wishlist)**.
 
 ## What content can currently be funded by Thankful?
 
@@ -49,22 +37,7 @@ We want to make it easy to support creators on all platforms and mediums. These 
 - **Code**: on GitHub
 - **Writing**: on Medium
 
-### Things we want to support in the future
-
-- Music
-  - Spotify ([issue #175](https://github.com/SuperuserLabs/thankful/issues/175))
-  - Soundcloud ([issue #15](https://github.com/SuperuserLabs/thankful/issues/15))
-  - Last.fm
-- Personal websites/blogs, social media posts and comments
-- Podcasts
-- Software
-  - Funding development of free software has been a problem for a long time (See this [aptly titled article](https://fosspost.org/opinions/people-be-thankful-for-free-software-developers))
-  - Software creator could choose to support development of important dependencies.
-- Other types of activity that can be gathered by [ActivityWatch](https://activitywatch.net)
-- Charities
-  - While not creating content, we believe charity aligns well with the design of Thankful, and hope to be able to make it easy for users to support highly effective like the [Against Malaria Foundation](https://www.againstmalaria.com/) and [Effective Altruism Funds](https://app.effectivealtruism.org/funds).
-
-<!-- These all have different niches filled in different ways, it'd be nice to write about what they do well for their niche, and how that could be generalized, or how we compare -->
+We want to support more types of content on more platforms, see [this page in our wiki](https://github.com/SuperuserLabs/thankful/wiki/Content-to-support-in-the-future) for our ideas.
 
 ## Thank you
 

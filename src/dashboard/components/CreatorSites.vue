@@ -3,7 +3,8 @@ span
   span(v-for="site in sites")
     a.title(:href='site.url' target="_blank" style="text-decoration: none !important")
       v-btn.ma-0(icon, style="font-size: inherit")
-        font-awesome-icon(:icon="site.icon", :color='site.color')
+        img(v-if="site.domain == 'getthankful.io'" src="/media/icon-128.png", style="width: 1em")
+        font-awesome-icon(v-else :icon="site.icon", :color='site.color')
 </template>
 
 <script>

@@ -8,6 +8,7 @@ import {
   find,
   some,
   flatten,
+  filter,
   intersection,
 } from 'lodash';
 import isReserved from 'github-reserved-names';
@@ -458,49 +459,35 @@ export class Database extends Dexie {
     let activities = await this.activities
       .where('url')
       .startsWithAnyOf(registryUrls)
-      //.filter(a => a.creator_id === undefined)
+      .filter(a => a.creator_id === undefined)
       .toArray();
     // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
 
     // Import creators to database
-    await Promise.all(
-      map(activities, async a => {
-        let reg_creator = find(addressRegistry, c =>
-          some(c.urls, url => a.url.startsWith(url))
-        );
-
-        // TODO: Check if creator is already in database
-        await this.updateCreator(reg_creator.urls[0], {
-          name: reg_creator.name,
-          address: reg_creator['eth address'],
-          url: reg_creator.urls,
-        });
-        let db_creator = await this.getCreator(reg_creator.urls[0]);
-        console.log(
-          'New creator with activity found in registry:',
-          db_creator.name
-        );
-      })
-    );
-
-    // Attribute activity to creators
-    let creators = await this.creators.toArray();
-    await Promise.all(
-      map(creators, async (c: ICreator) => {
-        if (c.url && c.url.length > 0) {
-          let acts = await this.activities
-            .where('url')
-            .startsWithAnyOf(c.url)
-            .toArray();
-          await Promise.all(
-            map(acts, async a => {
-              await this.connectActivityToCreator(a.url, c.id);
-            })
+    let found_creators = await Promise.all(
+      map(
+        activities,
+        async (a: IActivity): Promise<ICreator> => {
+          let reg_creator = find(addressRegistry, c =>
+            some(c.urls, url => a.url.startsWith(url))
           );
-        } else {
-          console.error(`No urls for creator ${c.name}`);
+
+          // Skip if already updated for previous activity with same creator
+          await this.updateCreator(reg_creator.urls[0], {
+            name: reg_creator.name,
+            address: reg_creator['eth address'],
+            url: reg_creator.urls,
+          });
+
+          let creator = await this.getCreator(reg_creator.urls[0]);
+          await this.connectActivityToCreator(a.url, creator.id);
+          return creator;
         }
-      })
+      )
+    );
+    console.log(
+      `Found ${found_creators.length} creators with activity in registry:`,
+      map(found_creators, c => c.name)
     );
     return null;
   }
@@ -514,29 +501,35 @@ export class Database extends Dexie {
       .where('url')
       .anyOf(registryUrls)
       .toArray();
-    // console.info(`Found creators with entries in registry: ${creators.length}`);
+    //console.info(`Found creators with entries in registry: ${creators.length}`);
 
     // Import creators to database
-    await Promise.all(
-      map(creators, async c => {
-        let reg_creator = find(
-          addressRegistry,
-          reg_c => intersection(reg_c.urls, c.url).length > 0
-        );
-        if (!reg_creator) return;
+    let found_creators = filter(
+      await Promise.all(
+        map(
+          creators,
+          async (c: ICreator): Promise<ICreator | null> => {
+            let reg_creator = find(
+              addressRegistry,
+              reg_c => intersection(reg_c.urls, c.url).length > 0
+            );
+            if (!reg_creator) return;
 
-        await this.updateCreator(c.url[0], {
-          name: reg_creator.name,
-          address: reg_creator['eth address'],
-          url: Array.from(new Set([...c.url, ...reg_creator.urls])),
-        });
+            await this.updateCreator(c.url[0], {
+              name: reg_creator.name,
+              address: reg_creator['eth address'],
+              url: Array.from(new Set([...c.url, ...reg_creator.urls])),
+            });
 
-        let db_creator = await this.getCreator(c.url[0]);
-        console.log(
-          'New address for creator found in registry:',
-          db_creator.name
-        );
-      })
+            let db_creator = await this.getCreator(c.url[0]);
+            return db_creator;
+          }
+        )
+      )
+    );
+    console.log(
+      `Found ${found_creators.length} creators in registry:`,
+      map(found_creators, c => c.name)
     );
     return null;
   }

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import demodata from '../../demodata';
+import { build_demodata } from '../../demodata';
 import { getDatabase } from '~/lib/db';
 import { IDonation, IDonationSuccess } from '~/lib/models';
 
@@ -173,6 +173,7 @@ export default {
 
   mutations: {
     demomode(state) {
+      let demodata = build_demodata();
       state.activities = demodata.activities;
       state.creators = demodata.creators;
 

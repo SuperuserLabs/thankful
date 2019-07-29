@@ -75,7 +75,7 @@ div
       // Donation summary
       v-card
         v-card-title
-          span.display-1.ma-2 Donation summary
+          span.display-1.ma-2.mb-0 Donation summary
         donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
       div.text-xs-center.pt-2.pb-3

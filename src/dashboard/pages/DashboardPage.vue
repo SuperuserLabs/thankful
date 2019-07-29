@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div(style="margin-top: -1em")
     // Edit creator dialog
     v-dialog(v-model="dialog.edit", max-width='500px', @input='newCreator = false')
       v-card(tile)
@@ -47,14 +47,14 @@ div
     v-container(grid-list-md)
       // Favorite creators
       v-layout(row)
-        v-flex.pa-2
-          span.display-1 Your favorite creators
+        v-flex.px-2
+          span.title Your favorite creators
           span.ml-3.caption(v-show="daysSinceDonation !== null")
             | You last donated {{daysSinceDonation}} days ago
         v-flex(shrink)
           v-tooltip(bottom)
             template(v-slot:activator="{ on }")
-              v-btn(flat, right, small, @click="addCreator()" v-on="on")
+              v-btn(flat, right, small, @click="addCreator()" v-on="on").ma-0
                 v-icon add
                 | Add creator
             span This feature is broken, sorry!
@@ -70,12 +70,12 @@ div
                        @ignore="ignore(creator)"
                        )
 
-      div.my-3
+      div.my-4
 
       // Donation summary
       v-card
         v-card-title
-          span.display-1.ma-2.mb-0 Donation summary
+          span.title.ml-1.mt-1(style="margin-bottom: -0.5em") Donation summary
         donation-summary(ref='donationSummary', @error="$error('Donating failed')($event)", :distribution="distribution")
 
       div.text-xs-center.pt-2.pb-3

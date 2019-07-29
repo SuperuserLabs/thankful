@@ -49,6 +49,7 @@ export function build_demodata() {
     name: 'Thankful Team',
     address: '0x44b8E57DE4494F6424Be86d28D2f0969d57aFca1',
     url: ['https://getthankful.io'],
+    share: 0.05,
     //priority: 1,
     activity: [
       {
@@ -67,7 +68,12 @@ export function build_demodata() {
       {
         title: 'dotfiles',
         url: 'https://github.com/ErikBjare/dotfiles',
-        duration: 120,
+        duration: 3 * 60 + 58,
+      },
+      {
+        title: 'QuantifiedMe',
+        url: 'https://github.com/ErikBjare/QuantifiedMe',
+        duration: 6 * 60 + 38,
       },
     ],
   });
@@ -78,7 +84,6 @@ export function build_demodata() {
     url: ['https://github.com/dwilid'],
     activity: [
       {
-        creator_id: 3,
         title: 'dwilid',
         url: 'https://github.com/dwilid',
         duration: 8,
@@ -116,10 +121,9 @@ export function build_demodata() {
       'https://www.youtube.com/channel/UCNOfzGXD_C9YMYmnefmPH0g',
       'https://twitter.com/ethereum',
     ],
-    thanksAmount: 2,
+    thanksAmount: 1,
     activity: [
       {
-        creator_id: 6,
         title: 'The Web We Want by Brewster Kahle (Devcon4)',
         url: 'https://www.youtube.com/watch?v=rkdFko6wNuc',
         duration: 37 * 60 + 45,
@@ -171,7 +175,7 @@ export function build_demodata() {
     activity: [
       {
         url: 'https://www.youtube.com/watch?v=aircAruvnKk',
-        duration: 19 * 60 + 13,
+        duration: 32 * 60 + 13,
       },
     ],
   });
@@ -203,7 +207,7 @@ export function build_demodata() {
       'https://www.youtube.com/channel/UCJWCJCWOxBYSi5DhCieLOLQ',
       'https://twitter.com/aantonop',
     ],
-    thanksAmount: 3,
+    thanksAmount: 1,
     activity: [
       {
         url: 'https://www.youtube.com/watch?v=qlAhXo-d-64',

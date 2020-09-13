@@ -1,0 +1,84 @@
+<html><head><title>Thankful</title><link rel="shortcut icon" type="image/png" href="/media/thankful-logo-512.png"/><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><!-- MDL--><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/><!-- Possible values for primary: deep_orange, red, pink, purple, deep_purple, indigo, blue, light_blue, cyan, teal, green, light_green, lime, yellow, amber, orange, brown, blue_grey, grey--><!-- Possible values for secondary: deep_orange, red, pink, purple, deep_purple, indigo, blue, light_blue, cyan, teal, green, light_green, lime, yellow, amber, orange--><link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_purple-orange.min.css"/><script defer="defer" src="https://code.getmdl.io/1.3.0/material.min.js"></script><!-- Font Awesome--><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous"/><link rel="stylesheet" href="/index.css"/><!-- Roboto--><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css"/><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121109725-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'UA-121109725-1');
+</script>
+
+<script>
+// From: https://support.google.com/analytics/answer/7478520?hl=en
+/**
+* Function that registers a click on an outbound link in Analytics.
+* This function takes a valid URL string as an argument, and uses that URL string
+* as the event label. Setting the transport method to 'beacon' lets the hit be sent
+* using 'navigator.sendBeacon' in browser that support it.
+*/
+var getOutboundLink = function(urlOrEvent) {
+ let url;
+ let target;
+ if(typeof urlOrEvent === 'string') {
+   url = urlOrEvent;
+ } else {
+   let event = urlOrEvent || window.event;
+   let el = event.target || event.srcElement;
+   if(!el.href) el = el.parentNode;
+   url = el.href;
+   target = el.target;
+ }
+ //console.log(url);
+ //console.log(target);
+ if(window.google_tag_manager) {
+   gtag('event', 'click', {
+        'event_category': 'outbound',
+        'event_label': url,
+        'transport_type': 'beacon',
+        'event_callback': function() {
+          window.open(url, target);
+          //document.location = url;
+        }
+   });
+ } else {
+   window.open(url, target);
+ }
+}
+</script></head><body><div class="mdl-layout mdl-js-layout mdl-layout--fixed-header"><header class="mdl-layout__header mdl-layout__header--scroll" style="font-family: 'Roboto', 'Helvetica', sans-serif; background-color: #263238;"><div class="mdl-layout__header-row" style="padding: 0 2em 0 2em"><span class="mdl-layout__title"><a style="color: #FFF; text-decoration: none; padding-right: 1em" href="https://superuserlabs.github.io/">Superuser Labs</a></span><div class="mdl-navigation"><a class="mdl-navigation__link" href="https://getthankful.io/" style="font-weight: 500;">Thankful</a><a class="mdl-navigation__link" href="https://activitywatch.net/" style="font-weight: 500;">ActivityWatch</a></div><div class="mdl-layout-spacer"></div><div class="mdl-navigation"><a class="mdl-navigation__link" href="https://github.com/SuperuserLabs/thankful"><i class="fab fa-github fa-2x"></i></a><a class="mdl-navigation__link" href="https://twitter.com/getthankful"><i class="fab fa-twitter fa-2x"></i></a></div></div></header><main class="mdl-layout__content"><div style="position: relative; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05)); background-repeat: no-repeat; background-size: cover; background-position: center; padding: 5em 0em 2em 0"><div class="mdl-typography--text-center mdl-color-text--grey-800"><div><div class="mdl-typography--display-4"><div style="white-space: nowrap; font-size: 0.8em"><img src="/media/thankful-logo-512.png" style="width: 1em; display: inline-block; vertical-align: middle; margin: 0em 0em 0.2em 0"/><span style="display: inline-block; vertical-align: middle; font-family: 'Varela round'"><b>hankful</b></span></div></div></div><div style="font-family: 'Varela round'"><div style="margin-top: 1.5em; font-size: 1.5em; font-weight: bold;">Support the creators that you love using cryptocurrency</div><div style="margin-top: 0.6em; font-size: 1.25em">Easier, fairer, and without middlemen</div></div><hr style="width: 24em; margin: 2em auto 2em auto;"/><div style="padding: 0 1em"><h5><b>Try the beta!</b></h5><!--div+button("asd", style="background-color: #F82; color: white")
+  | <i class="fab fa-firefox" style="color: #FFF"></i> Firefox
+--><div style="display: flex; align-items: center; justify-content: center;"><div style="margin-right: 1em"><a href="https://chrome.google.com/webstore/detail/thankful/eapbondnpopbiepnjfhnaaejfdfjhnde" target="_blank" onclick="getOutboundLink(event); return false;"><img src="https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png"/></a></div><div><a href="https://addons.mozilla.org/en-US/firefox/addon/getthankful/" target="_blank" onclick="getOutboundLink(event); return false;"><img src="https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png"/></a></div></div><div class="mdl-typography--body-2-color-contrast" style="margin-top: 0.5em">...or get the code on <a class="mdl-typography--body-2-color-contrast" href="https://github.com/SuperuserLabs/thankful" target="_blank" onclick="getOutboundLink(event); return false;">GitHub</a></div><figure style="border: 1px solid #555; border-radius: 3px; width: 30em; max-width: 100%; margin: 1em auto;"><a href="/media/screenshot-thankful-1280x800.png" target="_blank" onclick="getOutboundLink(event); return false;"><img src="/media/screenshot-thankful-1280x800.png" width="100%"/></a></figure><!--div(style="margin: 1em 3em 0 3em")include /templates/email-signup-horizontal.pug
+--></div><!--divh5(style='margin-bottom: 0.5em')
+  b Get started!
+p
+  | Are you a creator or do you want to support creators?
+div
+  +button('creator.html')
+    | I'm a creator
+  +button('donor.html')
+    | I want to support creators
+
+--></div></div><div><div class="mdl-grid" style="padding: 2em 0em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--9-col"><h4 class="mdl-typography--display-1" style="margin-top: 0">Support everyone you like</h4><div style="opacity: 0.8"><p>Thankful automatically tracks which creators you spend time on. Then at the end of the month, it shows you a list of your top creators and lets you support them by sending them cryptocurrency.</p><p>We currently support creators on:</p><ul style="padding-left: 2em; margin: 0"><li>YouTube</li><li>GitHub</li><li>Medium</li><li>...and more to come</li></ul></div></div><div class="mdl-cell mdl-cell--3-col mdl-cell--hide-tablet" align="right" style="margin-top: 1em;"><i class="fas fa-heart fa-8x mdl-color-text--red"></i></div></div></div></div></div><div class="mdl-color--grey-100"><div class="mdl-grid" style="padding: 2em 0em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--9-col"><h4 class="mdl-typography--display-1" style="margin-top: 0">Healthier incentives, for a better web</h4><p>There is a fundamental issue on the internet where ad-funded creators have incentive to steal your attention as long as possible instead of providing you with as much value as they can. And if you use an ad blocker, even your favorite creators get nothing from having you in their audience.</p><p>By using Thankful, you incentivize creators to spend more time and effort on creating <b>what you want</b>.</p></div><div class="mdl-cell mdl-cell--3-col mdl-cell--hide-tablet" align="right" style="margin-top: 1em;"><span><i class="fas fa-seedling fa-8x mdl-color-text--green"></i></span></div></div></div></div></div><div><div class="mdl-grid" style="padding: 2em 0em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--9-col"><h4 class="mdl-typography--display-1" style="margin-top: 0">A good use case for cryptocurrency</h4><p>One of the earliest uses for cryptocurrency were donations. People and organizations all over the web accept donations and we want to build on that history and take it to the next level. You can read all about our master plan to make it easier to support every creator online <a href="https://github.com/SuperuserLabs/thankful/wiki/Growth-plan">here</a>.</p><p>Payments are made with Ether*, the currency native to the Ethereum blockchain. This provides low transaction fees and lets us build more advanced features in the future by utilizing smart contracts and the vibrant Ethereum ecosystem.</p><p><i>*support for more cryptocurrencies planned</i></p></div><div class="mdl-cell mdl-cell--3-col mdl-cell--hide-tablet" align="right" style="margin-top: 1em;"><span style="margin-right: 2em"><i class="fab fa-ethereum fa-8x mdl-color-text--blue-grey-900"></i></span><span><i class="fab fa-bitcoin fa-8x mdl-color-text--amber"></i></span></div></div></div></div></div><div class="mdl-color--grey-100"><div class="mdl-grid" style="padding: 2em 0em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--9-col"><h4 class="mdl-typography--display-1" style="margin-top: 0">Zero fees <span style="opacity: 0.5">(almost) </span></h4><p>The only fees you pay are transaction fees (usually ~1-3%), and the voluntary "I'm thankful for Thankful"-fee. This means <b>creators will get more</b> of what you give, and <b>reduces fees by about 90%</b> compared to Patreon.</p><p>You can read more about how we get rid of almost all fees <a href="https://github.com/SuperuserLabs/thankful/wiki/Fees">here</a>.</p></div><div class="mdl-cell mdl-cell--3-col mdl-cell--hide-tablet" align="right" style="margin-top: 1em;"><i class="fas fa-coins fa-8x mdl-color-text--amber"></i></div></div></div></div></div><div><div class="mdl-grid" style="padding: 2em 0em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--9-col"><h4 class="mdl-typography--display-1" style="margin-top: 0">Open source, unstoppable, and you own your data</h4><p>We believe in open source and self-ownership of data. That's why we designed Thankful so that we don't collect any of your data and don't need any servers. Even if we disappeared tomorrow, Thankful would still work.</p></div><div class="mdl-cell mdl-cell--3-col mdl-cell--hide-tablet" align="right" style="margin-top: 1em;"><i class="fas fa-code fa-8x mdl-color-text--grey-500"></i></div></div></div></div></div><div class="mdl-color--grey-100"><div class="mdl-grid" style="padding: 2em 0em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--12-col" style="font-size: 1.5em;"><!-- Begin Mailchimp Signup Form -->
+<link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+	#mc_embed_signup {clear:left; width:100%;}
+	#mc_embed_signup input {font:14px Helvetica,Arial,sans-serif; }
+
+#mc_embed_signup label { font-size: 1.2em; line-height: 1.2em; }
+	/* Add your own Mailchimp form style overrides in your site stylesheet or in this style block.
+	   We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+
+#mc_embed_signup .button { background-color: #55F; }
+</style>
+<div id="mc_embed_signup">
+<form action="https://github.us18.list-manage.com/subscribe/post?u=26af7d1564af1d149f5ed656d&amp;id=be5c05f542" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+   <div id="mc_embed_signup_scroll">
+	<label for="mce-EMAIL">Subscribe for updates!</label>
+	<input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+   <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+   <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_26af7d1564af1d149f5ed656d_be5c05f542" tabindex="-1" value=""></div>
+   <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+   </div>
+</form>
+</div>
+
+<!--End mc_embed_signup--></div></div></div></div></div><div><div class="mdl-grid" style="padding: 2em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="mdl-cell mdl-cell--12-col"><p style="margin: 0; text-align: center"><b>Made with <i class="fas fa-heart" style="color: red"></i> by Superuser Labs</b></p></div></div></div></div></div></main></div></body></html>

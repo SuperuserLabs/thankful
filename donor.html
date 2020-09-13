@@ -1,0 +1,65 @@
+<html><head><title>Thankful</title><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><!-- MDL--><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/><!-- Possible values for primary: deep_orange, red, pink, purple, deep_purple, indigo, blue, light_blue, cyan, teal, green, light_green, lime, yellow, amber, orange, brown, blue_grey, grey--><!-- Possible values for secondary: deep_orange, red, pink, purple, deep_purple, indigo, blue, light_blue, cyan, teal, green, light_green, lime, yellow, amber, orange--><link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_purple-orange.min.css"/><script defer="defer" src="https://code.getmdl.io/1.3.0/material.min.js"></script><!-- Font Awesome--><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous"/><link rel="stylesheet" href="/index.css"/><!-- Roboto--><link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css"/><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121109725-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'UA-121109725-1');
+</script>
+
+<script>
+// From: https://support.google.com/analytics/answer/7478520?hl=en
+/**
+* Function that registers a click on an outbound link in Analytics.
+* This function takes a valid URL string as an argument, and uses that URL string
+* as the event label. Setting the transport method to 'beacon' lets the hit be sent
+* using 'navigator.sendBeacon' in browser that support it.
+*/
+var getOutboundLink = function(urlOrEvent) {
+ let url;
+ let target;
+ if(typeof urlOrEvent === 'string') {
+   url = urlOrEvent;
+ } else {
+   let event = urlOrEvent || window.event;
+   let el = event.target || event.srcElement;
+   if(!el.href) el = el.parentNode;
+   url = el.href;
+   target = el.target;
+ }
+ //console.log(url);
+ //console.log(target);
+ if(window.google_tag_manager) {
+   gtag('event', 'click', {
+        'event_category': 'outbound',
+        'event_label': url,
+        'transport_type': 'beacon',
+        'event_callback': function() {
+          window.open(url, target);
+          //document.location = url;
+        }
+   });
+ } else {
+   window.open(url, target);
+ }
+}
+</script></head><body><header class="mdl-layout__header mdl-layout__header--scroll" style="font-family: 'Roboto', 'Helvetica', sans-serif; background-color: #263238;"><div class="mdl-layout__header-row" style="padding: 0 2em 0 2em"><span class="mdl-layout__title"><a style="color: #FFF; text-decoration: none; padding-right: 1em" href="https://superuserlabs.github.io/">Superuser Labs</a></span><div class="mdl-navigation"><a class="mdl-navigation__link" href="https://getthankful.io/" style="font-weight: 500;">Thankful</a><a class="mdl-navigation__link" href="https://activitywatch.net/" style="font-weight: 500;">ActivityWatch</a></div><div class="mdl-layout-spacer"></div><div class="mdl-navigation"><a class="mdl-navigation__link" href="https://github.com/SuperuserLabs/thankful"><i class="fab fa-github fa-2x"></i></a><a class="mdl-navigation__link" href="https://twitter.com/getthankful"><i class="fab fa-twitter fa-2x"></i></a></div></div></header><div><div class="mdl-grid" style="padding: 6em"><div class="mdl-cell mdl-cell--8-col mdl-cell--2-offset-desktop"><div class="mdl-grid" style="padding: 0"><div class="display-4 text-center w-100">Thank you!</div><div class="col-md-6 offset-md-3"><p class="text-center">Thank you for showing interest! We are still in alpha and we need <b>your</b> input so that we can help you support the creators you love.</p><p class="text-center">Please take <a href="https://docs.google.com/forms/d/e/1FAIpQLSeorT2AUsJ4_SxxEm12zYz89Pk9mz3XZvPxL336Q-mR-_LAqw/viewform?usp=sf_link">this survey</a> and subscribe below.</p><hr/><!-- Begin MailChimp Signup Form -->
+<link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+ #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;}
+ /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+    We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+ <form action="https://github.us18.list-manage.com/subscribe/post?u=26af7d1564af1d149f5ed656d&amp;id=be5c05f542" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+   <div id="mc_embed_signup_scroll">
+     <h5 class="text-center">Subscribe to updates!</h5>
+	   <input type="email" value="" name="EMAIL" class="form-control" id="mce-EMAIL" placeholder="email address" required>
+     <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+     <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_26af7d1564af1d149f5ed656d_be5c05f542" tabindex="-1" value=""></div>
+     <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary"></div>
+   </div>
+ </form>
+</div>
+<!--End mc_embed_signup--></div></div></div></div></div></body></html>

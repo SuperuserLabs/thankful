@@ -8,7 +8,9 @@
     "lint": "eslint --ignore-path=.gitignore --ext .vue --ext .js .",
     "build": "webpack",
     "dev": "webpack --watch",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "build-server": "webpack --config ./webpack-server.config.js",
+    "server": "node dist-server/index.js"
   },
   "lint-staged": {
     "*.{js,vue}": [
@@ -87,9 +89,10 @@
     "vue-router": "^3.0.6",
     "vue-template-compiler": "^2.6.10",
     "webextension-polyfill": "^0.3.1",
-    "webpack": "^4.35.2",
+    "webpack": "^4.39.1",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.5",
+    "webpack-cli": "^3.3.6",
+    "webpack-node-externals": "^1.7.2",
     "websocket": "^1.0.28"
   },
   "dependencies": {
@@ -102,6 +105,7 @@
     "bignumber.js": "github:frozeman/bignumber.js-nolookahead",
     "core-js-bundle": "^3.1.4",
     "eslint-plugin-jest": "^21.27.2",
+    "express": "^4.17.1",
     "file-loader": "^2.0.0",
     "lerna": "^3.15.0",
     "material-design-icons-iconfont": "^3.0.3",

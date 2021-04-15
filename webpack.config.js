@@ -136,6 +136,7 @@ module.exports = {
     dashboard: ['./src/dashboard/dashboard.js'],
     content_youtube: ['./src/content_scripts/content_youtube.js'],
     content_medium: ['./src/content_scripts/content_medium.js'],
+    creators: ['./src/creators/creators.js'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -161,6 +162,11 @@ module.exports = {
       filename: 'dashboard/index.html',
       template: 'src/dashboard/dashboard.pug',
       chunks: ['dashboard'],
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'creators/index.html',
+      template: 'src/creators/creators.pug',
+      chunks: ['creators'],
     }),
     new VueLoaderPlugin(),
     new webpack.EnvironmentPlugin({

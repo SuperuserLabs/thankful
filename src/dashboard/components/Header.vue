@@ -45,7 +45,7 @@ export default {
   components: {
     'net-info': NetInfo,
   },
-  data: function() {
+  data: function () {
     return {
       drawer: false,
       menuItems: [

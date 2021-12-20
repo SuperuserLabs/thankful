@@ -10,7 +10,7 @@ function queryElement(query, node) {
 }
 
 function wait(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function waitForElement(
@@ -31,7 +31,7 @@ export async function waitForElements(
   let error;
   for (let i = 0; i < retries; i++) {
     try {
-      return queries.map(query => queryElement(query, node));
+      return queries.map((query) => queryElement(query, node));
     } catch (err) {
       error = err;
     }
@@ -44,7 +44,7 @@ export async function waitForElements(
  * Add listener to recrawl page on important changes
  */
 export function addPageChangeListener(listener) {
-  browser.runtime.onMessage.addListener(async message => {
+  browser.runtime.onMessage.addListener(async (message) => {
     if (message.type === 'pageChange') {
       listener();
     }

@@ -125,7 +125,7 @@ export default {
     snackMessage: '',
     showSnackbar: false,
     ethAddressRules: [
-      v => !v || this.isAddress(v) || 'Not a valid ETH address',
+      (v) => !v || this.isAddress(v) || 'Not a valid ETH address',
     ],
     newCreator: false,
     distribution: [],
@@ -164,7 +164,7 @@ export default {
       */
     },
     distribute() {
-      this.distribution = this.creatorsWithShare.map(c => {
+      this.distribution = this.creatorsWithShare.map((c) => {
         return {
           ...c,
           funds: parseFloat((c.share * this.budget_per_month).toFixed(2)),

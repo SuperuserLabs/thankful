@@ -28,7 +28,7 @@ import browser from 'webextension-polyfill';
 let db;
 
 export default {
-  data: function() {
+  data: function () {
     return {
       thanksAmount: 0,
       shouldDonate: false,
@@ -38,34 +38,34 @@ export default {
   methods: {
     thank() {
       getCurrentTab()
-        .then(tab => {
+        .then((tab) => {
           return db.logThank(tab.url, tab.title);
         })
         .then(() => {
           this.refresh();
         })
-        .catch(err => {
+        .catch((err) => {
           throw "Couldn't log thanks: " + err;
         });
     },
     refreshThanksCount() {
       getCurrentTab()
-        .then(tab => {
+        .then((tab) => {
           return db.getUrlThanksAmount(tab.url);
         })
-        .then(amount => {
+        .then((amount) => {
           this.thanksAmount = amount;
         })
-        .catch(err => {
+        .catch((err) => {
           throw "Couldn't get thanks count for page: " + err;
         });
     },
     getShouldDonate() {
       isTimeToDonate(db)
-        .then(shouldDonate => {
+        .then((shouldDonate) => {
           this.shouldDonate = shouldDonate;
         })
-        .catch(err => console.error('Could not get shouldDonate:', err));
+        .catch((err) => console.error('Could not get shouldDonate:', err));
     },
     openDashboard() {
       if (this.$store.state.settings.onboarding_done) {
@@ -83,7 +83,7 @@ export default {
   },
   created() {
     import(/* webpackChunkName: "db" */ '../lib/db.ts')
-      .then(module => (db = new module.Database()))
+      .then((module) => (db = new module.Database()))
       .then(() => {
         this.loading = false;
         this.refresh();

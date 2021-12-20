@@ -6,7 +6,7 @@ import {
 
 function crawlPage() {
   // Tries to extract channel URL from page, retries after 1 second if not successful.
-  return waitForElement('div#owner-container a', 1000).then(channelLink => {
+  return waitForElement('div#owner-container a', 1000).then((channelLink) => {
     let url = document.location.href;
     let creatorUrl = channelLink.getAttribute('href');
     if (!creatorUrl.includes('://')) {
@@ -17,7 +17,7 @@ function crawlPage() {
   });
 }
 
-(function() {
+(function () {
   crawlPage();
 
   addPageChangeListener(crawlPage);

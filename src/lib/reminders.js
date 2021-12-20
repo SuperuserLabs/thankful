@@ -20,7 +20,7 @@ let lastToast = new Date(0);
 export function initReminders(db) {
   browser.notifications.onClicked.addListener(openDashboardTab);
 
-  browser.alarms.onAlarm.addListener(alarm => {
+  browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'reminderCheck') {
       reminderCheck(db);
     }
@@ -39,7 +39,7 @@ export async function isTimeToDonate(db) {
 
 function reminderCheck(db) {
   isTimeToDonate(db)
-    .then(shouldDonate => {
+    .then((shouldDonate) => {
       if (shouldDonate) {
         browser.browserAction.setBadgeBackgroundColor({
           color: 'ForestGreen',
@@ -65,7 +65,7 @@ function reminderCheck(db) {
         browser.browserAction.setTitle({ title: 'Thankful' });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error('Could not get reminderTimes:', err);
     });
 }

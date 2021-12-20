@@ -14,7 +14,7 @@ export default {
     't-budget-card': BudgetCard,
     't-database-cleaning': DatabaseCleaning,
   },
-  data: function() {
+  data: function () {
     return {};
   },
 };

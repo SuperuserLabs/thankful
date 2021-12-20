@@ -31,7 +31,7 @@ export default {
       this.$store.commit('notifications/hide', index);
     },
     errfun(title) {
-      return message => {
+      return (message) => {
         console.error(`${title}: ${message}`);
         this.$store.commit('notifications/insert', {
           title,

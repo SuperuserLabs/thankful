@@ -30,12 +30,12 @@ deploy({
   // a ReadStream containing a .zip (WebExtensions) or .xpi (Add-on SDK)
   src: fs.createReadStream('thankful.zip'),
 }).then(
-  function() {
+  function () {
     // success!
     console.log('Extension deployed successfully!');
     process.exit(0);
   },
-  function(err) {
+  function (err) {
     console.error(err);
     process.exit(1);
   }

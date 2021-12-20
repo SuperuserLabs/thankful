@@ -61,8 +61,10 @@ export default {
         color: '#4AF',
       };
 
-      let sites = this.urls.map(url => {
-        let matchedPlatform = _find(platforms, p => isOnDomain(url, p.domain));
+      let sites = this.urls.map((url) => {
+        let matchedPlatform = _find(platforms, (p) =>
+          isOnDomain(url, p.domain)
+        );
         if (matchedPlatform) {
           return Object.assign({ url: url }, matchedPlatform);
         } else {

@@ -12,7 +12,7 @@ describe('valueConstantTicker', () => {
     expect(ticker()).toEqual(0);
   });
 
-  it('returns time ~20ms after 20ms', done => {
+  it('returns time ~20ms after 20ms', (done) => {
     let ticker = calltime.valueConstantTicker();
     ticker('value');
     function callback() {

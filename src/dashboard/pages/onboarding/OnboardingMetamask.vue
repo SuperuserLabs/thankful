@@ -51,7 +51,7 @@ export default {
   computed: {
     ...mapGetters('metamask', ['netColor', 'netName']),
     ...mapState('metamask', ['netId', 'address']),
-    completed_step: function() {
+    completed_step: function () {
       console.log(this.address);
       if (this.netId === -1) {
         return 1;
@@ -61,10 +61,10 @@ export default {
       return 3;
     },
     step: {
-      get: function() {
+      get: function () {
         return this.manual_step | this.completed_step;
       },
-      set: function(to) {
+      set: function (to) {
         console.log('Step:', to);
         console.log('Step:', this.completed_step);
         //this.manual_step = to;
@@ -72,7 +72,7 @@ export default {
     },
   },
   watch: {
-    address: function(to) {
+    address: function (to) {
       if (to !== null) {
         this.$store.commit('settings/updateSettings', {
           onboarding_done: true,

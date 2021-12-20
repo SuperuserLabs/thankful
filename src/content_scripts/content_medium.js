@@ -17,7 +17,7 @@ function crawlPage() {
   });
 }
 
-(function() {
+(function () {
   crawlPage();
 
   addPageChangeListener(crawlPage);

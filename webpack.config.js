@@ -25,11 +25,11 @@ class CleanUpStatsPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.done.tap('CleanUpStatsPlugin', stats => {
+    compiler.hooks.done.tap('CleanUpStatsPlugin', (stats) => {
       const children = stats.compilation.children;
       if (Array.isArray(children)) {
         // eslint-disable-next-line no-param-reassign
-        stats.compilation.children = children.filter(child =>
+        stats.compilation.children = children.filter((child) =>
           this.shouldPickStatChild(child)
         );
       }

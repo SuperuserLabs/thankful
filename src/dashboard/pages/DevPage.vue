@@ -62,7 +62,7 @@ export default {
       if (files) {
         if (files.length > 0) {
           this.loading = true;
-          this.filename = [...files].map(file => file.name).join(', ');
+          this.filename = [...files].map((file) => file.name).join(', ');
           const file = files[0];
           const fileReader = new FileReader();
           fileReader.addEventListener('load', () => {
@@ -97,7 +97,7 @@ export default {
         newdb.version(verno).stores(schema);
         await Promise.all(
           _.map(db, (items, key) =>
-            newdb[key].bulkAdd(items).catch(Dexie.BulkError, e => log(e))
+            newdb[key].bulkAdd(items).catch(Dexie.BulkError, (e) => log(e))
           )
         );
         log(`Database '${dest}' imported`);
@@ -127,7 +127,7 @@ export default {
               table.schema.indexes
             );
             let schemaSyntax = primKeyAndIndexes
-              .map(index => {
+              .map((index) => {
                 return index.src;
               })
               .join(',');

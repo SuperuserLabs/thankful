@@ -11,7 +11,7 @@ v-footer(height="auto")
 
 <script>
 export default {
-  data: function() {
+  data: function () {
     return {
       links: [
         {

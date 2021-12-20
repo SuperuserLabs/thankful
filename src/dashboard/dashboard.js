@@ -9,14 +9,14 @@ import {
   faPatreon,
 } from '@fortawesome/free-brands-svg-icons';
 library.add(
-  faStar, 
+  faStar,
   faGlobe,
   faYoutube,
   faGithub,
   faMedium,
   faFacebookF,
   faTwitter,
-  faPatreon,
+  faPatreon
 );
 
 import { formatSecs, formatSecsShort } from '../lib/time.js';
@@ -56,8 +56,8 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
   Vue.filter('append', (v, text) => v + text);
   Vue.filter('trim', (v, chars) => v.substr(0, chars || 5) + '...');
 
-  Vue.prototype.$error = function(title) {
-    return message => {
+  Vue.prototype.$error = function (title) {
+    return (message) => {
       console.error(`${title}: ${message}`);
       this.$store.commit('notifications/insert', {
         title,
@@ -72,8 +72,8 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     store,
     router,
     i18n,
-    render: h => h(App),
-    created: function() {
+    render: (h) => h(App),
+    created: function () {
       this.$store.dispatch('settings/loadSettings');
       this.$store.dispatch('metamask/initialize');
     },

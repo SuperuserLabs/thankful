@@ -17,7 +17,7 @@
 import { mapGetters } from 'vuex';
 
 export default {
-  data: function() {
+  data: function () {
     return {};
   },
   computed: {
@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     distribute() {
-      this.distribution = this.creators.map(c => {
+      this.distribution = this.creators.map((c) => {
         return {
           ...c,
           funds: parseFloat((c.share * this.budget).toFixed(2)),

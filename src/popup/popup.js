@@ -21,8 +21,8 @@ import {
   new Vue({
     el: '#popup',
     store,
-    render: h => h(App),
-    created: function() {
+    render: (h) => h(App),
+    created: function () {
       this.$store.dispatch('settings/loadSettings');
     },
   });

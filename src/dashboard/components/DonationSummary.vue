@@ -64,7 +64,7 @@ export default {
   components: {
     't-creator-sites': CreatorSites,
   },
-  data: function() {
+  data: function () {
     return {
       editMode: false,
       headers: [
@@ -77,9 +77,9 @@ export default {
       currentAddressValue: '',
       rules: {
         // TODO: Don't allow saving invalid inputs
-        fundsInput: [v => parseFloat(v) >= 0 || 'Invalid donation!'],
+        fundsInput: [(v) => parseFloat(v) >= 0 || 'Invalid donation!'],
         addressInput: [
-          v => !v || this.isAddress(v) || 'Not a valid ETH address',
+          (v) => !v || this.isAddress(v) || 'Not a valid ETH address',
         ],
       },
     };
@@ -105,7 +105,7 @@ export default {
       );
     },
     highestAmount() {
-      return _.max(_.map(this.distribution, c => c.funds));
+      return _.max(_.map(this.distribution, (c) => c.funds));
     },
   },
   methods: {

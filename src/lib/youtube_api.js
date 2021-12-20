@@ -10,7 +10,7 @@ function getChannelOfVideo(id) {
       part: 'snippet',
       id: id,
     },
-    function(err, response) {
+    function (err, response) {
       if (err) {
         console.log('The API returned an error: ' + err);
         console.log(err.errors);

@@ -56,7 +56,7 @@ export default {
       console.log('processTransactions()');
       this.step = 2;
       console.log(this.distribution);
-      this.transactions = Object.values(this.distribution).map(d => {
+      this.transactions = Object.values(this.distribution).map((d) => {
         return {
           ...d,
           status: 'in-progress',
@@ -76,7 +76,7 @@ export default {
       }
     },
     errfun(title) {
-      return message => {
+      return (message) => {
         console.error(`${title}: ${message}`);
         this.$store.commit('notifications/insert', {
           title,
@@ -92,10 +92,10 @@ export default {
   watch: {
     pendingDonations() {
       let donationSuccess = Object.values(this.pendingDonations).every(
-        x => x.status === 'completed'
+        (x) => x.status === 'completed'
       );
       let donationFailure = Object.values(this.pendingDonations).some(
-        x => x.status === 'failed'
+        (x) => x.status === 'failed'
       );
 
       if (donationSuccess) {

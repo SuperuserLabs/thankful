@@ -20,20 +20,23 @@ export function build_demodata() {
     obj.thanksAmount = obj.thanksAmount || 0;
     obj.share = obj.share || null;
     if (obj.activity) {
-      map(obj.activity, a => {
+      map(obj.activity, (a) => {
         a.creator_id = obj.id;
         addActivity(a);
       });
       obj.activity = undefined;
     }
     obj.duration = sum(
-      map(filter(state.activities, a => a.creator_id === obj.id), 'duration')
+      map(
+        filter(state.activities, (a) => a.creator_id === obj.id),
+        'duration'
+      )
     );
 
     // A shorter and simpler version of _attributeAddressToCreatorFromRegistry in db.ts
     let reg_creator = find(
       addressRegistry,
-      reg_c => intersection(reg_c.urls, obj.url).length > 0
+      (reg_c) => intersection(reg_c.urls, obj.url).length > 0
     );
     if (reg_creator) {
       obj.address = reg_creator['eth address'];
@@ -156,8 +159,7 @@ export function build_demodata() {
         duration: 8 * 60 + 4,
       },
       {
-        url:
-          'https://hajak.se/founders-are-not-fuel-to-be-burnt-on-the-altar-of-innovation-1b7a5354a686',
+        url: 'https://hajak.se/founders-are-not-fuel-to-be-burnt-on-the-altar-of-innovation-1b7a5354a686',
         duration: 4 * 60 + 23,
       },
     ],

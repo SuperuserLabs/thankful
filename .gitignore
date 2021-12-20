@@ -9,10 +9,10 @@ coverage
 addon/**/*.js
 addon/**/*.html
 dist
-dist_ext/**/*.json
 thankful.zip
 thankful-src.zip
 stats.json
+crypto_addresses.json
 
 # .env secrets
 .env-webstore

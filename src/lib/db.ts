@@ -16,7 +16,7 @@ import {
   intersection,
 } from 'lodash';
 import isReserved from 'github-reserved-names';
-import addressRegistry from '../../dist_ext/crypto_addresses.json';
+import addressRegistry from '../../crypto_addresses.json';
 
 import { registerListener } from '../background/messaging';
 import { canonicalizeUrl } from './url';

@@ -1,6 +1,8 @@
+MEDIADIR=media
+ADDRS=crypto_addresses.json
 
-MEDIADIR=dist/media
-ADDRS=dist_ext/crypto_addresses.json
+# Files to add to dist folder when build is done
+DISTEXT=manifest.json $(MEDIADIR) $(ADDRS)
 
 # Install
 
@@ -15,7 +17,7 @@ install-ci:
 
 build: $(ADDRS)
 	npm run build
-	cp -r dist_ext/* dist
+	cp -r $(DISTEXT) dist
 
 build-production: $(ADDRS)
 	env PRODUCTION=true npm run build

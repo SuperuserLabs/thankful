@@ -1,4 +1,5 @@
 
+MEDIADIR=dist/media
 ADDRS=dist_ext/crypto_addresses.json
 
 # Install
@@ -14,12 +15,13 @@ install-ci:
 
 build: $(ADDRS)
 	npm run build
+	cp -r dist_ext/* dist
 
 build-production: $(ADDRS)
 	env PRODUCTION=true npm run build
 
 build-svgs:
-	for size in 64 128 256 512; do inkscape --without-gui --export-png=dist/media/icon-$$size.png --export-width=$$size --export-height=$$size dist/media/icon.svg; done
+	for size in 64 128 256 512; do inkscape --without-gui --export-png=$(MEDIADIR)/icon-$$size.png --export-width=$$size --export-height=$$size $(MEDIADIR)/icon.svg; done
 
 
 # Dev tools

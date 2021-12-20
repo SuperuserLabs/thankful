@@ -41,20 +41,24 @@ class CleanUpStatsPlugin {
  * @type {import('@vue/cli-service').ProjectOptions}
  */
 module.exports = {
-  configureWebpack: {
-    //resolve: {
-    //  //extensions: ['.js', '.ts', '.vue'],
-    //  //alias: {
-    //  //  '~': path.resolve(__dirname, 'src/'),
-    //  //},
-    //},
-    entry: {
-      background: ['./src/background/background.ts'],
-      popup: ['./src/popup/popup.js'],
-      dashboard: ['./src/dashboard/dashboard.js'],
-      content_youtube: ['./src/content_scripts/content_youtube.js'],
-      content_medium: ['./src/content_scripts/content_medium.js'],
+  pages: {
+    background: {
+      entry: 'src/background/background.ts',
     },
+    popup: {
+      entry: 'src/popup/popup.js',
+    },
+    dashboard: {
+      entry: 'src/dashboard/dashboard.js',
+    },
+    content_youtube: {
+      entry: 'src/content_scripts/content_youtube.js',
+    },
+    content_medium: {
+      entry: 'src/content_scripts/content_medium.js',
+    },
+  },
+  configureWebpack: {
     output: {
       path: path.resolve(__dirname, 'dist'),
       publicPath: '/',

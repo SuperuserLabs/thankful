@@ -181,9 +181,9 @@ module.exports = {
   optimization: {
     minimizer: [
       new TerserPlugin({
-        cache: true,
+        //cache: true,
         parallel: true,
-        sourceMap: true, // set to true if you want JS source maps
+        //sourceMap: true, // set to true if you want JS source maps
       }),
       new OptimizeCSSAssetsPlugin({}),
     ],

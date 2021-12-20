@@ -9,7 +9,7 @@ div(style="margin-top: -1em")
           v-spacer
           v-toolbar-items
             v-tooltip(v-if='!dialog.new', bottom)
-              v-btn(slot='activator', dark, flat, @click='ignore(currentCreator)')
+              v-btn(slot='activator', dark, text, @click='ignore(currentCreator)')
                 | #[v-icon visibility_off] Ignore
               | {{ $t('tip.ignore') }}
         v-card-text
@@ -23,7 +23,7 @@ div(style="margin-top: -1em")
               p(v-if="editedCreator.info")
                 | {{ editedCreator.info }}
           v-layout(row, justify-end)
-            v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
+            v-btn(color="primary", text, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
 
     // Creator activity dialog
     v-dialog(v-model="dialog.activity", max-width='800px')
@@ -42,7 +42,7 @@ div(style="margin-top: -1em")
 
     // Snackbar, for 'undo ignore' and stuff
     v-snackbar(v-model='showSnackbar', bottom) {{ snackMessage }}
-      v-btn(color="pink", flat, @click="undo()") Undo
+      v-btn(color="pink", text, @click="undo()") Undo
 
     v-container(grid-list-md)
       // Favorite creators
@@ -54,7 +54,7 @@ div(style="margin-top: -1em")
         v-flex(shrink)
           v-tooltip(bottom)
             template(v-slot:activator="{ on }")
-              v-btn(flat, right, small, @click="addCreator()" v-on="on").ma-0
+              v-btn(text, right, small, @click="addCreator()" v-on="on").ma-0
                 v-icon add
                 | Add creator
             span This feature is broken, sorry!

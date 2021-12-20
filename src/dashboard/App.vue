@@ -2,7 +2,7 @@
 v-app
   t-header
 
-  v-content
+  v-main
     t-notifications
     v-container(fluid)
       router-view

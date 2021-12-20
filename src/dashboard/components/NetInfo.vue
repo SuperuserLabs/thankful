@@ -1,5 +1,5 @@
 <template lang="pug">
-v-chip(outline, :color='netColor')
+v-chip(outlined, :color='netColor')
   div(v-if="netId === -1")
     b Not connected to Ethereum, please install #[a(href='#/onboarding/metamask') MetaMask]
   div(v-else-if="!address")

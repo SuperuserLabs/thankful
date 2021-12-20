@@ -10,7 +10,8 @@ export default class Donate {
     const createMetaMaskProvider = (await import('metamask-extension-provider'))
       .default;
 
-    const web3Provider = createMetaMaskProvider();
+    const web3Provider: any = createMetaMaskProvider();
+    console.log(`Created web3provider ${web3Provider}`);
 
     web3Provider.on('error', (error) => {
       console.error('Failed to connect to MetaMask:', error);
@@ -20,18 +21,11 @@ export default class Donate {
     await import('bn.js');
     web3 = new Web3(web3Provider);
 
-    //return web3.eth.net.getId();
     return this.getNetId();
   }
 
   async getNetId(): Promise<number> {
-    //return web3.eth.net.getId();
-    return new Promise((resolve, reject) => {
-      web3.version.getNetwork((err, net) => {
-        if (err) reject(err);
-        resolve(net);
-      });
-    });
+    return await web3.eth.net.getId();
   }
 
   isAddress(address: String): boolean {
@@ -103,8 +97,10 @@ export default class Donate {
     }
   }
 
-  getMyAddress(): String {
-    return web3.eth.accounts[0];
+  async getMyAddress(): Promise<string> {
+    const accounts = await web3.eth.requestAccounts();
+    console.log(`Retrieved accounts: ${accounts}`);
+    return accounts[0];
   }
 
   async _usdEthRate(): Promise<BigNumber> {

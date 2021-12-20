@@ -58,7 +58,9 @@ module.exports = {
       entry: 'src/content_scripts/content_medium.js',
     },
   },
+
   configureWebpack: {
+    devtool: 'source-map',
     output: {
       path: path.resolve(__dirname, 'dist'),
       publicPath: '/',
@@ -98,4 +100,6 @@ module.exports = {
         : []
     ),
   },
+
+  transpileDependencies: ['vuetify'],
 };

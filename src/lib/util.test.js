@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 let util = require('./util');
 
 describe('isNode', () => {

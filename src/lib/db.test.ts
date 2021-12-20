@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import Dexie from 'dexie';
 import { forEach } from 'lodash';
 import BigNumber from 'bignumber.js';
@@ -53,13 +57,13 @@ describe('Activity', () => {
     expect(acts_all).toHaveLength(3);
 
     let acts_with_creators = await db.getActivities({ withCreators: true });
-    forEach(acts_with_creators, a => {
+    forEach(acts_with_creators, (a) => {
       expect(a.creator_id).not.toEqual(undefined);
     });
     expect(acts_with_creators).toHaveLength(1);
 
     let acts_without_creators = await db.getActivities({ withCreators: false });
-    forEach(acts_without_creators, a => {
+    forEach(acts_without_creators, (a) => {
       expect(a.creator_id).toEqual(undefined);
     });
     expect(acts_without_creators).toHaveLength(2);
@@ -75,10 +79,7 @@ describe('Activity', () => {
     await db.connectUrlToCreator(url, c_url);
 
     expect(
-      (await db.activities
-        .where('url')
-        .equals(url)
-        .toArray())[0].creator_id
+      (await db.activities.where('url').equals(url).toArray())[0].creator_id
     ).toEqual(creatorId);
   });
 });
@@ -323,10 +324,7 @@ describe('Thanks', () => {
     await db.connectThanksToCreator(thxUrlNotCanon, id);
 
     expect(
-      (await db.thanks
-        .where('url')
-        .equals(thxUrl)
-        .toArray())[0].creator_id
+      (await db.thanks.where('url').equals(thxUrl).toArray())[0].creator_id
     ).toEqual(id);
   });
 
@@ -339,10 +337,7 @@ describe('Thanks', () => {
     await db.connectUrlToCreator(thxUrlNotCanon, thxCreatorUrl);
 
     expect(
-      (await db.thanks
-        .where('url')
-        .equals(thxUrl)
-        .toArray())[0].creator_id
+      (await db.thanks.where('url').equals(thxUrl).toArray())[0].creator_id
     ).toEqual(id);
   });
 });

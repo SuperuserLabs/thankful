@@ -43,12 +43,16 @@ lint:
 	npm run lint
 
 lint-fix:
+	npm run lint-fix
+
+precommit:
 	npm run precommit
 
 typecheck:
 	mypy scripts/
 
-precommit:
+# Run a full check
+check:
 	make typecheck
 	make lint-fix
 	make test

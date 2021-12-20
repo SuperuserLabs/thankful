@@ -42,25 +42,24 @@ class CleanUpStatsPlugin {
  */
 module.exports = {
   pages: {
-    background: {
-      entry: 'src/background/background.ts',
-    },
-    popup: {
-      entry: 'src/popup/popup.js',
-    },
     dashboard: {
       entry: 'src/dashboard/dashboard.js',
     },
-    content_youtube: {
-      entry: 'src/content_scripts/content_youtube.js',
-    },
-    content_medium: {
-      entry: 'src/content_scripts/content_medium.js',
+    popup: {
+      entry: 'src/popup/popup.js',
     },
   },
 
   configureWebpack: {
     devtool: 'source-map',
+
+    // Event pages and background/content scripts pages go here
+    entry: {
+      background: ['./src/background/background.ts'],
+      content_youtube: ['./src/content_scripts/content_youtube.js'],
+      content_medium: ['./src/content_scripts/content_medium.js'],
+    },
+
     output: {
       path: path.resolve(__dirname, 'dist'),
       publicPath: '/',

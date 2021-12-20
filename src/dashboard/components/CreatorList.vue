@@ -1,7 +1,7 @@
 <template lang="pug">
 v-layout(v-if='loading', row, justify-center, align-center).pa-5
   v-progress-circular(indeterminate, :size='50')
-v-data-table(v-else, :headers="headers", :items="creators", :pagination.sync='pagination')
+v-data-table(v-else, :headers="headers", :items="creators", :options.sync='options')
   template(slot='items', slot-scope='props')
     td
       | {{ props.item.name || props.item.url }}
@@ -57,7 +57,7 @@ export default {
       { text: 'Thanks', value: 'thanksAmount', width: '10%' },
       { text: '', value: 'actions', sortable: false },
     ],
-    pagination: { sortBy: 'duration', descending: true, rowsPerPage: 10 },
+    options: { sortBy: ['duration'], sortDesc: [true], itemsPerPage: 10 },
   }),
   components: {
     't-creator-sites': CreatorSites,

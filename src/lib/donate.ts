@@ -99,7 +99,7 @@ export default class Donate {
 
   async getMyAddress(): Promise<string> {
     const accounts = await web3.eth.requestAccounts();
-    console.log(`Retrieved accounts: ${accounts}`);
+    //console.log(`Retrieved accounts: ${accounts}`);
     return accounts[0];
   }
 

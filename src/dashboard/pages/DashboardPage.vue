@@ -32,7 +32,7 @@ div(style="margin-top: -1em")
           v-toolbar-title
             | Activity
         v-card-text
-          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.id)", :pagination.sync='pagination')
+          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.id)", :options.sync='options')
             template(slot='items', slot-scope='props')
               td
                 a(:href="props.item.url")
@@ -121,7 +121,7 @@ export default {
       { text: 'Page', value: 'title' },
       { text: 'Duration', value: 'duration' },
     ],
-    pagination: { sortBy: 'duration', descending: true },
+    options: { sortBy: ['duration'], sortDesc: [true] },
     snackMessage: '',
     showSnackbar: false,
     ethAddressRules: [

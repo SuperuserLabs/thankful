@@ -1,7 +1,7 @@
 <template lang="pug">
 v-layout(v-if='loading', row, justify-center, align-center).pa-5
   v-progress-circular(indeterminate, :size='50')
-v-data-table(v-else, :headers="headers", :items="donations", :pagination.sync='pagination', hide-actions)
+v-data-table(v-else, :headers="headers", :items="donations", :options.sync='options', hide-actions)
   template(slot='items', slot-scope='props')
     td
         | {{new Date(props.item.date).toLocaleDateString()}}
@@ -30,10 +30,10 @@ export default {
       { text: 'Transaction ID', value: 'transaction', align: 'right' },
       { text: 'Amount', value: 'usdAmount', align: 'right' },
     ],
-    pagination: {
-      sortBy: 'date',
-      descending: 'false',
-      rowsPerPage: -1,
+    options: {
+      sortBy: ['date'],
+      sortDesc: [false],
+      itemsPerPage: -1,
     },
   }),
   computed: {

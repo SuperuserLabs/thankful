@@ -37,6 +37,7 @@ async function rescheduleAlarm() {
 }
 
 (function () {
+  console.log('Initializing background page...');
   rescheduleAlarm();
 
   const db = getDatabase();

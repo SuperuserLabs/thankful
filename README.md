@@ -1,6 +1,6 @@
 # Thankful
 
-[![Build Status](https://travis-ci.org/SuperuserLabs/thankful.svg?branch=master)](https://travis-ci.org/SuperuserLabs/thankful)
+[![Build](https://github.com/SuperuserLabs/thankful/actions/workflows/build.yml/badge.svg)](https://github.com/SuperuserLabs/thankful/actions/workflows/build.yml)
 
 _Support free culture by automatically sending cryptocurrency to the creators of the content you love._
 

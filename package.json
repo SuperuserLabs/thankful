@@ -3,7 +3,7 @@
   "version": "0.9.0",
   "private": true,
   "description": "Thankful",
-  "author": "",
+  "author": "Superuser Labs",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

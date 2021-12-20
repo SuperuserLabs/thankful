@@ -1,8 +1,30 @@
 .DS_Store
 node_modules
-/dist
 coverage
+**/*.swp
+.vscode/
+.*cache
 
+# Build artifacts
+addon/**/*.js
+addon/**/*.html
+dist/**/*.js
+dist/**/*.css
+dist/**/*.woff
+dist/**/*.ttf
+dist/**/*.eot
+dist/**/*.html
+dist/**/*.json
+dist/**/*.map
+thankful.zip
+thankful-src.zip
+stats.json
+
+# .env secrets
+.env-webstore
+
+# a folder @ErikBjare uses to store related non-versioned files
+other
 
 # local env files
 .env.local

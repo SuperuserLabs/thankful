@@ -37,7 +37,7 @@ async function rescheduleAlarm() {
 }
 
 (function () {
-  console.log('Initializing background page...');
+  console.info('Initializing background page...');
   rescheduleAlarm();
 
   const db = getDatabase();
@@ -81,7 +81,7 @@ async function rescheduleAlarm() {
         // If significantly more than 60s, reset timers.
         // This is usually indicative of computer being suspended.
         // See: https://github.com/SuperuserLabs/thankful/issues/61
-        console.log('suspend detected, resetting timers');
+        console.info('suspend detected, resetting timers');
         each(tabTimers, (tabTimer) => tabTimer());
       }
 
@@ -116,7 +116,7 @@ async function rescheduleAlarm() {
       });
       await rescheduleAlarm();
     } catch (error) {
-      console.log(`Stethoscope error: ${error}`);
+      console.error(`Stethoscope error: ${error}`);
     }
   }
 
@@ -133,7 +133,7 @@ async function rescheduleAlarm() {
     } catch (msg) {
       if (!(tabId in noContentScript)) {
         noContentScript[tabId] = true;
-        console.log(
+        console.error(
           `Error when sending message to content script (maybe not running on this url):
 url: ${tab.url}
 error: ${JSON.stringify(msg)}`

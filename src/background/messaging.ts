@@ -28,8 +28,7 @@ export async function dbListener({
   console.info(`Using registerListener for message type: ${type}`);
   let listener = _listeners[type].bind(db);
   try {
-    let result = listener(...data);
-    return result;
+    return await listener(...data);
   } catch (error) {
     console.error(`Error occurred while calling listener of type: ${type}`);
     console.error(error.stack);

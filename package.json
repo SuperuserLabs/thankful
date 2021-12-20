@@ -15,8 +15,7 @@
       "eslint"
     ],
     "*.{js,ts,json,css,md,vue,yml}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "repository": {

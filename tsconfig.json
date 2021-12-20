@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "target": "ES6",
     "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost"],
     "types": ["chrome", "node", "jest"],

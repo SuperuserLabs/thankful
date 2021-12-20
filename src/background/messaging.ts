@@ -15,7 +15,7 @@ export async function dbListener({
   data,
 }: {
   type: string;
-  data: any;
+  data: any[];
 }): Promise<any> {
   // Import must be here to prevent cyclic dependency
   let getDatabase = require('../lib/db.ts').getDatabase;
@@ -26,7 +26,7 @@ export async function dbListener({
   }
 
   console.info(`Using registerListener for message type: ${type}`);
-  let listener = <any>_listeners[type].bind(db);
+  let listener = _listeners[type].bind(db);
   try {
     return await listener(...data);
   } catch (error) {

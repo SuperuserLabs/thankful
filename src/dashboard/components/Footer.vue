@@ -2,7 +2,7 @@
 v-footer(height="auto")
   v-card.text-xs-center.m-0(flat, tile, style="width: 100%; background-color: #EEE")
     v-card-text.pa-2
-      v-btn(v-for="link in links" :key="link.text" flat :href="link.link" target="_blank" large icon)
+      v-btn(v-for="link in links" :key="link.text" text :href="link.link" target="_blank" large icon)
         font-awesome-icon(:icon="link.icon")
     v-divider
     v-card-text(py-3 text-xs-center xs12)

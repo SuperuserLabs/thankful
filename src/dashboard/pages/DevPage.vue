@@ -28,7 +28,7 @@ v-container
 <script>
 import Dexie from 'dexie';
 import _ from 'lodash';
-import { getDatabase } from '~/lib/db.ts';
+import { getDatabase } from '@/lib/db.ts';
 
 export default {
   components: {},

@@ -9,7 +9,7 @@
       | You can either fill them in manually or submit them to #[a(href="https://docs.google.com/spreadsheets/d/1-eQaGFvbwCnxY9UCgjYtXRweCT7yu92UC2sqK1UEBWc/edit?usp=sharing") our registry] (a copy of which is shipped with Thankful) using the button below.
 
     v-card-actions.justify-end
-      v-btn(outline, color="primary", target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
+      v-btn(outlined, color="primary", target="_blank", href="https://docs.google.com/forms/d/e/1FAIpQLSc0E_Ea6KAa_UELMexYYyJh4E6A0XJCrHGsRRlWDleafNvByA/viewform")
         | Submit address to registry
 </template>
 

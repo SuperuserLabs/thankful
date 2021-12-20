@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { IDonationRequest, IDonationSuccess } from './models.ts';
+import { IDonationRequest, IDonationSuccess } from './models';
 //import Promise from 'bluebird';
 
 let web3;
@@ -10,9 +10,10 @@ export default class Donate {
     const createMetaMaskProvider = (await import('metamask-extension-provider'))
       .default;
 
-    const web3Provider = createMetaMaskProvider();
+    const web3Provider: any = createMetaMaskProvider();
+    console.log(`Created web3provider ${web3Provider}`);
 
-    web3Provider.on('error', error => {
+    web3Provider.on('error', (error) => {
       console.error('Failed to connect to MetaMask:', error);
     });
 
@@ -20,18 +21,11 @@ export default class Donate {
     await import('bn.js');
     web3 = new Web3(web3Provider);
 
-    //return web3.eth.net.getId();
     return this.getNetId();
   }
 
   async getNetId(): Promise<number> {
-    //return web3.eth.net.getId();
-    return new Promise((resolve, reject) => {
-      web3.version.getNetwork((err, net) => {
-        if (err) reject(err);
-        resolve(net);
-      });
-    });
+    return await web3.eth.net.getId();
   }
 
   isAddress(address: String): boolean {
@@ -80,10 +74,10 @@ export default class Donate {
             //data: web3.utils.utf8ToHex('💛'),
             data: '0xf09f929b',
           },
-          (err, txid) => {
+          (err, _txid) => {
             if (err) reject(err);
-            console.log('transaction', txid);
-            resolve(txid);
+            console.log('transaction', _txid);
+            resolve(_txid);
           }
         );
         //.once('transactionHash', resolve)
@@ -103,8 +97,10 @@ export default class Donate {
     }
   }
 
-  getMyAddress(): String {
-    return web3.eth.accounts[0];
+  async getMyAddress(): Promise<string> {
+    const accounts = await web3.eth.requestAccounts();
+    //console.log(`Retrieved accounts: ${accounts}`);
+    return accounts[0];
   }
 
   async _usdEthRate(): Promise<BigNumber> {
@@ -121,7 +117,7 @@ export default class Donate {
   }
 
   _usdToWei(usdAmount: BigNumber): BigNumber {
-    return this._usdEthRate().then(usdEthRate => {
+    return this._usdEthRate().then((usdEthRate) => {
       const ethAmount = usdAmount.dividedBy(usdEthRate);
       console.log('ethamount', ethAmount);
       return (
@@ -136,7 +132,7 @@ export default class Donate {
   // Unused but works
   // Doesn't work now with the old bignumber.js version
   _weiToUsd(weiAmount: BigNumber): BigNumber {
-    return this._usdEthRate().then(usdEthRate => {
+    return this._usdEthRate().then((usdEthRate) => {
       const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
       return ethAmount.multipliedBy(usdEthRate);
     });

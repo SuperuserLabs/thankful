@@ -1,23 +1,30 @@
 import browser from 'webextension-polyfill';
-import { find, difference, intersection, each, unionBy, filter } from 'lodash';
+import {
+  find as _find,
+  difference,
+  intersection,
+  each,
+  unionBy,
+  filter,
+} from 'lodash';
 
-import { dbListener } from './messaging.ts';
-import { canonicalizeUrl } from '~/lib/url.ts';
-import { valueConstantTicker } from '~/lib/calltime.ts';
-import { getDatabase } from '~/lib/db.ts';
-import { getCurrentTab } from '../lib/tabs.js';
-import { initReminders } from '../lib/reminders.js';
+import { dbListener } from './messaging';
+import { canonicalizeUrl } from '@/lib/url';
+import { valueConstantTicker } from '@/lib/calltime';
+import { getDatabase } from '@/lib/db';
+import { getCurrentTab } from '../lib/tabs';
+import { initReminders } from '../lib/reminders';
 
 // Returns true if tab is audible or if user was active last 60 seconds.
 async function isTabActive(tabInfo): Promise<boolean> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     let detectionIntervalInSeconds = 60;
     if (tabInfo.audible) {
       resolve(true);
     } else {
       browser.idle
         .queryState(detectionIntervalInSeconds)
-        .then(newState => resolve(newState == 'active'));
+        .then((newState) => resolve(newState == 'active'));
     }
   });
 }
@@ -29,7 +36,8 @@ async function rescheduleAlarm() {
     .then(() => browser.alarms.create('heartbeat', { periodInMinutes: 1 }));
 }
 
-(function() {
+(function () {
+  console.info('Initializing background page...');
   rescheduleAlarm();
 
   const db = getDatabase();
@@ -65,7 +73,7 @@ async function rescheduleAlarm() {
       const audibleTabs = await browser.tabs.query({ audible: true });
       const tabs = filter(
         unionBy(currentTabArray, audibleTabs, 'url'),
-        tab => !tab.incognito
+        (tab) => !tab.incognito
       );
 
       const timeSinceLastPoll = pollTimer();
@@ -73,39 +81,42 @@ async function rescheduleAlarm() {
         // If significantly more than 60s, reset timers.
         // This is usually indicative of computer being suspended.
         // See: https://github.com/SuperuserLabs/thankful/issues/61
-        console.log('suspend detected, resetting timers');
-        each(tabTimers, tabTimer => tabTimer());
+        console.info('suspend detected, resetting timers');
+        each(tabTimers, (tabTimer) => tabTimer());
       }
 
-      const currentUrls = tabs.map(tab => canonicalizeUrl(tab.url));
+      const currentUrls = tabs.map((tab) => canonicalizeUrl(tab.url));
       const goneUrls = difference(Object.keys(tabTimers), currentUrls);
       const stillUrls = intersection(Object.keys(tabTimers), currentUrls);
       const newUrls = difference(currentUrls, Object.keys(tabTimers));
 
-      goneUrls.forEach(url => {
+      goneUrls.forEach((url) => {
         const duration = tabTimers[url]();
         const title = tabTitles[url];
         delete tabTimers[url];
         delete tabTitles[url];
         db.logActivity(url, duration, { title: title });
       });
-      stillUrls.forEach(url => {
+      stillUrls.forEach((url) => {
         const duration = tabTimers[url]();
-        let title = find(tabs, tab => canonicalizeUrl(tab.url) === url).title;
+        let title = _find(
+          tabs,
+          (tab) => canonicalizeUrl(tab.url) === url
+        ).title;
         tabTitles[url] = title;
         db.logActivity(url, duration, { title: title });
       });
-      newUrls.forEach(url => {
+      newUrls.forEach((url) => {
         tabTimers[url] = valueConstantTicker();
         tabTimers[url]();
-        tabTitles[url] = find(
+        tabTitles[url] = _find(
           tabs,
-          tab => canonicalizeUrl(tab.url) === url
+          (tab) => canonicalizeUrl(tab.url) === url
         ).title;
       });
       await rescheduleAlarm();
     } catch (error) {
-      console.log(`Stethoscope error: ${error}`);
+      console.error(`Stethoscope error: ${error}`);
     }
   }
 
@@ -122,7 +133,7 @@ async function rescheduleAlarm() {
     } catch (msg) {
       if (!(tabId in noContentScript)) {
         noContentScript[tabId] = true;
-        console.log(
+        console.error(
           `Error when sending message to content script (maybe not running on this url):
 url: ${tab.url}
 error: ${JSON.stringify(msg)}`
@@ -137,7 +148,7 @@ error: ${JSON.stringify(msg)}`
   browser.tabs.onUpdated.addListener(sendPageChange);
   browser.tabs.onActivated.addListener(stethoscope);
   browser.idle.onStateChanged.addListener(stethoscope);
-  browser.alarms.onAlarm.addListener(alarm => {
+  browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'heartbeat') {
       stethoscope();
     }
@@ -148,7 +159,7 @@ error: ${JSON.stringify(msg)}`
   browser.runtime.onMessage.addListener(dbListener);
 
   // Register on-install listeners
-  browser.runtime.onInstalled.addListener(details => {
+  browser.runtime.onInstalled.addListener((details) => {
     if (details.reason == 'install') {
       browser.tabs.create({
         url: 'dashboard/index.html#/onboarding/welcome',

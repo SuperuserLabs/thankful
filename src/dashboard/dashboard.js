@@ -21,7 +21,7 @@ library.add(
 
 import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';
-import '../stylus/main.styl';
+import '../styles/main.scss';
 import { messages } from '../resources';
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -29,14 +29,16 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 (async () => {
   const Vue = (await import(/* webpackPreload: true */ 'vue')).default;
-  const Vuetify = (await import(/* webpackPreload: true */ 'vuetify')).default;
+  const Vuetify = (await import(/* webpackPreload: true */ 'vuetify/lib'))
+    .default;
   const VueI18n = (await import(/* webpackPreload: true */ 'vue-i18n')).default;
 
   Vue.component('font-awesome-icon', FontAwesomeIcon);
 
-  Vue.use(Vuetify, {
+  const vuetifyOptions = {
     theme: { primary: '#00695C' },
-  });
+  };
+  Vue.use(Vuetify);
 
   // Create VueI18n instance with options
   Vue.use(VueI18n);
@@ -72,6 +74,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css';
     store,
     router,
     i18n,
+    vuetify: new Vuetify(vuetifyOptions),
     render: (h) => h(App),
     created: function () {
       this.$store.dispatch('settings/loadSettings');

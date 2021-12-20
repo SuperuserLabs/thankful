@@ -8,7 +8,7 @@ span
 </template>
 
 <script>
-import { isOnDomain } from '~/lib/url.ts';
+import { isOnDomain } from '@/lib/url';
 import { find as _find, sortBy } from 'lodash';
 
 export default {

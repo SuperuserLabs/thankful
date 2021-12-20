@@ -1,10 +1,10 @@
 <template lang="pug">
 div
-  v-toolbar(app light :tabs="$vuetify.breakpoint.mdAndDown" color="white" extension-height="48px")
-    v-toolbar-side-icon(v-if="$vuetify.breakpoint.mdAndDown")
+  v-app-bar(app light :tabs="$vuetify.breakpoint.mdAndDown" color="white" extension-height="48px")
+    v-app-bar-nav-icon(v-if="$vuetify.breakpoint.mdAndDown")
       v-btn(icon @click="drawer = !drawer")
         v-icon menu
-    v-toolbar-title
+    v-app-bar-title
       router-link(to="/" style="text-decoration: none; color: inherit")
           img.mr-3(src="/media/icon-256.png", style="width: 1.8em; display: inline-block; vertical-align: middle")
           h1(style="display: inline-block; vertical-align: middle")  Thankful

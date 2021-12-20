@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-    v-data-table(:headers="headers", :items="distribution", :pagination.sync='pagination', disable-initial-sort=true)
+    v-data-table(:headers="headers", :items="distribution", :options.sync='options')
       template(slot='items', slot-scope='props')
         td
           | {{ props.item.name }}
@@ -72,7 +72,7 @@ export default {
         { text: 'Address', value: 'address' },
         { text: 'Amount', value: 'funds', align: 'right' },
       ],
-      pagination: { rowsPerPage: -1 },
+      options: { itemsPerPage: -1 },
       currentFundsValue: 0,
       currentAddressValue: '',
       rules: {

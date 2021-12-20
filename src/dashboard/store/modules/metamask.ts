@@ -1,7 +1,6 @@
-import { IDonation, IDonationRequest, IDonationSuccess } from '~/lib/models';
-import Donate from '~/lib/donate';
+import { IDonation, IDonationRequest } from '@/lib/models';
+import Donate from '@/lib/donate';
 import networks from '../../../lib/networks';
-import _ from 'lodash';
 
 let donate: Donate;
 
@@ -24,21 +23,19 @@ export default {
       return networks[state.netId].color;
     },
     isAddress() {
-      return addr => donate.isAddress(addr);
+      return (addr) => donate.isAddress(addr);
     },
   },
 
   actions: {
     changeDonationAmount({ state, commit }, payload) {
-      let creators = payload.creators;
       let creator = payload.creator;
       let new_value = payload.new_value;
 
       let dist = state.distribution;
-      let redist_targets = dist.filter(c => c.id !== creator.id);
       let unchanged_share_sum = 1 - creator.share;
       let change = new_value / 100 - creator.share;
-      dist = dist.map(c => {
+      dist = dist.map((c) => {
         if (c.id === creator.id) {
           c.share = new_value / 100;
         } else if (unchanged_share_sum > 10e-3) {
@@ -75,12 +72,12 @@ export default {
       }
     },
     donateAll(
-      { state, dispatch, commit },
+      { dispatch, commit },
       donationRequests: IDonationRequest[]
     ): Promise<IDonation>[] {
       return donationRequests
-        .filter(d => !!d.address)
-        .map(async d => {
+        .filter((d) => !!d.address)
+        .map(async (d) => {
           commit('addPendingDonation', d);
           try {
             let donationCompleted = await donate.donate(d);
@@ -134,7 +131,7 @@ export default {
       state.budget_per_month = budget_per_month;
     },
     distribute(state, new_dist) {
-      new_dist = new_dist.map(c => {
+      new_dist = new_dist.map((c) => {
         c.funds = parseFloat((c.share * state.budget_per_month).toFixed(2));
         return c;
       });

@@ -9,7 +9,7 @@ div(style="margin-top: -1em")
           v-spacer
           v-toolbar-items
             v-tooltip(v-if='!dialog.new', bottom)
-              v-btn(slot='activator', dark, flat, @click='ignore(currentCreator)')
+              v-btn(slot='activator', dark, text, @click='ignore(currentCreator)')
                 | #[v-icon visibility_off] Ignore
               | {{ $t('tip.ignore') }}
         v-card-text
@@ -23,7 +23,7 @@ div(style="margin-top: -1em")
               p(v-if="editedCreator.info")
                 | {{ editedCreator.info }}
           v-layout(row, justify-end)
-            v-btn(color="primary", flat, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
+            v-btn(color="primary", text, :disabled='!valid', @click='save(`Saved creator ${editedCreator.name}`)') Save
 
     // Creator activity dialog
     v-dialog(v-model="dialog.activity", max-width='800px')
@@ -32,7 +32,7 @@ div(style="margin-top: -1em")
           v-toolbar-title
             | Activity
         v-card-text
-          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.id)", :pagination.sync='pagination')
+          v-data-table(v-if='dialog.activity', :headers="activityHeaders", :items="activityByCreator(currentCreator.id)", :options.sync='options')
             template(slot='items', slot-scope='props')
               td
                 a(:href="props.item.url")
@@ -42,7 +42,7 @@ div(style="margin-top: -1em")
 
     // Snackbar, for 'undo ignore' and stuff
     v-snackbar(v-model='showSnackbar', bottom) {{ snackMessage }}
-      v-btn(color="pink", flat, @click="undo()") Undo
+      v-btn(color="pink", text, @click="undo()") Undo
 
     v-container(grid-list-md)
       // Favorite creators
@@ -54,7 +54,7 @@ div(style="margin-top: -1em")
         v-flex(shrink)
           v-tooltip(bottom)
             template(v-slot:activator="{ on }")
-              v-btn(flat, right, small, @click="addCreator()" v-on="on").ma-0
+              v-btn(text, right, small, @click="addCreator()" v-on="on").ma-0
                 v-icon add
                 | Add creator
             span This feature is broken, sorry!
@@ -93,12 +93,12 @@ div(style="margin-top: -1em")
 </template>
 
 <script>
-import CreatorCard from '~/dashboard/components/CreatorCard.vue';
-import ActivityComponent from '~/dashboard/components/ActivityComponent.vue';
-import DonationSummary from '~/dashboard/components/DonationSummary.vue';
-import MissingAddressesCard from '~/dashboard/components/MissingAddressesCard.vue';
-import { Creator } from '~/lib/models';
-import { secondsSinceDonation } from '~/lib/util';
+import CreatorCard from '@/dashboard/components/CreatorCard.vue';
+import ActivityComponent from '@/dashboard/components/ActivityComponent.vue';
+import DonationSummary from '@/dashboard/components/DonationSummary.vue';
+import MissingAddressesCard from '@/dashboard/components/MissingAddressesCard.vue';
+import { Creator } from '@/lib/models';
+import { secondsSinceDonation } from '@/lib/util';
 
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
@@ -121,7 +121,7 @@ export default {
       { text: 'Page', value: 'title' },
       { text: 'Duration', value: 'duration' },
     ],
-    pagination: { sortBy: 'duration', descending: true },
+    options: { sortBy: ['duration'], sortDesc: [true] },
     snackMessage: '',
     showSnackbar: false,
     ethAddressRules: [

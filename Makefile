@@ -30,7 +30,7 @@ vue-devtools:
 serve:
 	cd dist/ && python3 -m http.server
 
-dist/crypto_addresses.json:
+dist/crypto_addresses.json: scripts/get_crypto_addresses.js
 	node scripts/get_crypto_addresses.js > dist/crypto_addresses.json
 
 

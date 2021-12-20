@@ -1,0 +1,70 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [16]
+        python-version: ['3.9']
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: make install-ci
+
+      - name: Build
+        run: make build
+
+      - name: Run tests
+        run: |
+          make test
+          bash <(curl -s https://codecov.io/bash)
+
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: dist/*
+
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16]
+        python-version: ['3.9']
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: make install-ci
+
+      - name: Lint
+        run: make lint

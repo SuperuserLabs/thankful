@@ -1,3 +1,6 @@
+
+ADDRS=dist_ext/crypto_addresses.json
+
 # Install
 
 install:
@@ -9,10 +12,10 @@ install-ci:
 
 # Build
 
-build: dist/crypto_addresses.json
+build: $(ADDRS)
 	npm run build
 
-build-production: dist/crypto_addresses.json
+build-production: $(ADDRS)
 	env PRODUCTION=true npm run build
 
 build-svgs:
@@ -21,7 +24,7 @@ build-svgs:
 
 # Dev tools
 
-dev: dist/crypto_addresses.json
+dev: $(ADDRS)
 	npm run dev
 
 vue-devtools:
@@ -30,13 +33,13 @@ vue-devtools:
 serve:
 	cd dist/ && python3 -m http.server
 
-dist/crypto_addresses.json: scripts/get_crypto_addresses.js
-	node scripts/get_crypto_addresses.js > dist/crypto_addresses.json
+$(ADDRS): scripts/get_crypto_addresses.js
+	node scripts/get_crypto_addresses.js > $(ADDRS)
 
 
 ## Testing, linting, and code checking
 
-test: dist/crypto_addresses.json
+test: $(ADDRS)
 	npm run test
 
 lint:

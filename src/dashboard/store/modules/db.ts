@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { build_demodata } from '../../demodata';
-import { getDatabase } from '~/lib/db';
-import { IDonation, IDonationSuccess } from '~/lib/models';
+import { getDatabase } from '@/lib/db';
+import { IDonation, IDonationSuccess } from '@/lib/models';
 
-const scoringFunction = c => {
+const scoringFunction = (c) => {
   const oneHour = 60 * 60;
   return Math.sqrt(c.duration) + c.thanksAmount * Math.sqrt(oneHour);
 };
@@ -38,7 +38,7 @@ export default {
       return creators;
     },
     creatorsNotIgnored(state, getters) {
-      let creators = _.filter(getters.creators, c => c.ignore !== true);
+      let creators = _.filter(getters.creators, (c) => c.ignore !== true);
       return creators;
     },
     creators(state) {
@@ -54,7 +54,7 @@ export default {
         let totScore = _.sumBy(creators, 'score');
         let factor = 1 - _.sumBy(creators, 'share');
 
-        return creators.map(c => {
+        return creators.map((c) => {
           let share;
           if (c.share) {
             share = c.share;
@@ -70,26 +70,25 @@ export default {
       return [];
     },
 
-    activityByCreator: state => creatorId => state.activities[creatorId],
+    activityByCreator: (state) => (creatorId) => state.activities[creatorId],
 
-    activities: state => ({
-      onlyUnattributed = false,
-      withCreator = false,
-    } = {}) => {
-      if (onlyUnattributed) {
-        // Gets activities that have been grouped as `undefined` in the mapping
-        return state.activities.undefined;
-      }
+    activities:
+      (state) =>
+      ({ onlyUnattributed = false, withCreator = false } = {}) => {
+        if (onlyUnattributed) {
+          // Gets activities that have been grouped as `undefined` in the mapping
+          return state.activities.undefined;
+        }
 
-      let activities = _.flatten(_.values(state.activities));
-      if (withCreator) {
-        activities = _.map(activities, a => ({
-          ...a,
-          creator: state.creators.find(c => c.id === a.creator_id),
-        }));
-      }
-      return activities;
-    },
+        let activities = _.flatten(_.values(state.activities));
+        if (withCreator) {
+          activities = _.map(activities, (a) => ({
+            ...a,
+            creator: state.creators.find((c) => c.id === a.creator_id),
+          }));
+        }
+        return activities;
+      },
   },
 
   actions: {

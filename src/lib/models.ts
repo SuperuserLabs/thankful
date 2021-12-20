@@ -1,5 +1,4 @@
-import { canonicalizeUrl } from './url.ts';
-import BigNumber from 'bignumber.js';
+import { canonicalizeUrl } from './url';
 
 // TODO: Write tests
 
@@ -90,6 +89,7 @@ export interface IDonation {
   weiAmount: string;
   usdAmount: string;
   transaction: number;
+  net_id: number;
 }
 
 export interface IDonationRequest {
@@ -113,7 +113,7 @@ export class Donation {
   weiAmount: string;
   usdAmount: string;
   transaction: number;
-  net_id?: number;
+  net_id: number;
 
   constructor(creator_id, weiAmount, usdAmount, transaction, net_id: number) {
     this.date = new Date().toISOString();

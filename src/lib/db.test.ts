@@ -15,7 +15,7 @@ setGlobalVars();
 Dexie.dependencies.indexedDB = require('fake-indexeddb');
 Dexie.dependencies.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
-import { Database } from './db.ts';
+import { Database } from './db';
 
 async function clearDB(db) {
   await db.creators.clear();
@@ -262,7 +262,6 @@ describe('Attribute addresses from registry', () => {
   });
 
   it("doesn't duplicate creators when updating existing creator with new URL", async () => {
-    let a_url = 'https://github.com/SuperuserLabs/thankful';
     let c_urls = [
       'https://superuserlabs.github.io',
       'https://github.com/SuperuserLabs',

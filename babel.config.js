@@ -15,7 +15,6 @@ module.exports = {
 
   plugins: [
     'lodash',
-    '@babel/plugin-transform-runtime',
     [
       'transform-imports',
       {
@@ -37,8 +36,8 @@ module.exports = {
         },
       },
     ],
-    '@babel/plugin-proposal-object-rest-spread',
-    '@babel/plugin-syntax-dynamic-import',
-    '@vue/cli-plugin-babel/preset',
+    //'@babel/plugin-proposal-object-rest-spread',
+    //'@babel/plugin-syntax-dynamic-import',
+    //'@vue/cli-plugin-babel/preset',
   ],
 };

@@ -4,7 +4,7 @@ let lastPage = null;
 export function valueConstantTicker(): (value?: any) => number {
   let oldValue = null;
   let lastTime = new Date().getTime();
-  return value => {
+  return (value) => {
     let now = new Date().getTime();
     let duration = 0;
     if (oldValue === value) {

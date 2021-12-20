@@ -1,7 +1,7 @@
 /*eslint no-shadow: [2, { "allow": ["find"] }]*/
 
 import { map, find, intersection, sum, filter } from 'lodash';
-import addressRegistry from '../../dist/crypto_addresses.json';
+import addressRegistry from '../../dist_ext/crypto_addresses.json';
 
 export function build_demodata() {
   let state = {

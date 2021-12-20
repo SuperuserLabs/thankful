@@ -1,5 +1,8 @@
 import {
   Vuetify, // required
+} from 'vuetify/lib';
+
+import {
   VApp, // required
   VBtn,
   VIcon,

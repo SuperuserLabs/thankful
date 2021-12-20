@@ -21,7 +21,7 @@ library.add(
 
 import { formatSecs, formatSecsShort } from '../lib/time.js';
 import 'typeface-roboto';
-import '../stylus/main.styl';
+import '../styles/main.scss';
 import { messages } from '../resources';
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { IDonationRequest, IDonationSuccess } from './models.ts';
+import { IDonationRequest, IDonationSuccess } from './models';
 //import Promise from 'bluebird';
 
 let web3;
@@ -12,7 +12,7 @@ export default class Donate {
 
     const web3Provider = createMetaMaskProvider();
 
-    web3Provider.on('error', error => {
+    web3Provider.on('error', (error) => {
       console.error('Failed to connect to MetaMask:', error);
     });
 
@@ -80,10 +80,10 @@ export default class Donate {
             //data: web3.utils.utf8ToHex('💛'),
             data: '0xf09f929b',
           },
-          (err, txid) => {
+          (err, _txid) => {
             if (err) reject(err);
-            console.log('transaction', txid);
-            resolve(txid);
+            console.log('transaction', _txid);
+            resolve(_txid);
           }
         );
         //.once('transactionHash', resolve)
@@ -121,7 +121,7 @@ export default class Donate {
   }
 
   _usdToWei(usdAmount: BigNumber): BigNumber {
-    return this._usdEthRate().then(usdEthRate => {
+    return this._usdEthRate().then((usdEthRate) => {
       const ethAmount = usdAmount.dividedBy(usdEthRate);
       console.log('ethamount', ethAmount);
       return (
@@ -136,7 +136,7 @@ export default class Donate {
   // Unused but works
   // Doesn't work now with the old bignumber.js version
   _weiToUsd(weiAmount: BigNumber): BigNumber {
-    return this._usdEthRate().then(usdEthRate => {
+    return this._usdEthRate().then((usdEthRate) => {
       const ethAmount = weiAmount.dividedBy(web3.utils.unitMap.ether);
       return ethAmount.multipliedBy(usdEthRate);
     });

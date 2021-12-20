@@ -1,11 +1,12 @@
+/*global PropertyDescriptor*/
+
 import Dexie from 'dexie';
-import axios from 'axios';
 import {
   concat,
   map,
   sumBy,
   countBy,
-  find,
+  find as _find,
   some,
   flatten,
   keys,
@@ -15,11 +16,11 @@ import {
   intersection,
 } from 'lodash';
 import isReserved from 'github-reserved-names';
-import addressRegistry from '../../dist/crypto_addresses.json';
+import addressRegistry from '../../dist_ext/crypto_addresses.json';
 
-import { registerListener } from '../background/messaging.ts';
-import { canonicalizeUrl } from './url.ts';
-import { isBackgroundPage, isTesting } from './util.ts';
+import { registerListener } from '../background/messaging';
+import { canonicalizeUrl } from './url';
+import { isBackgroundPage, isTesting } from './util';
 import {
   IActivity,
   IDonation,
@@ -27,8 +28,7 @@ import {
   IThank,
   Thank,
   ICreator,
-  Creator,
-} from './models.ts';
+} from './models';
 
 // Send a message to the background script worker
 async function _sendMessage(type: string, data: any[]): Promise<any> {
@@ -38,9 +38,9 @@ async function _sendMessage(type: string, data: any[]): Promise<any> {
 
 // Handles unhandled promise rejections
 // https://dexie.org/docs/Promise/unhandledrejection-event
-function handler(event) {
-  event.preventDefault(); // Prevents default handler (would log to console).
-  console.warn('Unhandled promise rejection:', event.reason);
+function handler(e) {
+  e.preventDefault(); // Prevents default handler (would log to console).
+  console.warn('Unhandled promise rejection:', e.reason);
 }
 
 if (window) window.addEventListener('unhandledrejection', handler);
@@ -52,17 +52,18 @@ type TDecorator = (
   ...args: any[]
 ) => PropertyDescriptor;
 
-// A decorator that will throw an error if the decorated
-// function is called outside of the background script.
+/* A decorator that will throw an error if the decorated
+   function is called outside of the background script. */
+// eslint-disable-next-line no-unused-vars
 function onlyInBackgroundPage(): TDecorator {
-  return function(
+  return function (
     target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ): PropertyDescriptor {
     if (!isBackgroundPage() && !isTesting()) {
-      descriptor.value = function(...args: any[]): any {
-        throw `Function ${propertyKey} only allowed to run in background page`;
+      descriptor.value = function (...args: any[]): any {
+        throw `Function ${propertyKey} only allowed to run in background page (args: ${args})`;
       };
     }
     return descriptor;
@@ -72,7 +73,7 @@ function onlyInBackgroundPage(): TDecorator {
 // Registers a function as callable through messaging,
 // will call using messaging if necessary.
 function messageListener(name?: string): TDecorator {
-  return function(
+  return function (
     target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
@@ -83,7 +84,7 @@ function messageListener(name?: string): TDecorator {
       registerListener(descriptor.value, { name });
     } else {
       // Function not initialized in background page, redirect to sendMessage.
-      descriptor.value = async function(...args: any[]): Promise<any> {
+      descriptor.value = async function (...args: any[]): Promise<any> {
         return await _sendMessage(propertyKey, args);
       };
     }
@@ -132,10 +133,10 @@ export class Database extends Dexie {
       .stores({
         thanks: '++id, url, date, title, creator',
       })
-      .upgrade(async trans => {
+      .upgrade(async (trans) => {
         let activities = await trans['activity'].toArray();
         trans['activity'].clear();
-        activities.forEach(a => {
+        activities.forEach((a) => {
           this.logActivity(a.url, a.duration, {
             title: a.title,
             creator: a.creator,
@@ -155,22 +156,24 @@ export class Database extends Dexie {
         thanks: '++id, url, date, title, creator_id',
         donations: '++id, date, creator_id, weiAmount, usdAmount',
       })
-      .upgrade(async trans => {
+      .upgrade(async (trans) => {
         let activities = await trans['activity'].toArray();
         await trans['activities'].bulkAdd(activities);
 
         let creators = await trans['creator'].toArray();
-        trans['creators'].bulkAdd(creators.map(c => ({ ...c, url: [c.url] })));
+        trans['creators'].bulkAdd(
+          creators.map((c) => ({ ...c, url: [c.url] }))
+        );
 
-        await trans['thanks'].toCollection().modify(t =>
-          trans['creators'].get({ url: t.creator }).then(c => {
+        await trans['thanks'].toCollection().modify((t) =>
+          trans['creators'].get({ url: t.creator }).then((c) => {
             t.creator_id = c.id;
             delete t.creator;
           })
         );
 
-        await trans['donations'].toCollection().modify(d =>
-          trans['creators'].get({ url: d.url }).then(c => {
+        await trans['donations'].toCollection().modify((d) =>
+          trans['creators'].get({ url: d.url }).then((c) => {
             d.creator_id = c.id;
             delete d.url;
           })
@@ -191,8 +194,7 @@ export class Database extends Dexie {
       // TODO: Change to a multisig wallet
       name: 'Thankful Team',
       address: '0x44b8E57DE4494F6424Be86d28D2f0969d57aFca1',
-      info:
-        'Be thankful for Thankful! Support us so we can keep creating a healthier internet.',
+      info: 'Be thankful for Thankful! Support us so we can keep creating a healthier internet.',
       priority: 1,
       share: 0.05,
     });
@@ -218,7 +220,7 @@ export class Database extends Dexie {
     let coll = this.activities.orderBy('duration').reverse();
 
     if (withCreators !== null) {
-      coll = coll.filter(a => {
+      coll = coll.filter((a) => {
         if (withCreators) {
           return a.creator_id !== undefined;
         } else {
@@ -234,8 +236,8 @@ export class Database extends Dexie {
     let activities = await coll.toArray();
     if (withThanks) {
       // Populate the activities with their number of thanks
-      let thanksPerUrl = countBy(await this.thanks.toArray(), t => t.url);
-      activities = activities.map(a => {
+      let thanksPerUrl = countBy(await this.thanks.toArray(), (t) => t.url);
+      activities = activities.map((a) => {
         a.thanks = thanksPerUrl[a.url] || 0;
         return a;
       });
@@ -247,7 +249,7 @@ export class Database extends Dexie {
   @messageListener()
   async deleteUnattributedActivities(): Promise<number> {
     let deleteCount = await this.activities
-      .filter(a => a.creator_id === undefined)
+      .filter((a) => a.creator_id === undefined)
       .delete();
     return deleteCount;
   }
@@ -285,7 +287,7 @@ export class Database extends Dexie {
     let creators = await coll.toArray();
     if (withDurations) {
       await Promise.all(
-        map(creators, async c => {
+        map(creators, async (c) => {
           let activities = await this.getCreatorActivity(c.id);
           c.duration = sumBy(activities, 'duration');
           return c;
@@ -294,7 +296,7 @@ export class Database extends Dexie {
     }
     if (withThanksAmount) {
       await Promise.all(
-        map(creators, async c => {
+        map(creators, async (c) => {
           c.thanksAmount = await this.getCreatorThanksAmount(c.id);
           return c;
         })
@@ -306,10 +308,7 @@ export class Database extends Dexie {
   @messageListener()
   async getCreatorActivity(creator_id: number): Promise<IActivity[]> {
     // Get all activity connected to a certain creator
-    return this.activities
-      .where('creator_id')
-      .equals(creator_id)
-      .toArray();
+    return this.activities.where('creator_id').equals(creator_id).toArray();
   }
 
   @messageListener()
@@ -371,7 +370,7 @@ export class Database extends Dexie {
     let no_modified = await this.activities
       .where('creator_id')
       .noneOf(creatorIds)
-      .filter(t => t.creator_id !== undefined)
+      .filter((t) => t.creator_id !== undefined)
       .modify({ creator_id: undefined });
     console.log(
       `Deassociated ${no_modified} activities with dead creator links`
@@ -393,7 +392,7 @@ export class Database extends Dexie {
 
   @messageListener()
   async getDonation(id: number): Promise<IDonation> {
-    return this.donations.get(id).then(d => this.donationWithCreator(d));
+    return this.donations.get(id).then((d) => this.donationWithCreator(d));
   }
 
   @messageListener()
@@ -409,7 +408,7 @@ export class Database extends Dexie {
       .reverse()
       .limit(limit)
       .toArray();
-    return await Promise.all(donations.map(d => this.donationWithCreator(d)));
+    return await Promise.all(donations.map((d) => this.donationWithCreator(d)));
   }
 
   @messageListener()
@@ -427,17 +426,17 @@ export class Database extends Dexie {
       await this.thanks
         .where('url')
         .startsWith('https://github.com/')
-        .filter(t => t.creator_id === undefined)
+        .filter((t) => t.creator_id === undefined)
         .toArray(),
       await this.activities
         .where('url')
         .startsWith('https://github.com/')
-        .filter(t => t.creator_id === undefined)
+        .filter((t) => t.creator_id === undefined)
         .toArray()
     );
 
     await Promise.all(
-      map(items, async a => {
+      map(items, async (a) => {
         let u = new URL(a.url);
         let user_or_org = u.pathname.split('/')[1];
         if (user_or_org.length > 0 && !isReserved.check(user_or_org)) {
@@ -452,29 +451,29 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async _attributeActivityToCreatorFromRegistry() {
+  async _attributeActivityToCreatorFromRegistry(): Promise<void> {
     /*
      * Attributes activity whose URLs starts with a creator URL in the registry
      * Works for basic websites, GitHub, etc.
      * Doesn't work for YouTube
      */
 
-    let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
+    const registryUrls: string[] = flatten(map(addressRegistry, (c) => c.urls));
 
-    let activities = await this.activities
+    const activities = await this.activities
       .where('url')
       .startsWithAnyOf(registryUrls)
-      .filter(a => a.creator_id === undefined)
+      .filter((a) => a.creator_id === undefined)
       .toArray();
     // console.info(`Found unattributed activities with entries in registry: ${activities.length}`);
 
-    let cached_creators = {};
+    const cached_creators = {};
 
     // Import creators to database
     await Promise.all(
       map(activities, async (a: IActivity) => {
-        let reg_creator = find(addressRegistry, c =>
-          some(c.urls, url => a.url.startsWith(url))
+        let reg_creator = _find(addressRegistry, (c) =>
+          some(c.urls, (url) => a.url.startsWith(url))
         );
 
         let key_url = reg_creator.urls[0];
@@ -501,48 +500,45 @@ export class Database extends Dexie {
       `Found ${
         keys(cached_creators).length
       } creators with activity in registry:`,
-      map(values(cached_creators), c => c.name)
+      map(values(cached_creators), (c) => c.name)
     );
   }
 
   @messageListener()
-  async _attributeAddressToCreatorFromRegistry() {
+  async _attributeAddressToCreatorFromRegistry(): Promise<null> {
     // Attributes addresses to creators that have matching URLs in the registry
-    let registryUrls: string[] = flatten(map(addressRegistry, c => c.urls));
+    const registryUrls: string[] = flatten(map(addressRegistry, (c) => c.urls));
 
-    let creators = await this.creators
+    const creators = await this.creators
       .where('url')
       .anyOf(registryUrls)
       .toArray();
     //console.info(`Found creators with entries in registry: ${creators.length}`);
 
     // Import creators to database
-    let found_creators = filter(
+    const found_creators = filter(
       await Promise.all(
-        map(
-          creators,
-          async (c: ICreator): Promise<ICreator | null> => {
-            let reg_creator = find(
-              addressRegistry,
-              reg_c => intersection(reg_c.urls, c.url).length > 0
-            );
-            if (!reg_creator) return;
+        map(creators, async (c: ICreator): Promise<ICreator | null> => {
+          const reg_creator = _find(
+            addressRegistry,
+            (reg_c) => intersection(reg_c.urls, c.url).length > 0
+          );
+          if (!reg_creator) return;
 
-            await this.updateCreator(c.url[0], {
-              name: reg_creator.name,
-              address: reg_creator['eth address'],
-              url: Array.from(new Set([...c.url, ...reg_creator.urls])),
-            });
+          await this.updateCreator(c.url[0], {
+            name: reg_creator.name,
+            address: reg_creator['eth address'],
+            url: Array.from(new Set([...c.url, ...reg_creator.urls])),
+          });
 
-            let db_creator = await this.getCreator(c.url[0]);
-            return db_creator;
-          }
-        )
+          const db_creator = await this.getCreator(c.url[0]);
+          return db_creator;
+        })
       )
     );
     console.log(
       `Found ${found_creators.length} creators in registry:`,
-      map(found_creators, c => c.name)
+      map(found_creators, (c) => c.name)
     );
     return null;
   }
@@ -567,8 +563,8 @@ export class Database extends Dexie {
       share?: number;
       info?: string;
     } = {}
-  ) {
-    let creators = this.creators;
+  ): Promise<void> {
+    const creators = this.creators;
     const withDefault = (maybe, def) => (maybe === null ? def : maybe);
     this.transaction('rw', creators, async () => {
       let urlSet = new Set([key_url, ...url]);
@@ -576,11 +572,11 @@ export class Database extends Dexie {
       let creator = null;
       // If urlSet is larger than 1, we need to check all the keys if they have a matching creator
       if (urlSet.size > 1) {
-        creator = find(
+        creator = _find(
           await Promise.all(
             map(
               Array.from(urlSet),
-              async url => await creators.get({ url: url })
+              async (_url) => await creators.get({ url: _url })
             )
           )
         );
@@ -592,7 +588,7 @@ export class Database extends Dexie {
         urlSet = new Set([...urlSet, ...creator.url]);
         creator = {
           id: creator.id,
-          url: Array.from(urlSet) as string[],
+          url: Array.from(urlSet),
           name: withDefault(name, creator.name),
           ignore: withDefault(ignore, creator.ignore),
           address: withDefault(address, creator.address),
@@ -604,7 +600,7 @@ export class Database extends Dexie {
         return creators.put(creator);
       } else {
         creator = {
-          url: Array.from(urlSet) as string[],
+          url: Array.from(urlSet),
           name: name,
           ignore: !!ignore,
           address: address,
@@ -619,26 +615,20 @@ export class Database extends Dexie {
   }
 
   @messageListener()
-  async logThank(url: string, title: string) {
-    let activity = await this.activities.get({ url: url });
-    let creator_id = activity !== undefined ? activity.creator_id : undefined;
+  async logThank(url: string, title: string): Promise<number> {
+    const activity = await this.activities.get({ url: url });
+    const creator_id = activity !== undefined ? activity.creator_id : undefined;
     return this.thanks.add(new Thank(url, title, creator_id));
   }
 
   @messageListener()
   async getUrlThanksAmount(url: string): Promise<number> {
     url = canonicalizeUrl(url);
-    return this.thanks
-      .where('url')
-      .equals(url)
-      .count();
+    return this.thanks.where('url').equals(url).count();
   }
 
   @messageListener()
   async getCreatorThanksAmount(creator_id: number): Promise<number> {
-    return this.thanks
-      .where('creator_id')
-      .equals(creator_id)
-      .count();
+    return this.thanks.where('creator_id').equals(creator_id).count();
   }
 }

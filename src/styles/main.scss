@@ -1,0 +1,21 @@
+//@import '~vuetify/src/styles/main';
+
+$font-size-table: 18px;
+
+body a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+td, th {
+  font-size: $font-size-table !important;
+}
+
+th {
+  i {
+    font-size: $font-size-table !important;
+  }
+}

@@ -1,3 +1,5 @@
+/*global process, chrome*/
+
 import moment from 'moment';
 
 let browser;

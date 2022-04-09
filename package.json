@@ -29,7 +29,7 @@
     "lerna": "^4.0.0",
     "material-design-icons-iconfont": "^3.0.3",
     "metamask-extension-provider": "^3.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "regenerator-runtime": "^0.13.2",
     "roboto-fontface": "*",
     "sass": "^1.45.0",

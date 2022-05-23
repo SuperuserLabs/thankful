@@ -69,7 +69,7 @@
     "bluebird": "^3.5.5",
     "chrome-webstore-upload-cli": "^2.0.1",
     "csvtojson": "^2.0.10",
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "eslint": "^7.1",
     "eslint-config-prettier": "^8.0",
     "eslint-plugin-jest": "^21.27.2",

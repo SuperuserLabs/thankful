@@ -17,7 +17,7 @@ describe('valueConstantTicker', () => {
     ticker('value');
     function callback() {
       let elapsed = ticker('value');
-      expect(elapsed).toBeGreaterThan(0.02);
+      expect(elapsed).toBeGreaterThanOrEqual(0.02);
       // Time taken can vary greatly between runs so we have a large margin here to avoid false negatives
       expect(elapsed).toBeLessThan(0.1);
       done();

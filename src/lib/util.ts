@@ -14,13 +14,13 @@ export function isNode(): boolean {
 
 export function isWebExtension(): boolean {
   // TODO: Test in Chrome, Firefox, and in-page
-  console.log('isWebExtension');
+  // console.log('isWebExtension');
   return !!(window && window.chrome && browser.runtime && browser.runtime.id);
 }
 
 export function isBackgroundPage(): boolean {
   // TODO: Test
-  console.log('isBackgroundPage');
+  // console.log('isBackgroundPage');
   return isWebExtension() && chrome.extension.getBackgroundPage() === window;
 }
 

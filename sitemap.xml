@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://superuserlabs.org/blog/welcome-to-jekyll/</loc>
+<lastmod>2023-11-04T17:40:14+01:00</lastmod>
+</url>
+<url>
+<loc>https://superuserlabs.org/thankful/creator.html</loc>
+<lastmod>2023-11-04T17:40:14+01:00</lastmod>
+</url>
+<url>
+<loc>https://superuserlabs.org/thankful/donor.html</loc>
+<lastmod>2023-11-04T17:40:14+01:00</lastmod>
+</url>
+<url>
+<loc>https://superuserlabs.org/thankful/</loc>
+<lastmod>2023-11-04T17:54:25+01:00</lastmod>
+</url>
+<url>
+<loc>https://superuserlabs.org/</loc>
+<lastmod>2023-11-04T17:40:14+01:00</lastmod>
+</url>
+</urlset>
